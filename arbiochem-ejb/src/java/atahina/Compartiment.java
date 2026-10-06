@@ -13,6 +13,7 @@ public class Compartiment extends ClassMAPTable{
     
     
     public Compartiment() {
+        setNomTable("COMPARTIMENT");
     }
 
     @Override
@@ -46,15 +47,7 @@ public class Compartiment extends ClassMAPTable{
         this.capacite = capacite;
     }
 
-    @Override
-    public String getAttributIDName() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAttributIDName'");
-    }
+    @Override public String getAttributIDName() { return "id"; } // "comment s'appelle le champ PK ?"
 
-    @Override
-    public String getTuppleID() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTuppleID'");
-    }
+    @Override public String getTuppleID()       { return id; }  // "quelle est la valeur de la PK ?"
 }

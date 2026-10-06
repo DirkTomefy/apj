@@ -33,7 +33,7 @@
   <h1>Saisie d'un objet</h1>
 
   <form action="<%= p.getLien() %>?but=apresTarif.jsp" method="post">
-    <% out.println(p.getHtmlInsert()); %>
+  <% out.println(p.getFormu().getHtmlInsert()); %>
 
     <input type="hidden" name="acte"     value="insert" />
     <input type="hidden" name="bute"     value="monpackage/monobjet-fiche.jsp" />
