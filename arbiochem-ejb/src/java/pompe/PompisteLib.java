@@ -5,7 +5,7 @@
  */
 package pompe;
 
-import utilisateursocobis.UtilisateurStation;
+import utilisateurstation.UtilisateurStation;
 
 /**
  *
