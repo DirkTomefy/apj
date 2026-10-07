@@ -9,7 +9,6 @@ import chatbot.AiColDesc;
 import chatbot.AiTabDesc;
 import chatbot.ClassIA;
 import encaissement.EncaissementDetails;
-import utils.ConstanteAsync;
 
 import java.sql.Date;
 

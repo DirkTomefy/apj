@@ -8,7 +8,7 @@ package avoir;
 import bean.CGenUtil;
 import bean.ClassFille;
 import prevision.Prevision;
-import prevision.PrevisionComplet;
+
 import produits.Ingredients;
 import utilitaire.UtilDB;
 

@@ -10,15 +10,13 @@ import bean.*;
 import chatbot.AiColDesc;
 import chatbot.AiTabDesc;
 import chatbot.ClassIA;
-import client.Client;
-import com.google.gson.Gson;
+
 import constante.ConstanteEtat;
 
 import facture.tr.Traite;
 import faturefournisseur.FactureFournisseur;
 import faturefournisseur.FactureFournisseurCpl;
-import faturefournisseur.Fournisseur;
-import magasin.Magasin;
+
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -39,13 +37,13 @@ import pertegain.Tiers;
 import prevision.MvtCaissePrevision;
 import prevision.Prevision;
 import prevision.PrevisionComplet;
-import utilitaire.ConstanteCompta;
+
 import utilitaire.ConstanteComptable;
 import utilitaire.UtilDB;
 import utilitaire.Utilitaire;
 import utils.ConstanteAsync;
 import utils.ConstanteSocobis;
-import utils.ConstanteStation;
+
 import vente.FactureCF;
 import vente.Vente;
 import vente.VenteLib;

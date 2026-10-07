@@ -10,11 +10,9 @@ import bean.ClassEtat;
 import inventaire.Inventaire;
 import inventaire.InventaireFille;
 import java.sql.Connection;
-import java.sql.Date;
-import java.time.LocalDateTime;
+
 import magasin.Magasin;
-import utilitaire.Utilitaire;
-import utils.ConstanteStation;
+
 import utils.ConstanteEtatCustom;
 
 /**

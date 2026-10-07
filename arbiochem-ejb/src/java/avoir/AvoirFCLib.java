@@ -8,8 +8,7 @@ package avoir;
 import bean.CGenUtil;
 import java.sql.Connection;
 import utilitaire.UtilDB;
-import vente.Vente;
-import vente.VenteDetails;
+
 
 /**
  *

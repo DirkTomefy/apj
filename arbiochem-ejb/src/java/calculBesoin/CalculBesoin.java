@@ -1,7 +1,6 @@
 package calculBesoin;
 
 import bean.CGenUtil;
-import bean.ClassMAPTable;
 import bean.ClassMere;
 import utilitaire.UtilDB;
 

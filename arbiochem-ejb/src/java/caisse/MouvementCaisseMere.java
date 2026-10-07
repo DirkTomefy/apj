@@ -2,9 +2,9 @@ package caisse;
 import java.sql.Connection;
 
 import bean.*;
-import mg.cnaps.compta.ecriture.ComptaEcritureFille;
+
 import paiement.LiaisonPaiement;
-import utils.ConstanteAsync;
+
 
 public class MouvementCaisseMere extends ClassMere{
     String id,designation,idmodepaiement,idtiers,idorigine,idtierslib,etatlib;

@@ -6,8 +6,7 @@
 package annexe;
 
 import bean.ClassMAPTable;
-import java.sql.Connection;
-import java.sql.Date;
+
 
 /**
  *

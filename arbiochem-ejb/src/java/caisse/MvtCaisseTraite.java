@@ -1,6 +1,5 @@
 package caisse;
 
-import java.sql.Date;
 
 public class MvtCaisseTraite extends MvtCaisse {
     String valcaisse, libelle, etatversementlib, etatlib;

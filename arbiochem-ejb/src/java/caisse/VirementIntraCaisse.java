@@ -6,8 +6,7 @@
 package caisse;
 
 import bean.ClassEtat;
-import bean.ClassMAPTable;
-import constante.ConstanteEtat;
+
 import java.sql.Connection;
 import java.sql.Date;
 

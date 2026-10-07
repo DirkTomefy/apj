@@ -5,10 +5,8 @@
  */
 package caisse;
 
-import bean.ClassEtat;
 import bean.ClassMAPTable;
-import java.sql.Connection;
-import java.sql.Date;
+
 
 /**
  *

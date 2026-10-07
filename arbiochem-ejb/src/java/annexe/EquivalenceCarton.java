@@ -1,7 +1,7 @@
 package annexe;
 
 import bean.ClassMAPTable;
-import utilitaire.UtilDB;
+
 import vente.EquivalenceVente;
 
 import java.sql.Connection;

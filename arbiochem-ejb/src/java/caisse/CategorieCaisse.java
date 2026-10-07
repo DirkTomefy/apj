@@ -6,7 +6,7 @@
 package caisse;
 
 import bean.TypeObjet;
-import java.sql.Connection;
+
 
 /**
  *

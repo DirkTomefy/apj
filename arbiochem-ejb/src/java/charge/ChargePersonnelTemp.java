@@ -8,7 +8,7 @@ import fabrication.RessourceParFabrication;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import paie.edition.PaieEditionmoisannee;
+
 import paie.employe.PaieInfoPersonnel;
 import rh.QualificationPaie;
 import utilitaire.UtilDB;

@@ -1,7 +1,7 @@
 <project name="deploy-ejb-arbiochem" default="deploy" basedir="./build-file">
     <property environment="env"/>
 
-    <property name="deploy.dir" value="/home/tomefy/Documents/deploy/wildfly-10.1.0.Final/standalone/deployments"/>
+    <property name="deploy.dir" value="/home/tomefydirk/Documents/deploy/wildfly-10.1.0.Final/standalone/deployments"/>
 
 
     <property name="arbiochem-warname" value="arbiochem.war"/>

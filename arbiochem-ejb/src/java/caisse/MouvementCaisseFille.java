@@ -7,12 +7,9 @@ import bean.CGenUtil;
 import bean.ClassFille;
 import constante.ConstanteEtat;
 import facture.tr.Traite;
-import faturefournisseur.FactureFournisseurCpl;
-import paiement.LiaisonPaiement;
 import prevision.MvtCaissePrevision;
 import prevision.PrevisionComplet;
 import utilitaire.UtilDB;
-import vente.VenteLib;
 
 public class MouvementCaisseFille extends ClassFille {
     private String id,designation,idCaisse,idVenteDetail,idVirement,idOp,idOrigine, idtraite,idTiers;

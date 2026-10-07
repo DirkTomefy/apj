@@ -25,8 +25,7 @@ import mg.cnaps.compta.ComptaLettrage;
 import mg.cnaps.compta.ComptaSousEcriture;
 import prevision.Prevision;
 import prevision.PrevisionComplet;
-import rapport.Utilitaire;
-import ristourne.Ristourne;
+
 import ristourne.RistourneDetails;
 import stock.MvtStock;
 import stock.MvtStockFille;
@@ -397,7 +396,7 @@ public class AvoirFC extends ClassMere{
             int taille = details.length;
             compta = new ComptaSousEcriture[taille+2];
             int i=0;
-            for(i=i;i<taille;i++){ 
+            for(i=0;i<taille;i++){ 
                 compta[i]=new ComptaSousEcriture();
                 compta[i].setLibellePiece(this.getDesignation());
                 compta[i].setRemarque(details[i].getDesignation());
