@@ -23,13 +23,13 @@
     pi.getFormu().getChamp("idlieureception").setLibelle("Lieu de réception");
     pi.getFormu().getChamp("idboncommandepoussin").setLibelle("Bon de commande");
     pi.getFormu().getChamp("idbonreceptionprecedent").setLibelle("BR antécédent");
-    pi.getFormu().getChamp("fournisseur").setLibelle("Fournisseur");
+    pi.getFormu().getChamp("idfournisseur").setLibelle("Fournisseur");
     pi.getFormu().getChamp("remarque").setLibelle("Remarque");
     pi.getFormu().getChamp("est_final").setLibelle("Final");
     pi.getFormu().getChamp("etat").setVisible(false);
     pi.getFormu().getChamp("daty").setDefaut(utilitaire.Utilitaire.dateDuJour());
 
-    pi.getFormu().getChamp("fournisseur").setPageAppelComplete(
+    pi.getFormu().getChamp("idfournisseur").setPageAppelComplete(
         "faturefournisseur.Fournisseur", "id", "FOURNISSEUR");
 
     Liste[] listes = new Liste[3];

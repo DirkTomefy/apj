@@ -21,7 +21,7 @@
     pi.getFormu().getChamp("daty").setLibelle("Date");
     pi.getFormu().getChamp("reference").setLibelle("Référence");
     pi.getFormu().getChamp("datelimite").setLibelle("Date limite");
-    pi.getFormu().getChamp("fournisseur").setLibelle("Fournisseur");
+    pi.getFormu().getChamp("idfournisseur").setLibelle("Fournisseur");
     pi.getFormu().getChamp("modepaiement").setLibelle("Mode de paiement");
     pi.getFormu().getChamp("iddevise").setLibelle("Devise");
     pi.getFormu().getChamp("idmagasin").setLibelle("Magasin");
@@ -29,11 +29,11 @@
     pi.getFormu().getChamp("etat").setVisible(false);
     pi.getFormu().getChamp("daty").setDefaut(utilitaire.Utilitaire.dateDuJour());
 
-    pi.getFormu().getChamp("fournisseur").setPageAppelComplete(
+    pi.getFormu().getChamp("idfournisseur").setPageAppelComplete(
         "faturefournisseur.Fournisseur", "id", "FOURNISSEUR");
-    pi.getFormu().getChamp("fournisseur").setPageAppelInsert(
+    pi.getFormu().getChamp("idfournisseur").setPageAppelInsert(
         "fournisseur/fournisseur-saisie.jsp",
-        "fournisseur;fournisseurlibelle", "id;nom");
+        "idfournisseur;idfournisseurlibelle", "id;nom");
 
     Liste[] listes = new Liste[3];
     listes[0] = new Liste("iddevise", new Devise(), "val", "id");
