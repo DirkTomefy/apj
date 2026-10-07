@@ -44,16 +44,9 @@ public class InsertionCompartiment extends ClassMere {
         return super.createObject(u, c);
     }
 
-    /**
-     * Vérifie qu'aucun compartiment cible n'est déjà occupé par une insertion
-     * "finale" d'une AUTRE mère.
-     *
-     * Note : `this.getId()` peut être null au moment du check (avant
-     * `construirePK`). Dans ce cas on n'exclut aucune mère, ce qui est OK
-     * car aucun enregistrement en base n'a idmere = null.
-     */
     public void checkCompartimentsLibres() throws Exception {
-        InsertionCompartimentFille[] filles = (InsertionCompartimentFille[]) this.getFille();
+        InsertionCompartimentFille[] filles =
+            (InsertionCompartimentFille[]) this.getFille();
         if (filles == null || filles.length == 0) return;
 
         for (InsertionCompartimentFille f : filles) {
@@ -79,7 +72,8 @@ public class InsertionCompartiment extends ClassMere {
     }
 
     public void chargerFillesLib(Connection c) throws Exception {
-        this.getFille("INSERTION_COMPARTIMENT_FILLE_LIB", c, " and idmere = '" + this.getId() + "'");
+        this.getFille("INSERTION_COMPARTIMENT_FILLE_LIB", c,
+                      " and idmere = '" + this.getId() + "'");
     }
 
     // ---- Getters / setters ----

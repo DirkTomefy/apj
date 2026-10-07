@@ -16,6 +16,7 @@ public class InsertionCompartimentFille extends ClassFille {
     private String idlot;
     private int    est_final = 0;
 
+    // Champs joints (lecture)
     private String compartimentlib;
     private String produitlib;
     private String sexelib;
@@ -39,11 +40,7 @@ public class InsertionCompartimentFille extends ClassFille {
     @Override public String getNomClasseMere()  { return "a_tahina.poussin.InsertionCompartiment"; }
     @Override public String getLiaisonMere()    { return "idmere"; }
 
-    public void setSante(int sante) throws Exception {
-        if (getMode().equals("modif") && (sante < 1 || sante > 10))
-            throw new Exception("Santé doit être entre 1 et 10");
-        this.sante = sante;
-    }
+    // ---- Getters / setters ----
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
@@ -60,10 +57,16 @@ public class InsertionCompartimentFille extends ClassFille {
     public String getSexe() { return sexe; }
     public void setSexe(String sexe) { this.sexe = sexe; }
     public int getSante() { return sante; }
+    public void setSante(int sante) throws Exception {
+        if (getMode().equals("modif") && (sante < 1 || sante > 10))
+            throw new Exception("Santé doit être entre 1 et 10");
+        this.sante = sante;
+    }
     public String getIdlot() { return idlot; }
     public void setIdlot(String idlot) { this.idlot = idlot; }
     public int getEst_final() { return est_final; }
     public void setEst_final(int est_final) { this.est_final = est_final; }
+
     public String getCompartimentlib() { return compartimentlib; }
     public void setCompartimentlib(String v) { this.compartimentlib = v; }
     public String getProduitlib() { return produitlib; }
