@@ -1,0 +1,34 @@
+
+- Bon de commande poussin :
+*Date de commmande
+*Desc
+* idmagasin
+
+- Bon de commande fille : 
+*Produit (depuis as ingrédients)
+* qte
+* pu
+
+- Bon de réception : 
+* Lieu de réception  
+* TypeReception (Aéroport , Intérmédiaire , Magasin)
+* IDMAGASIN (nullable si on a est à l'aéroport)
+
+- Bon de réception fille
+* Bon de réception antécédent
+* maty
+* very
+
+-Compartiment :
+Nom
+Capacite
+
+-Sante Poussin : SAIN ,MARARY
+-InsertionCompartiment 
+-Compartiment 
+_Qte
+-sexe
+-Sante
+
+
+
