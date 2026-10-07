@@ -50,15 +50,69 @@ CREATE SEQUENCE SEQ_TYPERECEPTION      START WITH 1;
 -- 3. FONCTIONS APJ
 -- ============================================================================
 
-CREATE OR REPLACE FUNCTION GETSEQBCPOUSSIN          RETURN NUMBER IS v NUMBER; BEGIN SELECT SEQ_BCPOUSSIN.NEXTVAL          INTO v FROM DUAL; RETURN v; END; /
-CREATE OR REPLACE FUNCTION GETSEQBCPOUSSINFILLE     RETURN NUMBER IS v NUMBER; BEGIN SELECT SEQ_BCPOUSSINFILLE.NEXTVAL     INTO v FROM DUAL; RETURN v; END; /
-CREATE OR REPLACE FUNCTION GETSEQBRPOUSSIN          RETURN NUMBER IS v NUMBER; BEGIN SELECT SEQ_BRPOUSSIN.NEXTVAL          INTO v FROM DUAL; RETURN v; END; /
-CREATE OR REPLACE FUNCTION GETSEQBRPOUSSINFILLE     RETURN NUMBER IS v NUMBER; BEGIN SELECT SEQ_BRPOUSSINFILLE.NEXTVAL     INTO v FROM DUAL; RETURN v; END; /
-CREATE OR REPLACE FUNCTION GETSEQINSERTIONCOMP      RETURN NUMBER IS v NUMBER; BEGIN SELECT SEQ_INSERTIONCOMP.NEXTVAL      INTO v FROM DUAL; RETURN v; END; /
-CREATE OR REPLACE FUNCTION GETSEQINSERTIONCOMPFILLE RETURN NUMBER IS v NUMBER; BEGIN SELECT SEQ_INSERTIONCOMPFILLE.NEXTVAL INTO v FROM DUAL; RETURN v; END; /
-CREATE OR REPLACE FUNCTION GETSEQCOMPARTIMENT       RETURN NUMBER IS v NUMBER; BEGIN SELECT SEQ_COMPARTIMENT.NEXTVAL       INTO v FROM DUAL; RETURN v; END; /
-CREATE OR REPLACE FUNCTION GETSEQSANTEPOUSSIN       RETURN NUMBER IS v NUMBER; BEGIN SELECT SEQ_SANTEPOUSSIN.NEXTVAL       INTO v FROM DUAL; RETURN v; END; /
-CREATE OR REPLACE FUNCTION GETSEQTYPERECEPTION      RETURN NUMBER IS v NUMBER; BEGIN SELECT SEQ_TYPERECEPTION.NEXTVAL      INTO v FROM DUAL; RETURN v; END; /
+CREATE OR REPLACE FUNCTION GETSEQBCPOUSSIN RETURN NUMBER IS
+    v NUMBER;
+BEGIN
+    SELECT SEQ_BCPOUSSIN.NEXTVAL INTO v FROM DUAL;
+    RETURN v;
+END;
+/
+CREATE OR REPLACE FUNCTION GETSEQBCPOUSSINFILLE RETURN NUMBER IS
+    v NUMBER;
+BEGIN
+    SELECT SEQ_BCPOUSSINFILLE.NEXTVAL INTO v FROM DUAL;
+    RETURN v;
+END;
+/
+CREATE OR REPLACE FUNCTION GETSEQBRPOUSSIN RETURN NUMBER IS
+    v NUMBER;
+BEGIN
+    SELECT SEQ_BRPOUSSIN.NEXTVAL INTO v FROM DUAL;
+    RETURN v;
+END;
+/
+CREATE OR REPLACE FUNCTION GETSEQBRPOUSSINFILLE RETURN NUMBER IS
+    v NUMBER;
+BEGIN
+    SELECT SEQ_BRPOUSSINFILLE.NEXTVAL INTO v FROM DUAL;
+    RETURN v;
+END;
+/
+CREATE OR REPLACE FUNCTION GETSEQINSERTIONCOMP RETURN NUMBER IS
+    v NUMBER;
+BEGIN
+    SELECT SEQ_INSERTIONCOMP.NEXTVAL INTO v FROM DUAL;
+    RETURN v;
+END;
+/
+CREATE OR REPLACE FUNCTION GETSEQINSERTIONCOMPFILLE RETURN NUMBER IS
+    v NUMBER;
+BEGIN
+    SELECT SEQ_INSERTIONCOMPFILLE.NEXTVAL INTO v FROM DUAL;
+    RETURN v;
+END;
+/
+CREATE OR REPLACE FUNCTION GETSEQCOMPARTIMENT RETURN NUMBER IS
+    v NUMBER;
+BEGIN
+    SELECT SEQ_COMPARTIMENT.NEXTVAL INTO v FROM DUAL;
+    RETURN v;
+END;
+/
+CREATE OR REPLACE FUNCTION GETSEQSANTEPOUSSIN RETURN NUMBER IS
+    v NUMBER;
+BEGIN
+    SELECT SEQ_SANTEPOUSSIN.NEXTVAL INTO v FROM DUAL;
+    RETURN v;
+END;
+/
+CREATE OR REPLACE FUNCTION GETSEQTYPERECEPTION RETURN NUMBER IS
+    v NUMBER;
+BEGIN
+    SELECT SEQ_TYPERECEPTION.NEXTVAL INTO v FROM DUAL;
+    RETURN v;
+END;
+/
 
 
 -- ============================================================================
@@ -69,6 +123,7 @@ CREATE OR REPLACE FUNCTION GETSEQTYPERECEPTION      RETURN NUMBER IS v NUMBER; B
 CREATE TABLE BONCOMMANDE_POUSSIN (
     id           VARCHAR2(30) PRIMARY KEY,
     daty         DATE,
+    reference    VARCHAR2(100),
     descri       VARCHAR2(500),
     idmagasin    VARCHAR2(30),
     etat         NUMBER(2) DEFAULT 1,
@@ -192,6 +247,7 @@ ALTER TABLE INSERTION_COMPARTIMENT_FILLE ADD CONSTRAINT fk_icf_sant FOREIGN KEY 
 -- ============================================================================
 
 CREATE INDEX idx_bcp_daty   ON BONCOMMANDE_POUSSIN (daty);
+CREATE INDEX idx_bcp_ref    ON BONCOMMANDE_POUSSIN (reference);
 CREATE INDEX idx_bcpf_mr    ON BONCOMMANDE_POUSSIN_FILLE (idmere);
 CREATE INDEX idx_bcpf_prd   ON BONCOMMANDE_POUSSIN_FILLE (idproduit);
 CREATE INDEX idx_bcpf_souch ON BONCOMMANDE_POUSSIN_FILLE (idsouche);
@@ -213,8 +269,9 @@ CREATE INDEX idx_icf_cmp    ON INSERTION_COMPARTIMENT_FILLE (idcompartiment);
 -- 8. VUES
 -- ============================================================================
 
+-- BC Poussin (mère)
 CREATE OR REPLACE VIEW BONCOMMANDE_POUSSIN_LIB AS
-SELECT bcp.id, bcp.daty, bcp.descri, bcp.idmagasin, bcp.etat, bcp.remarque,
+SELECT bcp.id, bcp.daty, bcp.reference, bcp.descri, bcp.idmagasin, bcp.etat, bcp.remarque,
        m.val AS idmagasinlib,
        CASE bcp.etat WHEN 0 THEN 'Annule' WHEN 1 THEN 'Cree'
                      WHEN 11 THEN 'Vise' WHEN 9 THEN 'Cloture'
@@ -222,6 +279,7 @@ SELECT bcp.id, bcp.daty, bcp.descri, bcp.idmagasin, bcp.etat, bcp.remarque,
 FROM BONCOMMANDE_POUSSIN bcp
 LEFT JOIN MAGASIN2 m ON m.id = bcp.idmagasin;
 
+-- BC Poussin (fille)
 CREATE OR REPLACE VIEW BONCOMMANDE_POUSSIN_FILLE_LIB AS
 SELECT bcpf.*,
        i.libelle AS produitlib,
@@ -231,6 +289,7 @@ FROM BONCOMMANDE_POUSSIN_FILLE bcpf
 LEFT JOIN AS_INGREDIENTS i ON i.id = bcpf.idproduit
 LEFT JOIN SOUCHE         s ON s.id = bcpf.idsouche;
 
+-- BR Poussin (mère) — corrigé avec bc.reference
 CREATE OR REPLACE VIEW BONRECEPTION_POUSSIN_LIB AS
 SELECT brp.id, brp.daty, brp.reference,
        brp.idboncommande, brp.idbrprecedent,
@@ -248,6 +307,7 @@ LEFT JOIN BONRECEPTION_POUSSIN brq ON brq.id = brp.idbrprecedent
 LEFT JOIN TYPERECEPTION        tr  ON tr.id  = brp.typereception
 LEFT JOIN MAGASIN2             m   ON m.id   = brp.idmagasin;
 
+-- BR Poussin (fille)
 CREATE OR REPLACE VIEW BONRECEPTION_POUSSIN_FILLE_LIB AS
 SELECT brpf.*,
        i.libelle AS produitlib,
@@ -257,10 +317,12 @@ FROM BONRECEPTION_POUSSIN_FILLE brpf
 LEFT JOIN AS_INGREDIENTS i ON i.id = brpf.idproduit
 LEFT JOIN SOUCHE         s ON s.id = brpf.idsouche;
 
+-- Compartiment
 CREATE OR REPLACE VIEW COMPARTIMENT_LIB AS
 SELECT c.id, c.nom, c.capacite
 FROM COMPARTIMENT c;
 
+-- Insertion Compartiment (mère)
 CREATE OR REPLACE VIEW INSERTION_COMPARTIMENT_LIB AS
 SELECT ic.id, ic.daty, ic.reference, ic.idbonreception, ic.etat, ic.remarque,
        brp.reference AS idbonreceptionlib,
@@ -270,7 +332,8 @@ SELECT ic.id, ic.daty, ic.reference, ic.idbonreception, ic.etat, ic.remarque,
 FROM INSERTION_COMPARTIMENT ic
 LEFT JOIN BONRECEPTION_POUSSIN brp ON brp.id = ic.idbonreception;
 
-CREATE OR REPLACE VIEW INSERTION_COMPARTIMENT_FILLE_LIB AS
+-- Insertion Compartiment (fille) — NOM RACCOURCI (25 chars)
+CREATE OR REPLACE VIEW INSERTION_COMP_FILLE_LIB AS
 SELECT icf.*,
        c.nom    AS compartimentlib,
        s.val    AS sexelib,
@@ -286,7 +349,7 @@ LEFT JOIN SANTEPOUSSIN sp ON sp.id = icf.idsante;
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
--- 9.1. Créer les menus
+-- 9.1. Menus
 -- ----------------------------------------------------------------------------
 
 INSERT INTO MENUDYNAMIQUE (ID, LIBELLE, ICONE, HREF, RANG, NIVEAU, ID_PERE)
@@ -317,14 +380,8 @@ COMMIT;
 
 
 -- ----------------------------------------------------------------------------
--- 9.2. Rattacher les menus au rôle "resp"
+-- 9.2. Rattachement au rôle "resp"
 -- ----------------------------------------------------------------------------
-
-DELETE FROM usermenu
-WHERE IDMENU IN (
-    'MENUPOUSSON','MENUPOUSSON_BC','MENUPOUSSON_BR',
-    'MENUPOUSSON_CMP','MENUPOUSSON_IC','MENUPOUSSON_SP'
-);
 
 INSERT INTO usermenu (id, IDMENU, idrole, INTERDIT)
 VALUES (sequsermenu.nextval, 'MENUPOUSSON',     'resp', 0);
@@ -351,7 +408,7 @@ COMMIT;
 -- 10. VÉRIFICATION FINALE
 -- ============================================================================
 
--- 10.1. Tables (doit retourner 9 lignes)
+-- 10.1. Tables (9 lignes attendues)
 SELECT table_name FROM user_tables
 WHERE table_name IN (
     'BONCOMMANDE_POUSSIN','BONCOMMANDE_POUSSIN_FILLE',
@@ -360,7 +417,7 @@ WHERE table_name IN (
     'SANTEPOUSSIN','TYPERECEPTION'
 );
 
--- 10.2. Séquences (doit retourner 9 lignes)
+-- 10.2. Séquences (9 lignes)
 SELECT sequence_name FROM user_sequences
 WHERE sequence_name IN (
     'SEQ_BCPOUSSIN','SEQ_BCPOUSSINFILLE',
@@ -369,7 +426,7 @@ WHERE sequence_name IN (
     'SEQ_COMPARTIMENT','SEQ_SANTEPOUSSIN','SEQ_TYPERECEPTION'
 );
 
--- 10.3. Fonctions (doit retourner 9 lignes)
+-- 10.3. Fonctions (9 lignes)
 SELECT object_name FROM user_objects
 WHERE object_type = 'FUNCTION'
   AND object_name IN (
@@ -379,32 +436,30 @@ WHERE object_type = 'FUNCTION'
     'GETSEQCOMPARTIMENT','GETSEQSANTEPOUSSIN','GETSEQTYPERECEPTION'
   );
 
--- 10.4. Vues (doit retourner 7 lignes)
+-- 10.4. Vues (7 lignes)
 SELECT view_name FROM user_views
 WHERE view_name IN (
     'BONCOMMANDE_POUSSIN_LIB','BONCOMMANDE_POUSSIN_FILLE_LIB',
     'BONRECEPTION_POUSSIN_LIB','BONRECEPTION_POUSSIN_FILLE_LIB',
-    'COMPARTIMENT_LIB','INSERTION_COMPARTIMENT_LIB','INSERTION_COMPARTIMENT_FILLE_LIB'
+    'COMPARTIMENT_LIB','INSERTION_COMPARTIMENT_LIB','INSERTION_COMP_FILLE_LIB'
 );
 
 -- 10.5. Dictionnaires
 SELECT * FROM SANTEPOUSSIN;    -- 2 lignes
 SELECT * FROM TYPERECEPTION;   -- 3 lignes
 
--- 10.6. Menus (doit retourner 6 lignes)
+-- 10.6. Menus (6 lignes)
 SELECT id, libelle, niveau FROM MENUDYNAMIQUE
-WHERE id LIKE 'MENUPOUSSON%'
-ORDER BY niveau, rang;
+WHERE id LIKE 'MENUPOUSSON%' ORDER BY niveau, rang;
 
--- 10.7. usermenu (doit retourner 6 lignes)
+-- 10.7. usermenu (6 lignes)
 SELECT id, IDMENU, idrole, INTERDIT FROM usermenu
-WHERE IDMENU LIKE 'MENUPOUSSON%'
-ORDER BY IDMENU;
+WHERE IDMENU LIKE 'MENUPOUSSON%' ORDER BY IDMENU;
 
--- 10.8. Test séquence (doit retourner 1)
-SELECT GETSEQBCPOUSSIN FROM DUAL;
+-- 10.8. Test séquence
+SELECT GETSEQBCPOUSSIN FROM DUAL;   -- 1
 
 
 -- ============================================================================
--- FIN DU SCRIPT
+-- FIN
 -- ============================================================================

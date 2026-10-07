@@ -1,147 +1,153 @@
 -- ============================================================================
---  DROP COMPLET — Module Poussin
---  Version explicite (constraint par constraint)
+--  MODULE POUSSIN — Script de DROP complet
 -- ============================================================================
+SET SERVEROUTPUT ON;
 
--- ============================================================================
--- 1. VUES
--- ============================================================================
-DROP VIEW BONCOMMANDE_POUSSIN_LIB;
-DROP VIEW BONCOMMANDE_POUSSIN_FILLE_LIB;
-DROP VIEW BONRECEPTION_POUSSIN_LIB;
-DROP VIEW BONRECEPTION_POUSSIN_FILLE_LIB;
-DROP VIEW INSERTION_COMPARTIMENT_LIB;
-DROP VIEW INSERTION_COMPARTIMENT_FILLE_LIB;
+BEGIN
+    -- ------------------------------------------------------------------------
+    -- 1. Vues
+    -- ------------------------------------------------------------------------
+    FOR v IN (SELECT view_name FROM user_views
+              WHERE view_name IN (
+                  'BONCOMMANDE_POUSSIN_LIB',
+                  'BONCOMMANDE_POUSSIN_FILLE_LIB',
+                  'BONRECEPTION_POUSSIN_LIB',
+                  'BONRECEPTION_POUSSIN_FILLE_LIB',
+                  'COMPARTIMENT_LIB',
+                  'INSERTION_COMPARTIMENT_LIB',
+                  'INSERTION_COMP_FILLE_LIB',
+                  'INSERTION_COMPARTIMENT_FILLE_LIB'
+              ))
+    LOOP
+        BEGIN
+            EXECUTE IMMEDIATE 'DROP VIEW ' || v.view_name;
+            DBMS_OUTPUT.PUT_LINE('OK : DROP VIEW ' || v.view_name);
+        EXCEPTION WHEN OTHERS THEN
+            DBMS_OUTPUT.PUT_LINE('SKIP: ' || v.view_name || ' -> ' || SQLERRM);
+        END;
+    END LOOP;
 
+    -- ------------------------------------------------------------------------
+    -- 2. Tables (filles d'abord, puis mères)
+    -- ------------------------------------------------------------------------
+    FOR t IN (SELECT table_name FROM user_tables
+              WHERE table_name IN (
+                  'INSERTION_COMPARTIMENT_FILLE',
+                  'INSERTION_COMPARTIMENT',
+                  'BONRECEPTION_POUSSIN_FILLE',
+                  'BONRECEPTION_POUSSIN',
+                  'BONCOMMANDE_POUSSIN_FILLE',
+                  'BONCOMMANDE_POUSSIN',
+                  'COMPARTIMENT',
+                  'SANTEPOUSSIN',
+                  'TYPERECEPTION'
+              )
+              ORDER BY CASE
+                  WHEN table_name LIKE '%FILLE%' THEN 1
+                  ELSE 2
+              END)
+    LOOP
+        BEGIN
+            EXECUTE IMMEDIATE 'DROP TABLE ' || t.table_name || ' CASCADE CONSTRAINTS';
+            DBMS_OUTPUT.PUT_LINE('OK : DROP TABLE ' || t.table_name);
+        EXCEPTION WHEN OTHERS THEN
+            DBMS_OUTPUT.PUT_LINE('SKIP: ' || t.table_name || ' -> ' || SQLERRM);
+        END;
+    END LOOP;
 
--- ============================================================================
--- 2. CONTRAINTES CHECK
--- ============================================================================
-ALTER TABLE BONCOMMANDE_POUSSIN          DROP CONSTRAINT ck_bcp_etat;
-ALTER TABLE BONRECEPTION_POUSSIN         DROP CONSTRAINT ck_brp_etat;
-ALTER TABLE INSERTION_COMPARTIMENT       DROP CONSTRAINT ck_ic_etat;
+    -- ------------------------------------------------------------------------
+    -- 3. Séquences internes
+    -- ------------------------------------------------------------------------
+    FOR s IN (SELECT sequence_name FROM user_sequences
+              WHERE sequence_name IN (
+                  'SEQ_BCPOUSSIN','SEQ_BCPOUSSINFILLE',
+                  'SEQ_BRPOUSSIN','SEQ_BRPOUSSINFILLE',
+                  'SEQ_INSERTIONCOMP','SEQ_INSERTIONCOMPFILLE',
+                  'SEQ_COMPARTIMENT','SEQ_SANTEPOUSSIN','SEQ_TYPERECEPTION'
+              ))
+    LOOP
+        BEGIN
+            EXECUTE IMMEDIATE 'DROP SEQUENCE ' || s.sequence_name;
+            DBMS_OUTPUT.PUT_LINE('OK : DROP SEQUENCE ' || s.sequence_name);
+        EXCEPTION WHEN OTHERS THEN
+            DBMS_OUTPUT.PUT_LINE('SKIP: ' || s.sequence_name || ' -> ' || SQLERRM);
+        END;
+    END LOOP;
 
-ALTER TABLE BONRECEPTION_POUSSIN         DROP CONSTRAINT ck_brp_fin;
-ALTER TABLE INSERTION_COMPARTIMENT_FILLE DROP CONSTRAINT ck_icf_fin;
-ALTER TABLE INSERTION_COMPARTIMENT_FILLE DROP CONSTRAINT ck_icf_sante;
-
-ALTER TABLE BONCOMMANDE_POUSSIN_FILLE    DROP CONSTRAINT ck_bcpf_sx;
-ALTER TABLE BONRECEPTION_POUSSIN_FILLE   DROP CONSTRAINT ck_brpf_sx;
-ALTER TABLE INSERTION_COMPARTIMENT_FILLE DROP CONSTRAINT ck_icf_sx;
-
-ALTER TABLE BONCOMMANDE_POUSSIN_FILLE    DROP CONSTRAINT ck_bcpf_qte;
-ALTER TABLE BONRECEPTION_POUSSIN_FILLE   DROP CONSTRAINT ck_brpf_qte;
-ALTER TABLE INSERTION_COMPARTIMENT_FILLE DROP CONSTRAINT ck_icf_qte;
-
-ALTER TABLE BONCOMMANDE_POUSSIN_FILLE    DROP CONSTRAINT ck_bcpf_rem;
-ALTER TABLE BONCOMMANDE_POUSSIN_FILLE    DROP CONSTRAINT ck_bcpf_tva;
-ALTER TABLE BONCOMMANDE_POUSSIN_FILLE    DROP CONSTRAINT ck_bcpf_tx;
-ALTER TABLE BONRECEPTION_POUSSIN_FILLE   DROP CONSTRAINT ck_brpf_tx;
-
-
--- ============================================================================
--- 3. CONTRAINTES UNIQUE
--- ============================================================================
-ALTER TABLE BONCOMMANDE_POUSSIN    DROP CONSTRAINT uk_bcp_ref;
-ALTER TABLE BONRECEPTION_POUSSIN   DROP CONSTRAINT uk_brp_ref;
-ALTER TABLE INSERTION_COMPARTIMENT DROP CONSTRAINT uk_ic_ref;
-
-
--- ============================================================================
--- 4. CLÉS ÉTRANGÈRES (filles d'abord, mères ensuite)
--- ============================================================================
-
--- Insertion compartiment fille
-ALTER TABLE INSERTION_COMPARTIMENT_FILLE DROP CONSTRAINT fk_icf_mr;
-ALTER TABLE INSERTION_COMPARTIMENT_FILLE DROP CONSTRAINT fk_icf_bcf;
-ALTER TABLE INSERTION_COMPARTIMENT_FILLE DROP CONSTRAINT fk_icf_brf;
-ALTER TABLE INSERTION_COMPARTIMENT_FILLE DROP CONSTRAINT fk_icf_cmp;
-ALTER TABLE INSERTION_COMPARTIMENT_FILLE DROP CONSTRAINT fk_icf_lot;
-ALTER TABLE INSERTION_COMPARTIMENT_FILLE DROP CONSTRAINT fk_icf_sx;
-
--- Insertion compartiment mère
-ALTER TABLE INSERTION_COMPARTIMENT DROP CONSTRAINT fk_ic_lr;
-ALTER TABLE INSERTION_COMPARTIMENT DROP CONSTRAINT fk_ic_br;
-
--- BR poussin fille
-ALTER TABLE BONRECEPTION_POUSSIN_FILLE DROP CONSTRAINT fk_brpf_mr;
-ALTER TABLE BONRECEPTION_POUSSIN_FILLE DROP CONSTRAINT fk_brpf_prd;
-ALTER TABLE BONRECEPTION_POUSSIN_FILLE DROP CONSTRAINT fk_brpf_sx;
-ALTER TABLE BONRECEPTION_POUSSIN_FILLE DROP CONSTRAINT fk_brpf_bcf;
-
--- BR poussin mère
-ALTER TABLE BONRECEPTION_POUSSIN DROP CONSTRAINT fk_brp_lr;
-ALTER TABLE BONRECEPTION_POUSSIN DROP CONSTRAINT fk_brp_bc;
-ALTER TABLE BONRECEPTION_POUSSIN DROP CONSTRAINT fk_brp_bp;
-ALTER TABLE BONRECEPTION_POUSSIN DROP CONSTRAINT fk_brp_frn;
-
--- BC poussin fille
-ALTER TABLE BONCOMMANDE_POUSSIN_FILLE DROP CONSTRAINT fk_bcpf_mr;
-ALTER TABLE BONCOMMANDE_POUSSIN_FILLE DROP CONSTRAINT fk_bcpf_prd;
-ALTER TABLE BONCOMMANDE_POUSSIN_FILLE DROP CONSTRAINT fk_bcpf_sx;
-
--- BC poussin mère
-ALTER TABLE BONCOMMANDE_POUSSIN DROP CONSTRAINT fk_bcp_frn;
-ALTER TABLE BONCOMMANDE_POUSSIN DROP CONSTRAINT fk_bcp_dev;
-
-
--- ============================================================================
--- 5. INDEX (hors PK)
--- ============================================================================
-DROP INDEX idx_bcp_daty;
-DROP INDEX idx_bcp_frn;
-DROP INDEX idx_bcp_etat;
-DROP INDEX idx_bcpf_mr;
-DROP INDEX idx_bcpf_prd;
-
-DROP INDEX idx_brp_daty;
-DROP INDEX idx_brp_bc;
-DROP INDEX idx_brp_bp;
-DROP INDEX idx_brp_etat;
-DROP INDEX idx_brp_lr;
-DROP INDEX idx_brpf_mr;
-DROP INDEX idx_brpf_prd;
-DROP INDEX idx_brpf_bcf;
-
-DROP INDEX idx_ic_daty;
-DROP INDEX idx_ic_br;
-DROP INDEX idx_ic_etat;
-DROP INDEX idx_icf_mr;
-DROP INDEX idx_icf_cmp;
-DROP INDEX idx_icf_brf;
+    -- ------------------------------------------------------------------------
+    -- 4. Fonctions APJ
+    -- ------------------------------------------------------------------------
+    FOR f IN (SELECT object_name FROM user_objects
+              WHERE object_type = 'FUNCTION'
+                AND object_name IN (
+                    'GETSEQBCPOUSSIN','GETSEQBCPOUSSINFILLE',
+                    'GETSEQBRPOUSSIN','GETSEQBRPOUSSINFILLE',
+                    'GETSEQINSERTIONCOMP','GETSEQINSERTIONCOMPFILLE',
+                    'GETSEQCOMPARTIMENT','GETSEQSANTEPOUSSIN','GETSEQTYPERECEPTION'
+                ))
+    LOOP
+        BEGIN
+            EXECUTE IMMEDIATE 'DROP FUNCTION ' || f.object_name;
+            DBMS_OUTPUT.PUT_LINE('OK : DROP FUNCTION ' || f.object_name);
+        EXCEPTION WHEN OTHERS THEN
+            DBMS_OUTPUT.PUT_LINE('SKIP: ' || f.object_name || ' -> ' || SQLERRM);
+        END;
+    END LOOP;
+END;
+/
 
 
 -- ============================================================================
--- 6. TABLES (filles d'abord, puis mères)
+-- 5. MENU
 -- ============================================================================
-DROP TABLE INSERTION_COMPARTIMENT_FILLE;
-DROP TABLE INSERTION_COMPARTIMENT;
-DROP TABLE BONRECEPTION_POUSSIN_FILLE;
-DROP TABLE BONRECEPTION_POUSSIN;
-DROP TABLE BONCOMMANDE_POUSSIN_FILLE;
-DROP TABLE BONCOMMANDE_POUSSIN;
-DROP TABLE LIEURECEPTION;
 
-
--- ============================================================================
--- 7. SÉQUENCES
--- ============================================================================
-DROP SEQUENCE GETSEQLIEURECEPTION;
-DROP SEQUENCE GETSEQBCPOUSSIN;
-DROP SEQUENCE GETSEQBCPOUSSINFILLE;
-DROP SEQUENCE GETSEQBRPOUSSIN;
-DROP SEQUENCE GETSEQBRPOUSSINFILLE;
-DROP SEQUENCE GETSEQINSERTIONCOMP;
-DROP SEQUENCE GETSEQINSERTIONCOMPFILLE;
-
-
--- ============================================================================
--- 8. MENU
--- ============================================================================
+-- 5.1. usermenu (rattachements d'abord)
 DELETE FROM usermenu
-WHERE IDMENU IN ('MENUPOUSSON','MENUPOUSSON_BC','MENUPOUSSON_BR','MENUPOUSSON_IC');
+WHERE IDMENU LIKE 'MENUPOUSSON%';
 
+-- 5.2. Sous-menus (avant le parent)
 DELETE FROM MENUDYNAMIQUE
-WHERE ID IN ('MENUPOUSSON_BC','MENUPOUSSON_BR','MENUPOUSSON_IC','MENUPOUSSON');
+WHERE id LIKE 'MENUPOUSSON%'
+  AND id <> 'MENUPOUSSON';
+
+-- 5.3. Menu parent
+DELETE FROM MENUDYNAMIQUE
+WHERE id = 'MENUPOUSSON';
 
 COMMIT;
+
+
+-- ============================================================================
+-- 6. VÉRIFICATION — tout doit retourner 0 ligne
+-- ============================================================================
+
+SELECT table_name FROM user_tables
+WHERE table_name IN (
+    'BONCOMMANDE_POUSSIN','BONCOMMANDE_POUSSIN_FILLE',
+    'BONRECEPTION_POUSSIN','BONRECEPTION_POUSSIN_FILLE',
+    'COMPARTIMENT','INSERTION_COMPARTIMENT','INSERTION_COMPARTIMENT_FILLE',
+    'SANTEPOUSSIN','TYPERECEPTION'
+);
+
+SELECT sequence_name FROM user_sequences
+WHERE sequence_name IN (
+    'SEQ_BCPOUSSIN','SEQ_BCPOUSSINFILLE',
+    'SEQ_BRPOUSSIN','SEQ_BRPOUSSINFILLE',
+    'SEQ_INSERTIONCOMP','SEQ_INSERTIONCOMPFILLE',
+    'SEQ_COMPARTIMENT','SEQ_SANTEPOUSSIN','SEQ_TYPERECEPTION'
+);
+
+SELECT object_name FROM user_objects
+WHERE object_type = 'FUNCTION'
+  AND object_name IN (
+    'GETSEQBCPOUSSIN','GETSEQBCPOUSSINFILLE',
+    'GETSEQBRPOUSSIN','GETSEQBRPOUSSINFILLE',
+    'GETSEQINSERTIONCOMP','GETSEQINSERTIONCOMPFILLE',
+    'GETSEQCOMPARTIMENT','GETSEQSANTEPOUSSIN','GETSEQTYPERECEPTION'
+  );
+
+SELECT view_name FROM user_views
+WHERE view_name LIKE '%POUSSIN%' OR view_name LIKE '%COMPARTIMENT%';
+
+SELECT id FROM MENUDYNAMIQUE WHERE id LIKE 'MENUPOUSSON%';
+SELECT id FROM usermenu      WHERE IDMENU LIKE 'MENUPOUSSON%';
