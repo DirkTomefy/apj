@@ -1,7 +1,9 @@
 package a_tahina.fronthelper;
 
+import a_tahina.poussin.BonCommandePoussinFilleLib;
 import a_tahina.poussin.BonCommandePoussinLib;
 import affichage.Liste;
+import affichage.PageConsulte;
 import affichage.PageRecherche;
 import bean.TypeObjet;
 
@@ -12,7 +14,7 @@ import java.util.Map;
 
 public class BonCommandePoussinFH {
 
-    
+  
     public static PageRecherche getPageRechercheForList(
             HttpServletRequest request,
             HttpSession session) throws Exception {
@@ -47,9 +49,11 @@ public class BonCommandePoussinFH {
         pr.getFormu().getChamp("daty1").setDefaut(utilitaire.Utilitaire.dateDuJour());
         pr.getFormu().getChamp("daty2").setDefaut(utilitaire.Utilitaire.dateDuJour());
 
+        // Filtre état <select> alimenté par ETAT
         Liste[] liste = new Liste[1];
-        liste[0] = new Liste("etat", new TypeObjet("ETAT"), "val", "val");
+        liste[0] = new Liste("etat", new TypeObjet("ETAT"), "desce", "id");
         pr.getFormu().changerEnChamp(liste);
+        pr.getFormu().getChamp("etat").setLibelle("État");
 
         pr.creerObjetPage(libEntete, null);
 
@@ -65,7 +69,6 @@ public class BonCommandePoussinFH {
         pr.getTableau().setLienFille(
             "a_tahina/poussin/inc/boncommande-poussin-fille-liste.jsp&id=");
 
-        
         Map<String,String> lienTab = new HashMap<>();
         lienTab.put("modifier",
             pr.getLien() + "?but=a_tahina/poussin/boncommande-poussin-modif.jsp");
@@ -78,6 +81,78 @@ public class BonCommandePoussinFH {
             "href='" + pr.getLien()
             + "?but=a_tahina/poussin/boncommande-poussin-saisie.jsp'>" +
             "<i class='material-symbols-rounded'>add</i> Saisir</a>");
+
+        return pr;
+    }
+
+    
+    public static PageConsulte getPageConsulte(
+            HttpServletRequest request,
+            HttpSession session) throws Exception {
+
+        BonCommandePoussinLib f = new BonCommandePoussinLib();
+        f.setNomTable("BONCOMMANDE_POUSSIN_LIB");
+
+        // PageConsulte(objet, request, user)
+        PageConsulte pc = new PageConsulte(f, request,
+                            (user.UserEJB) session.getValue("u"));
+        pc.setTitre("Fiche d'un bon de commande poussin");
+
+        // Charger l'objet depuis request.getParameter("id")
+        pc.getBase();
+
+        pc.getChampByName("id").setLibelle("Id");
+        pc.getChampByName("daty").setLibelle("Date");
+        pc.getChampByName("reference").setLibelle("Référence");
+        pc.getChampByName("descri").setLibelle("Description");
+        pc.getChampByName("idmagasinlib").setLibelle("Magasin");
+        pc.getChampByName("etatlib").setLibelle("État");
+        pc.getChampByName("remarque").setLibelle("Remarque");
+
+        pc.getChampByName("idmagasin").setVisible(false);
+        pc.getChampByName("etat").setVisible(false);
+
+        // 6) Lien hypertexte vers le magasin (optionnel — à adapter)
+        // pc.getChampByName("idmagasinlib").setLien(
+        //     (String) session.getValue("lien")
+        //     + "?but=magasin/magasin-fiche.jsp", "id=");
+
+        return pc;
+    }
+
+   
+    public static PageRecherche getPageRechercheForFille(
+            HttpServletRequest request,
+            HttpSession session,
+            String idMere) throws Exception {
+
+        BonCommandePoussinFilleLib f = new BonCommandePoussinFilleLib();
+        f.setNomTable("BONCOMMANDE_POUSSON_FILLE_LIB");
+
+        String[] listeCrt  = {"produitlib", "souchelibr"};
+        String[] listeInt  = {};
+        String[] libEntete = {"id", "produitlib", "souchelibr", "qte", "pu", "montant"};
+
+        PageRecherche pr = new PageRecherche(f, request, listeCrt, listeInt, 3,
+                                              libEntete, libEntete.length);
+        pr.setTitre("");
+        pr.setUtilisateur((user.UserEJB) session.getValue("u"));
+        pr.setLien((String) session.getValue("lien"));
+        pr.setApres("a_tahina/poussin/boncommande-poussin-fiche.jsp"
+                    + "&id=" + idMere
+                    + "&tab=inc/boncommande-poussin-fille-liste");
+        pr.setNpp(200);
+
+        pr.setAWhere(" and idmere = '" + idMere + "'");
+
+        pr.getFormu().getChamp("produitlib").setVisible(false);
+        pr.getFormu().getChamp("souchelibr").setVisible(false);
+
+        pr.creerObjetPage(libEntete, null);
+
+        pr.getTableau().setLibelleAffiche(new String[]{
+            "Id", "Produit", "Souche", "Qté", "P.U.", "Montant"
+        });
 
         return pr;
     }
