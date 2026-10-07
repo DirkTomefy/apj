@@ -1,11 +1,16 @@
 package a_tahina.fronthelper;
 
+import a_tahina.poussin.BonCommandePoussin;
+import a_tahina.poussin.BonCommandePoussinFille;
 import a_tahina.poussin.BonCommandePoussinFilleLib;
 import a_tahina.poussin.BonCommandePoussinLib;
 import affichage.Liste;
 import affichage.PageConsulte;
 import affichage.PageRecherche;
+import affichage.PageUpdateMultiple;
 import bean.TypeObjet;
+import affichage.Champ;
+
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -155,5 +160,76 @@ public class BonCommandePoussinFH {
         });
 
         return pr;
+    }
+
+        /* =========================================================
+     *  MODIF (maître + filles)
+     * ========================================================= */
+    public static PageUpdateMultiple getPageUpdateMultiple(
+            HttpServletRequest request,
+            HttpSession session,
+            String id,
+            int nbNouvellesLignes) throws Exception {
+
+        // 1) Recharger la mère
+        BonCommandePoussin mere = new BonCommandePoussin();
+        mere = (BonCommandePoussin) mere.getById(id, "BONCOMMANDE_POUSSIN", null);
+
+        // 2) Fille + ses lignes existantes
+        BonCommandePoussinFille fille = new BonCommandePoussinFille();
+        fille.setNomTable("BONCOMMANDE_POUSSIN_FILLE");
+        fille.setIdmere(id);
+
+        BonCommandePoussinFille[] listef = (BonCommandePoussinFille[])
+            bean.CGenUtil.rechercher(fille, null, null,
+                " and idmere = '" + id + "'");
+
+        // 3) PageUpdateMultiple(mere, fille, listef, request, user, nbNouvelles)
+        PageUpdateMultiple pu = new PageUpdateMultiple(
+                                    mere, fille, listef, request,
+                                    (user.UserEJB) session.getValue("u"),
+                                    nbNouvellesLignes);
+        pu.setLien((String) session.getValue("lien"));
+
+        // 4) En-tête
+        pu.getFormu().getChamp("daty").setLibelle("Date");
+        pu.getFormu().getChamp("reference").setLibelle("Référence");
+        pu.getFormu().getChamp("descri").setLibelle("Description");
+        pu.getFormu().getChamp("idmagasin").setLibelle("Magasin");
+        pu.getFormu().getChamp("remarque").setLibelle("Remarque");
+        pu.getFormu().getChamp("etat").setVisible(false);
+
+        pu.getFormu().getChamp("idmagasin").setPageAppelComplete(
+            "magasin.Magasin", "id", "MAGASIN2", "idmagasin", "id");
+
+        pu.preparerDataFormu();
+
+        // 5) Autocomplete filles
+        Champ.setPageAppelComplete(
+            pu.getFormufle().getChampFille("idproduit"),
+            "produits.IngredientsLib", "id", "AS_INGREDIENTS",
+            "idproduit", "id");
+
+        Champ.setPageAppelComplete(
+            pu.getFormufle().getChampFille("idsouche"),
+            "a_tahina.configuration.Souche", "id", "SOUCHE",
+            "idsouche", "id");
+
+        // 6) Libellés détail
+        pu.getFormufle().getChamp("idproduit_0").setLibelle("Produit");
+        pu.getFormufle().getChamp("idsouche_0").setLibelle("Souche");
+        pu.getFormufle().getChamp("qte_0").setLibelle("Qté");
+        pu.getFormufle().getChamp("pu_0").setLibelle("P.U.");
+
+        pu.getFormufle().getChampMulitple("idmere").setVisible(false);
+
+        pu.getFormufle().setColOrdre(new String[]{
+            "idproduit", "idsouche", "qte", "pu"
+        });
+
+        pu.getFormu().makeHtmlInsertTabIndex();
+        pu.getFormufle().makeHtmlInsertTableauIndex();
+
+        return pu;
     }
 }
