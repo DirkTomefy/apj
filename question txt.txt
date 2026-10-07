@@ -1,0 +1,3 @@
+question.txt
+1-getMotsCles vs getValMotCles dans TypeObject (souche)
+2-que fait concrétement CompartimentLib si elle ne contient aucune attribut en plus
