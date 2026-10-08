@@ -1,6 +1,8 @@
 package a_tahina.fronthelper;
 
 import a_tahina.configuration.CompartimentLib;
+import a_tahina.configuration.CompartimentValeur;
+
 import affichage.PageConsulte;
 import affichage.PageInsert;
 import affichage.PageRecherche;
@@ -11,17 +13,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CompartimentFH {
-    
+
+    /* =========================================================
+     *  LISTE  — avec valeurs calculées
+     * ========================================================= */
     public static PageRecherche getPageRechercheForList(
             HttpServletRequest request,
             HttpSession session) throws Exception {
 
-        CompartimentLib f = new CompartimentLib();
-        f.setNomTable("COMPARTIMENT_LIB");
+        CompartimentValeur f = new CompartimentValeur();
+        f.setNomTable("COMPARTIMENT_VALEUR_LIB");
 
         String[] listeCrt  = {"id", "nom"};
         String[] listeInt  = {};
-        String[] libEntete = {"id", "nom", "capacite"};
+        String[] libEntete = {"id", "nom", "capacite",
+                              "qteActuelle", "pu", "valeurActuelle",
+                              "valeurTheorique", "valeurNonRemplie"};
 
         PageRecherche pr = new PageRecherche(f, request, listeCrt, listeInt, 3,
                                               libEntete, libEntete.length);
@@ -42,7 +49,9 @@ public class CompartimentFH {
         pr.getTableau().setLien(lienTableau);
         pr.getTableau().setColonneLien(colonneLien);
         pr.getTableau().setLibelleAffiche(new String[]{
-            "Id", "Nom", "Capacité"
+            "Id", "Nom", "Capacité", "Qté actuelle",
+            "P.U.", "Valeur actuelle",
+            "Valeur théorique", "Valeur non remplie"
         });
 
         Map<String,String> lienTab = new HashMap<>();
@@ -59,7 +68,9 @@ public class CompartimentFH {
         return pr;
     }
 
-    
+    /* =========================================================
+     *  SAISIE  (inchangée)
+     * ========================================================= */
     public static PageInsert getPageInsert(
             HttpServletRequest request) throws Exception {
 
@@ -75,13 +86,15 @@ public class CompartimentFH {
         return pi;
     }
 
-    
+    /* =========================================================
+     *  FICHE  — avec valeurs calculées
+     * ========================================================= */
     public static PageConsulte getPageConsulte(
             HttpServletRequest request,
             HttpSession session) throws Exception {
 
-        CompartimentLib f = new CompartimentLib();
-        f.setNomTable("COMPARTIMENT_LIB");
+        CompartimentValeur f = new CompartimentValeur();
+        f.setNomTable("COMPARTIMENT_VALEUR_LIB");
 
         PageConsulte pc = new PageConsulte(f, request,
                             (user.UserEJB) session.getValue("u"));
@@ -91,6 +104,11 @@ public class CompartimentFH {
         pc.getChampByName("id").setLibelle("Id");
         pc.getChampByName("nom").setLibelle("Nom");
         pc.getChampByName("capacite").setLibelle("Capacité");
+        pc.getChampByName("qteActuelle").setLibelle("Qté actuelle");
+        pc.getChampByName("pu").setLibelle("P.U.");
+        pc.getChampByName("valeurActuelle").setLibelle("Valeur actuelle");
+        pc.getChampByName("valeurTheorique").setLibelle("Valeur théorique");
+        pc.getChampByName("valeurNonRemplie").setLibelle("Valeur non remplie");
 
         return pc;
     }
