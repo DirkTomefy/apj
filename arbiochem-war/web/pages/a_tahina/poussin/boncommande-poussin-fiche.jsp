@@ -11,10 +11,9 @@
     String id     = o.getTuppleID();
     int    etat   = o.getEtat();
 
-    // 2) Préparer les onglets
+    // 2) Préparer l'onglet (un seul)
     java.util.Map<String,String> map = new java.util.HashMap<>();
     map.put("inc/boncommande-poussin-fille-liste", "");
-    map.put("inc/boncommande-poussin-historique", "");
 
     String tab = request.getParameter("tab");
     if (tab == null) tab = "inc/boncommande-poussin-fille-liste";
@@ -75,20 +74,10 @@
     </div>
   </div>
 
-  <%-- Onglets --%>
+  <%-- Onglet unique --%>
   <div class="row m-0">
     <div class="col-md-12 nopadding">
       <div class="nav-tabs-custom">
-        <ul class="nav nav-tabs">
-          <li class="<%= map.get("inc/boncommande-poussin-fille-liste") %>">
-            <a href="<%= lien %>?but=<%= pageActuel %>&id=<%= id %>
-                     &tab=inc/boncommande-poussin-fille-liste">Détails</a>
-          </li>
-          <li class="<%= map.get("inc/boncommande-poussin-historique") %>">
-            <a href="<%= lien %>?but=<%= pageActuel %>&id=<%= id %>
-                     &tab=inc/boncommande-poussin-historique">Historique</a>
-          </li>
-        </ul>
         <div class="tab-content">
           <jsp:include page="<%= pageIncluse %>">
             <jsp:param name="idMere" value="<%= id %>" />
