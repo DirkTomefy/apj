@@ -2,24 +2,28 @@ package a_tahina.fronthelper;
 
 import a_tahina.poussin.BonCommandePoussin;
 import a_tahina.poussin.BonCommandePoussinFille;
-import a_tahina.poussin.BonCommandePoussinFilleLib;
 import a_tahina.poussin.BonCommandePoussinLib;
+import a_tahina.poussin.BonCommandePoussinFilleLib;
+import a_tahina.configuration.Souche;
+
+import affichage.Champ;
 import affichage.Liste;
 import affichage.PageConsulte;
+import affichage.PageInsertMultiple;
 import affichage.PageRecherche;
 import affichage.PageUpdateMultiple;
-import bean.TypeObjet;
-import affichage.Champ;
 
+import bean.TypeObjet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class BonCommandePoussinFH {
 
-  
+    
     public static PageRecherche getPageRechercheForList(
             HttpServletRequest request,
             HttpSession session) throws Exception {
@@ -54,7 +58,6 @@ public class BonCommandePoussinFH {
         pr.getFormu().getChamp("daty1").setDefaut(utilitaire.Utilitaire.dateDuJour());
         pr.getFormu().getChamp("daty2").setDefaut(utilitaire.Utilitaire.dateDuJour());
 
-        // Filtre état <select> alimenté par ETAT
         Liste[] liste = new Liste[1];
         liste[0] = new Liste("etat", new TypeObjet("ETAT"), "desce", "id");
         pr.getFormu().changerEnChamp(liste);
@@ -90,20 +93,16 @@ public class BonCommandePoussinFH {
         return pr;
     }
 
-    
-    public static PageConsulte getPageConsulte(
+     public static PageConsulte getPageConsulte(
             HttpServletRequest request,
             HttpSession session) throws Exception {
 
         BonCommandePoussinLib f = new BonCommandePoussinLib();
         f.setNomTable("BONCOMMANDE_POUSSIN_LIB");
 
-        // PageConsulte(objet, request, user)
         PageConsulte pc = new PageConsulte(f, request,
                             (user.UserEJB) session.getValue("u"));
         pc.setTitre("Fiche d'un bon de commande poussin");
-
-        // Charger l'objet depuis request.getParameter("id")
         pc.getBase();
 
         pc.getChampByName("id").setLibelle("Id");
@@ -117,22 +116,17 @@ public class BonCommandePoussinFH {
         pc.getChampByName("idmagasin").setVisible(false);
         pc.getChampByName("etat").setVisible(false);
 
-        // 6) Lien hypertexte vers le magasin (optionnel — à adapter)
-        // pc.getChampByName("idmagasinlib").setLien(
-        //     (String) session.getValue("lien")
-        //     + "?but=magasin/magasin-fiche.jsp", "id=");
-
         return pc;
     }
 
-   
+    
     public static PageRecherche getPageRechercheForFille(
             HttpServletRequest request,
             HttpSession session,
             String idMere) throws Exception {
 
         BonCommandePoussinFilleLib f = new BonCommandePoussinFilleLib();
-        f.setNomTable("BONCOMMANDE_POUSSON_FILLE_LIB");
+        f.setNomTable("BONCOMMANDE_POUSSIN_FILLE_LIB");
 
         String[] listeCrt  = {"produitlib", "souchelibr"};
         String[] listeInt  = {};
@@ -162,20 +156,89 @@ public class BonCommandePoussinFH {
         return pr;
     }
 
-        /* =========================================================
-     *  MODIF (maître + filles)
-     * ========================================================= */
+    
+    public static PageInsertMultiple getPageInsertMultiple(
+            HttpServletRequest request,
+            HttpSession session,
+            int nombreLigne) throws Exception {
+
+        // 1) Mère + fille
+        BonCommandePoussin      mere  = new BonCommandePoussin();
+        BonCommandePoussinFille fille = new BonCommandePoussinFille();
+        fille.setNomTable("BONCOMMANDE_POUSSIN_FILLE");
+
+        // 2) PageInsertMultiple
+        PageInsertMultiple pi = new PageInsertMultiple(mere, fille, request,
+                                                        nombreLigne,
+                                                        (user.UserEJB) session.getValue("u"));
+        pi.setLien((String) session.getValue("lien"));
+
+        // 3) En-tête : libellés
+        pi.getFormu().getChamp("daty").setLibelle("Date");
+        pi.getFormu().getChamp("reference").setLibelle("Référence");
+        pi.getFormu().getChamp("descri").setLibelle("Description");
+        pi.getFormu().getChamp("idmagasin").setLibelle("Magasin");
+        pi.getFormu().getChamp("remarque").setLibelle("Remarque");
+        pi.getFormu().getChamp("etat").setVisible(false);
+
+        pi.getFormu().getChamp("daty").setDefaut(
+            utilitaire.Utilitaire.dateDuJour());
+
+        // 4) En-tête : Magasin → LISTE DÉROULANTE
+        Liste[] listeMere = new Liste[1];
+        listeMere[0] = new Liste("idmagasin", new magasin.Magasin(), "val", "id");
+        pi.getFormu().changerEnChamp(listeMere);
+
+        // 5) Fille : Produit + Souche → LISTES DÉROULANTES
+        Liste[] listeFille = new Liste[2];
+        listeFille[0] = new Liste("idproduit", new produits.Ingredients(), "libelle", "id");
+        listeFille[1] = new Liste("idsouche",  new a_tahina.configuration.Souche(), "val", "id");
+        pi.getFormufle().changerEnChamp(listeFille);
+
+        // 6) Préparer les données (OBLIGATOIRE avant getChamp("xxx_0"))
+        pi.preparerDataFormu();
+
+        // 7) Libellés colonnes de détail
+        pi.getFormufle().getChamp("idproduit_0").setLibelle("Produit");
+        pi.getFormufle().getChamp("idsouche_0").setLibelle("Souche");
+        pi.getFormufle().getChamp("qte_0").setLibelle("Qté");
+        pi.getFormufle().getChamp("pu_0").setLibelle("P.U.");
+
+        // 8) Masquer les colonnes techniques
+        pi.getFormufle().getChampMulitple("id").setVisible(false);
+        pi.getFormufle().getChampMulitple("idmere").setVisible(false);
+
+        // 9) Défauts ligne par ligne
+        for (int i = 0; i < nombreLigne; i++) {
+            pi.getFormufle().getChamp("qte_"+i).setDefaut("0");
+            pi.getFormufle().getChamp("pu_"+i).setDefaut("0");
+        }
+
+        // 10) Colonnes conservées dans le tableau
+        pi.getFormufle().setColOrdre(new String[]{
+            "idproduit", "idsouche", "qte", "pu"
+        });
+
+        // 11) Tabindex
+        pi.getFormu().makeHtmlInsertTabIndex();
+        pi.getFormufle().makeHtmlInsertTableauIndex();
+
+        return pi;
+    }
+
+    /* =========================================================
+     *  MODIF (maître + filles) — inchangé
+    * ========================================================= */
+   
     public static PageUpdateMultiple getPageUpdateMultiple(
             HttpServletRequest request,
             HttpSession session,
             String id,
             int nbNouvellesLignes) throws Exception {
 
-        // 1) Recharger la mère
         BonCommandePoussin mere = new BonCommandePoussin();
         mere = (BonCommandePoussin) mere.getById(id, "BONCOMMANDE_POUSSIN", null);
 
-        // 2) Fille + ses lignes existantes
         BonCommandePoussinFille fille = new BonCommandePoussinFille();
         fille.setNomTable("BONCOMMANDE_POUSSIN_FILLE");
         fille.setIdmere(id);
@@ -184,14 +247,12 @@ public class BonCommandePoussinFH {
             bean.CGenUtil.rechercher(fille, null, null,
                 " and idmere = '" + id + "'");
 
-        // 3) PageUpdateMultiple(mere, fille, listef, request, user, nbNouvelles)
         PageUpdateMultiple pu = new PageUpdateMultiple(
                                     mere, fille, listef, request,
                                     (user.UserEJB) session.getValue("u"),
                                     nbNouvellesLignes);
         pu.setLien((String) session.getValue("lien"));
 
-        // 4) En-tête
         pu.getFormu().getChamp("daty").setLibelle("Date");
         pu.getFormu().getChamp("reference").setLibelle("Référence");
         pu.getFormu().getChamp("descri").setLibelle("Description");
@@ -199,23 +260,19 @@ public class BonCommandePoussinFH {
         pu.getFormu().getChamp("remarque").setLibelle("Remarque");
         pu.getFormu().getChamp("etat").setVisible(false);
 
-        pu.getFormu().getChamp("idmagasin").setPageAppelComplete(
-            "magasin.Magasin", "id", "MAGASIN2", "idmagasin", "id");
+        // Ici aussi : Magasin en Liste déroulante
+        Liste[] listeMere = new Liste[1];
+        listeMere[0] = new Liste("idmagasin", new magasin.Magasin(), "val", "id");
+        pu.getFormu().changerEnChamp(listeMere);
+
+        // Fille : Produit + Souche en Liste
+        Liste[] listeFille = new Liste[2];
+        listeFille[0] = new Liste("idproduit", new produits.Ingredients(), "libelle", "id");
+        listeFille[1] = new Liste("idsouche",  new a_tahina.configuration.Souche(), "val", "id");
+        pu.getFormufle().changerEnChamp(listeFille);
 
         pu.preparerDataFormu();
 
-        // 5) Autocomplete filles
-        Champ.setPageAppelComplete(
-            pu.getFormufle().getChampFille("idproduit"),
-            "produits.IngredientsLib", "id", "AS_INGREDIENTS",
-            "idproduit", "id");
-
-        Champ.setPageAppelComplete(
-            pu.getFormufle().getChampFille("idsouche"),
-            "a_tahina.configuration.Souche", "id", "SOUCHE",
-            "idsouche", "id");
-
-        // 6) Libellés détail
         pu.getFormufle().getChamp("idproduit_0").setLibelle("Produit");
         pu.getFormufle().getChamp("idsouche_0").setLibelle("Souche");
         pu.getFormufle().getChamp("qte_0").setLibelle("Qté");
