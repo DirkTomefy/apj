@@ -13,4 +13,17 @@ LEFT JOIN INSERTION_COMPARTIMENT_FILLE icf
        ON icf.idcompartiment = c.id
 GROUP BY c.id, c.nom, c.capacite;
 
-COMMIT;
+COMMIT;.2
+
+$
+
+
+
+
+
+
+
+
+
+
+ù

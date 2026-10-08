@@ -7,6 +7,7 @@ public class CompartimentValeur extends Compartiment {
     private double pu;
     private double valeurTheorique;
     private double valeurNonRemplie;
+    private double valeurUnitaire;   
 
     public CompartimentValeur() throws Exception {
         this.setNomTable("COMPARTIMENT_VALEUR_LIB");
@@ -26,4 +27,7 @@ public class CompartimentValeur extends Compartiment {
 
     public double getValeurNonRemplie() { return valeurNonRemplie; }
     public void setValeurNonRemplie(double v) { this.valeurNonRemplie = v; }
+
+    public double getValeurUnitaire() { return valeurUnitaire; }
+    public void setValeurUnitaire(double v) { this.valeurUnitaire = v; }
 }
