@@ -1,13 +1,13 @@
 <%@page import="affichage.PageInsert"%>
 <%@page import="a_tahina.fronthelper.CompartimentFH"%>
 <% try {
-    PageInsert pi = CompartimentFH.getPageInsert(request);
+    PageInsert pi = CompartimentFH.getPageInsert(request, session);
 %>
 <div class="content-wrapper">
   <h1>Saisie de compartiment</h1>
 
   <form action="<%= pi.getLien() %>?but=apresTarif.jsp" method="post">
-    <% out.println(pi.getHtmlInsert()); %>
+    <% out.println(pi.getFormu().getHtmlInsert()); %>
 
     <input type="hidden" name="acte"     value="insert" />
     <input type="hidden" name="bute"

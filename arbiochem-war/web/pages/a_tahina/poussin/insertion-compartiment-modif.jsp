@@ -1,3 +1,4 @@
+<%@page import="java.util.Map"%>
 <%@page import="affichage.PageUpdateMultiple"%>
 <%@page import="a_tahina.fronthelper.InsertionCompartimentFH"%>
 <% try {
@@ -7,12 +8,32 @@
     PageUpdateMultiple pu = InsertionCompartimentFH.getPageUpdateMultiple(
                                 request, session, id, nbNouvellesLignes);
     int nbLignesTotal = pu.getNombreLigne();
+
+    // ⚡ Mapping idbcpf → pu
+    Map<String, Double> puParBc = InsertionCompartimentFH.getPuParBC(request);
 %>
 <div class="content-wrapper">
   <h1>Modification insertion en compartiment</h1>
 
-  <%-- JS : valeurCompartiment = qte * pu --%>
   <script>
+    var puParBC = {
+      <% for (Map.Entry<String, Double> e : puParBc.entrySet()) { %>
+        '<%= e.getKey() %>': <%= e.getValue() %>,
+      <% } %>
+    };
+
+    function majPu(i) {
+      var sel  = document.getElementsByName('idbcpf_' + i)[0];
+      var puEl = document.getElementsByName('pu_' + i)[0];
+      if (!sel || !puEl) return;
+
+      var val = puParBC[sel.value];
+      if (val !== undefined && val !== null) {
+        puEl.value = val;
+        recalcValeur(i);
+      }
+    }
+
     function recalcValeur(i) {
       var qteEl = document.getElementsByName('qte_' + i)[0];
       var puEl  = document.getElementsByName('pu_'  + i)[0];

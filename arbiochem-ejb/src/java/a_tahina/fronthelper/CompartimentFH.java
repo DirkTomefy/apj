@@ -68,15 +68,17 @@ public class CompartimentFH {
         return pr;
     }
 
-    /* =========================================================
-     *  SAISIE  (inchangée)
-     * ========================================================= */
+   
     public static PageInsert getPageInsert(
-            HttpServletRequest request) throws Exception {
+            HttpServletRequest request,
+            HttpSession session) throws Exception {
 
         CompartimentLib f = new CompartimentLib();
 
         PageInsert pi = new PageInsert(f, request);
+
+        pi.setLien((String) session.getValue("lien"));
+        pi.setUtilisateur((user.UserEJB) session.getValue("u"));
 
         pi.getFormu().getChamp("nom").setLibelle("Nom");
         pi.getFormu().getChamp("capacite").setLibelle("Capacité");

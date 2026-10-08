@@ -1,5 +1,6 @@
 package a_tahina.fronthelper;
 
+import a_tahina.poussin.BonCommandePoussinFilleLib;
 import a_tahina.poussin.BonReceptionPoussinLib;
 import a_tahina.poussin.InsertionCompartiment;
 import a_tahina.poussin.InsertionCompartimentFille;
@@ -8,6 +9,7 @@ import a_tahina.poussin.InsertionCompartimentFilleLib;
 import a_tahina.configuration.Compartiment;
 import a_tahina.configuration.SantePoussin;
 
+import affichage.Champ;
 import affichage.Liste;
 import affichage.PageConsulte;
 import affichage.PageInsertMultiple;
@@ -34,11 +36,9 @@ public class InsertionCompartimentFH {
         InsertionCompartimentLib f = new InsertionCompartimentLib();
         f.setNomTable("INSERTION_COMPARTIMENT_LIB");
 
-        String[] listeCrt  = {"id", "daty", "reference",
-                              "idbonreceptionlib", "etat"};
+        String[] listeCrt  = {"id", "daty", "reference", "idbonreceptionlib", "etat"};
         String[] listeInt  = {"daty"};
-        String[] libEntete = {"id", "daty", "reference",
-                              "idbonreceptionlib", "etatlib"};
+        String[] libEntete = {"id", "daty", "reference", "idbonreceptionlib", "etatlib"};
 
         PageRecherche pr = new PageRecherche(f, request, listeCrt, listeInt, 3,
                                               libEntete, libEntete.length);
@@ -137,10 +137,11 @@ public class InsertionCompartimentFH {
         InsertionCompartimentFilleLib f = new InsertionCompartimentFilleLib();
         f.setNomTable("INSERTION_COMP_FILLE_LIB");
 
-        String[] listeCrt  = {"compartimentlib"};
+        String[] listeCrt  = {"compartimentlib", "bcpfproduitlib"};
         String[] listeInt  = {};
-        String[] libEntete = {"id", "compartimentlib", "qte", "pu",
-                              "valeurCompartiment", "sexelib", "santelib"};
+        String[] libEntete = {"id", "bcpfproduitlib", "compartimentlib",
+                              "qte", "pu", "valeurCompartiment",
+                              "sexelib", "santelib"};
 
         PageRecherche pr = new PageRecherche(f, request, listeCrt, listeInt, 3,
                                               libEntete, libEntete.length);
@@ -154,20 +155,59 @@ public class InsertionCompartimentFH {
 
         pr.setAWhere(" and idmere = '" + idMere + "'");
 
-        pr.getFormu().getChamp("compartimentlib").setVisible(false);
+        safeHide(pr.getFormu().getChamp("compartimentlib"));
+        safeHide(pr.getFormu().getChamp("bcpfproduitlib"));
 
         pr.creerObjetPage(libEntete, null);
 
         pr.getTableau().setLibelleAffiche(new String[]{
-            "Id", "Compartiment", "qte", "pu",
-            "valeur", "sexe", "santé"
+            "Id", "Produit (BC)", "Compartiment",
+            "qte", "pu", "valeur", "sexe", "santé"
         });
 
         return pr;
     }
 
     /* =========================================================
-     *  SAISIE
+     *  MAPPING idbcpf → pu (pour auto-fill JS)
+     * ========================================================= */
+    public static Map<String, Double> getPuParBC(HttpServletRequest request) {
+        Map<String, Double> map = new HashMap<>();
+
+        String idBR = request.getParameter("idbonreception");
+        String bcSourceFiltre = null;
+        if (idBR != null && !idBR.trim().isEmpty()) {
+            try {
+                BonReceptionPoussinLib br = (BonReceptionPoussinLib)
+                    new BonReceptionPoussinLib().getById(idBR,
+                        "BONRECEPTION_POUSSIN_LIB", null);
+                if (br != null) bcSourceFiltre = br.getIdboncommande();
+            } catch (Exception ex) { /* ignore */ }
+        }
+
+        try {
+            BonCommandePoussinFilleLib crit = new BonCommandePoussinFilleLib();
+            crit.setNomTable("BONCOMMANDE_POUSSIN_FILLE_LIB");
+
+            String where = (bcSourceFiltre != null
+                            && !bcSourceFiltre.trim().isEmpty())
+                           ? " and idmere = '" + bcSourceFiltre + "'" : "";
+
+            BonCommandePoussinFilleLib[] filles = (BonCommandePoussinFilleLib[])
+                bean.CGenUtil.rechercher(crit, null, null, where);
+
+            if (filles != null) {
+                for (BonCommandePoussinFilleLib f : filles) {
+                    map.put(f.getId(), f.getPu());
+                }
+            }
+        } catch (Exception ex) { /* ignore */ }
+
+        return map;
+    }
+
+    /* =========================================================
+     *  SAISIE (maître + filles)
      * ========================================================= */
     public static PageInsertMultiple getPageInsertMultiple(
             HttpServletRequest request,
@@ -184,60 +224,105 @@ public class InsertionCompartimentFH {
         pi.setLien((String) session.getValue("lien"));
 
         // --- En-tête
-        pi.getFormu().getChamp("daty").setLibelle("Date");
-        pi.getFormu().getChamp("reference").setLibelle("Référence");
-        pi.getFormu().getChamp("idbonreception").setLibelle("BR source");
-        pi.getFormu().getChamp("remarque").setLibelle("Remarque");
-        pi.getFormu().getChamp("etat").setVisible(false);
-        pi.getFormu().getChamp("daty").setDefaut(utilitaire.Utilitaire.dateDuJour());
+        safeLabel(pi.getFormu().getChamp("daty"),           "Date");
+        safeLabel(pi.getFormu().getChamp("reference"),      "Référence");
+        safeLabel(pi.getFormu().getChamp("idbonreception"), "BR source");
+        safeLabel(pi.getFormu().getChamp("remarque"),       "Remarque");
+        safeHide (pi.getFormu().getChamp("etat"));
 
+        if (pi.getFormu().getChamp("daty") != null) {
+            pi.getFormu().getChamp("daty").setDefaut(utilitaire.Utilitaire.dateDuJour());
+        }
+
+        // --- Cas : on vient d'une fiche BR
+        String idBR = request.getParameter("idbonreception");
+        boolean masquerIdBR = false;
+        if (idBR != null && !idBR.trim().isEmpty()) {
+            safeDefault(pi.getFormu().getChamp("idbonreception"), idBR);
+            masquerIdBR = true;
+        }
+
+        // --- BC source pour filtrer
+        String bcSourceFiltre = null;
+        if (idBR != null && !idBR.trim().isEmpty()) {
+            try {
+                BonReceptionPoussinLib br = (BonReceptionPoussinLib)
+                    new BonReceptionPoussinLib().getById(idBR,
+                        "BONRECEPTION_POUSSIN_LIB", null);
+                if (br != null) bcSourceFiltre = br.getIdboncommande();
+            } catch (Exception ex) { /* ignore */ }
+        }
+
+        // --- Liste déroulante du BR source
         Liste[] listeMere = new Liste[1];
         listeMere[0] = new Liste("idbonreception",
                                   new BonReceptionPoussinLib(), "reference", "id");
         pi.getFormu().changerEnChamp(listeMere);
 
-        // --- Cas : on vient d'une fiche BR (bouton « Insérer »)
-        String idBR = request.getParameter("idbonreception");
-        if (idBR != null && !idBR.trim().isEmpty()) {
-            pi.getFormu().getChamp("idbonreception").setDefaut(idBR);
-            pi.getFormu().getChamp("idbonreception").setVisible(false);
-        }
+        if (masquerIdBR) safeHide(pi.getFormu().getChamp("idbonreception"));
 
         // --- Listes déroulantes des filles
-        Liste[] listeFille = new Liste[3];
-        listeFille[0] = new Liste("idcompartiment", new Compartiment(), "nom", "id");
-        listeFille[1] = new Liste("sexe", new TypeObjet("SEXE"), "val", "id");
-        listeFille[2] = new Liste("idsante", new SantePoussin(), "val", "id");
+        Liste[] listeFille = new Liste[4];
+
+        // ⚡ SELECT : affiche "BCPF001 - Poussin"
+        listeFille[0] = new Liste("idbcpf",
+                                   new BonCommandePoussinFilleLib(),
+                                   "idproduitlib", "id");
+        if (bcSourceFiltre != null && !bcSourceFiltre.trim().isEmpty()) {
+            listeFille[0].setApresW(" and idmere = '" + bcSourceFiltre + "'");
+        }
+
+        listeFille[1] = new Liste("idcompartiment",
+                                   new Compartiment(), "nom", "id");
+        listeFille[2] = new Liste("sexe",
+                                   new TypeObjet("SEXE"), "val", "id");
+        listeFille[3] = new Liste("idsante",
+                                   new SantePoussin(), "val", "id");
+
         pi.getFormufle().changerEnChamp(listeFille);
 
         pi.preparerDataFormu();
 
-        // --- Libellés
-        pi.getFormufle().getChamp("idcompartiment_0").setLibelle("Compartiment");
-        pi.getFormufle().getChamp("qte_0").setLibelle("qte");
-        pi.getFormufle().getChamp("pu_0").setLibelle("pu");
-        pi.getFormufle().getChamp("valeurCompartiment_0").setLibelle("valeur");
-        pi.getFormufle().getChamp("sexe_0").setLibelle("sexe");
-        pi.getFormufle().getChamp("idsante_0").setLibelle("santé");
+        // --- Libellés des filles
+        safeLabel(pi.getFormufle().getChamp("idbcpf_0"),            "Ligne BC");
+        safeLabel(pi.getFormufle().getChamp("idcompartiment_0"),     "Compartiment");
+        safeLabel(pi.getFormufle().getChamp("qte_0"),                "qte");
+        safeLabel(pi.getFormufle().getChamp("pu_0"),                 "pu");
+        safeLabel(pi.getFormufle().getChamp("valeurCompartiment_0"), "valeur");
+        safeLabel(pi.getFormufle().getChamp("sexe_0"),               "sexe");
+        safeLabel(pi.getFormufle().getChamp("idsante_0"),            "santé");
 
+        // --- Masquer colonnes techniques
         pi.getFormufle().getChampMulitple("id").setVisible(false);
         pi.getFormufle().getChampMulitple("idmere").setVisible(false);
 
-        // valeurCompartiment : readonly (calculé = qte * pu)
+        // --- readonly + JS de recalcul + auto-fill pu
         for (int i = 0; i < nombreLigne; i++) {
-            pi.getFormufle().getChamp("valeurCompartiment_"+i).setAutre("readonly");
-            pi.getFormufle().getChamp("qte_"+i)
-                .setAutre("onchange='recalcValeur("+i+")'");
-            pi.getFormufle().getChamp("pu_"+i)
-                .setAutre("onchange='recalcValeur("+i+")'");
+            Champ cVal  = pi.getFormufle().getChamp("valeurCompartiment_"+i);
+            Champ cQte  = pi.getFormufle().getChamp("qte_"+i);
+            Champ cPu   = pi.getFormufle().getChamp("pu_"+i);
+            Champ cBcpf = pi.getFormufle().getChamp("idbcpf_"+i);
 
-            pi.getFormufle().getChamp("qte_"+i).setDefaut("0");
-            pi.getFormufle().getChamp("pu_"+i).setDefaut("0");
-            pi.getFormufle().getChamp("valeurCompartiment_"+i).setDefaut("0");
+            if (cVal != null) cVal.setAutre("readonly");
+            if (cQte != null) {
+                cQte.setAutre("onchange='recalcValeur("+i+")'");
+                cQte.setDefaut("0");
+            }
+            if (cPu != null) {
+                cPu.setAutre("onchange='recalcValeur("+i+")'");
+                cPu.setDefaut("0");
+            }
+            if (cVal != null) cVal.setDefaut("0");
+
+            // ⚡ Auto-fill pu quand on change de ligne BC
+            if (cBcpf != null) {
+                cBcpf.setAutre("onchange='majPu("+i+")'");
+            }
         }
 
         pi.getFormufle().setColOrdre(new String[]{
-            "idcompartiment", "qte", "pu", "valeurCompartiment", "sexe", "idsante"
+            "idbcpf", "idcompartiment", "qte", "pu",
+            "valeurCompartiment", "sexe", "idsante"
         });
 
         pi.getFormu().makeHtmlInsertTabIndex();
@@ -272,50 +357,88 @@ public class InsertionCompartimentFH {
                                     nbNouvellesLignes);
         pu.setLien((String) session.getValue("lien"));
 
-        pu.getFormu().getChamp("daty").setLibelle("Date");
-        pu.getFormu().getChamp("reference").setLibelle("Référence");
-        pu.getFormu().getChamp("idbonreception").setLibelle("BR source");
-        pu.getFormu().getChamp("remarque").setLibelle("Remarque");
-        pu.getFormu().getChamp("etat").setVisible(false);
+        safeLabel(pu.getFormu().getChamp("daty"),          "Date");
+        safeLabel(pu.getFormu().getChamp("reference"),     "Référence");
+        safeLabel(pu.getFormu().getChamp("idbonreception"),"BR source");
+        safeLabel(pu.getFormu().getChamp("remarque"),      "Remarque");
+        safeHide (pu.getFormu().getChamp("etat"));
+
+        String bcSourceFiltre = null;
+        if (mere.getIdbonreception() != null) {
+            try {
+                BonReceptionPoussinLib br = (BonReceptionPoussinLib)
+                    new BonReceptionPoussinLib().getById(mere.getIdbonreception(),
+                        "BONRECEPTION_POUSSIN_LIB", null);
+                if (br != null) bcSourceFiltre = br.getIdboncommande();
+            } catch (Exception ex) { /* ignore */ }
+        }
 
         Liste[] listeMere = new Liste[1];
         listeMere[0] = new Liste("idbonreception", new BonReceptionPoussinLib(),
                                   "reference", "id");
         pu.getFormu().changerEnChamp(listeMere);
 
-        Liste[] listeFille = new Liste[3];
-        listeFille[0] = new Liste("idcompartiment", new Compartiment(), "nom", "id");
-        listeFille[1] = new Liste("sexe", new TypeObjet("SEXE"), "val", "id");
-        listeFille[2] = new Liste("idsante", new SantePoussin(), "val", "id");
+        // ⚡ SELECT : affiche "BCPF001 - Poussin"
+        Liste[] listeFille = new Liste[4];
+        listeFille[0] = new Liste("idbcpf",
+                                   new BonCommandePoussinFilleLib(),
+                                   "idproduitlib", "id");
+        if (bcSourceFiltre != null && !bcSourceFiltre.trim().isEmpty()) {
+            listeFille[0].setApresW(" and idmere = '" + bcSourceFiltre + "'");
+        }
+        listeFille[1] = new Liste("idcompartiment", new Compartiment(), "nom", "id");
+        listeFille[2] = new Liste("sexe", new TypeObjet("SEXE"), "val", "id");
+        listeFille[3] = new Liste("idsante", new SantePoussin(), "val", "id");
         pu.getFormufle().changerEnChamp(listeFille);
 
         pu.preparerDataFormu();
 
-        pu.getFormufle().getChamp("idcompartiment_0").setLibelle("Compartiment");
-        pu.getFormufle().getChamp("qte_0").setLibelle("qte");
-        pu.getFormufle().getChamp("pu_0").setLibelle("pu");
-        pu.getFormufle().getChamp("valeurCompartiment_0").setLibelle("valeur");
-        pu.getFormufle().getChamp("sexe_0").setLibelle("sexe");
-        pu.getFormufle().getChamp("idsante_0").setLibelle("santé");
+        safeLabel(pu.getFormufle().getChamp("idbcpf_0"),            "Ligne BC");
+        safeLabel(pu.getFormufle().getChamp("idcompartiment_0"),     "Compartiment");
+        safeLabel(pu.getFormufle().getChamp("qte_0"),                "qte");
+        safeLabel(pu.getFormufle().getChamp("pu_0"),                 "pu");
+        safeLabel(pu.getFormufle().getChamp("valeurCompartiment_0"), "valeur");
+        safeLabel(pu.getFormufle().getChamp("sexe_0"),               "sexe");
+        safeLabel(pu.getFormufle().getChamp("idsante_0"),            "santé");
 
         pu.getFormufle().getChampMulitple("idmere").setVisible(false);
 
         int nbLignesTotal = pu.getNombreLigne();
         for (int i = 0; i < nbLignesTotal; i++) {
-            pu.getFormufle().getChamp("valeurCompartiment_"+i).setAutre("readonly");
-            pu.getFormufle().getChamp("qte_"+i)
-                .setAutre("onchange='recalcValeur("+i+")'");
-            pu.getFormufle().getChamp("pu_"+i)
-                .setAutre("onchange='recalcValeur("+i+")'");
+            Champ cVal  = pu.getFormufle().getChamp("valeurCompartiment_"+i);
+            Champ cQte  = pu.getFormufle().getChamp("qte_"+i);
+            Champ cPu   = pu.getFormufle().getChamp("pu_"+i);
+            Champ cBcpf = pu.getFormufle().getChamp("idbcpf_"+i);
+
+            if (cVal != null) cVal.setAutre("readonly");
+            if (cQte != null) cQte.setAutre("onchange='recalcValeur("+i+")'");
+            if (cPu  != null) cPu.setAutre("onchange='recalcValeur("+i+")'");
+            if (cBcpf != null) cBcpf.setAutre("onchange='majPu("+i+")'");
         }
 
         pu.getFormufle().setColOrdre(new String[]{
-            "idcompartiment", "qte", "pu", "valeurCompartiment", "sexe", "idsante"
+            "idbcpf", "idcompartiment", "qte", "pu",
+            "valeurCompartiment", "sexe", "idsante"
         });
 
         pu.getFormu().makeHtmlInsertTabIndex();
         pu.getFormufle().makeHtmlInsertTableauIndex();
 
         return pu;
+    }
+
+    /* =========================================================
+     *  HELPERS SAFE
+     * ========================================================= */
+    private static void safeLabel(Champ c, String libelle) {
+        if (c != null) c.setLibelle(libelle);
+    }
+
+    private static void safeHide(Champ c) {
+        if (c != null) c.setVisible(false);
+    }
+
+    private static void safeDefault(Champ c, String defaut) {
+        if (c != null) c.setDefaut(defaut);
     }
 }

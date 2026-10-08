@@ -8,9 +8,10 @@ public class InsertionCompartimentFille extends ClassFille {
     private String id;
     private String idmere;
     private String idcompartiment;
+    private String idbcpf;           
     private double qte;
     private double pu;
-    private double valeurCompartiment;   // = pu * qte
+    private double valeurCompartiment;  // = qte * pu
     private String sexe;
     private String idsante;
 
@@ -18,6 +19,14 @@ public class InsertionCompartimentFille extends ClassFille {
     private String compartimentlib;
     private String sexelib;
     private String santelib;
+
+    // Champs joints de la ligne BC source
+    private String bcpfidproduit;
+    private String bcpfproduitlib;
+    private String bcpfidsouche;
+    private String bcpfsouchelibr;
+    private double bcpfqte;
+    private double bcpfpu;
 
     public InsertionCompartimentFille() throws Exception {
         this.setNomTable("INSERTION_COMPARTIMENT_FILLE");
@@ -36,13 +45,11 @@ public class InsertionCompartimentFille extends ClassFille {
     @Override public String getNomClasseMere()  { return "a_tahina.poussin.InsertionCompartiment"; }
     @Override public String getLiaisonMere()    { return "idmere"; }
 
-    /** Le setter de qte recalcule automatiquement la valeur. */
     public void setQte(double qte) {
         this.qte = qte;
         recalculerValeur();
     }
 
-    /** Le setter de pu recalcule automatiquement la valeur. */
     public void setPu(double pu) {
         this.pu = pu;
         recalculerValeur();
@@ -62,6 +69,9 @@ public class InsertionCompartimentFille extends ClassFille {
 
     public String getIdcompartiment() { return idcompartiment; }
     public void setIdcompartiment(String idcompartiment) { this.idcompartiment = idcompartiment; }
+
+    public String getIdbcpf() { return idbcpf; }
+    public void setIdbcpf(String idbcpf) { this.idbcpf = idbcpf; }
 
     public double getQte() { return qte; }
 
@@ -84,4 +94,22 @@ public class InsertionCompartimentFille extends ClassFille {
 
     public String getSantelib() { return santelib; }
     public void setSantelib(String v) { this.santelib = v; }
+
+    public String getBcpfidproduit() { return bcpfidproduit; }
+    public void setBcpfidproduit(String v) { this.bcpfidproduit = v; }
+
+    public String getBcpfproduitlib() { return bcpfproduitlib; }
+    public void setBcpfproduitlib(String v) { this.bcpfproduitlib = v; }
+
+    public String getBcpfidsouche() { return bcpfidsouche; }
+    public void setBcpfidsouche(String v) { this.bcpfidsouche = v; }
+
+    public String getBcpfsouchelibr() { return bcpfsouchelibr; }
+    public void setBcpfsouchelibr(String v) { this.bcpfsouchelibr = v; }
+
+    public double getBcpfqte() { return bcpfqte; }
+    public void setBcpfqte(double v) { this.bcpfqte = v; }
+
+    public double getBcpfpu() { return bcpfpu; }
+    public void setBcpfpu(double v) { this.bcpfpu = v; }
 }

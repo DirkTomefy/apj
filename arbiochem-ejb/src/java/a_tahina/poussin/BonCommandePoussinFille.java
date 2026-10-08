@@ -16,6 +16,7 @@ public class BonCommandePoussinFille extends ClassFille {
     private String produitlib;
     private String souchelibr;
     private double montant;
+    private String idproduitlib;  
 
     public BonCommandePoussinFille() throws Exception {
         this.setNomTable("BONCOMMANDE_POUSSIN_FILLE");
@@ -70,4 +71,7 @@ public class BonCommandePoussinFille extends ClassFille {
 
     public double getMontant() { return montant; }
     public void setMontant(double v) { this.montant = v; }
+
+    public String getIdproduitlib() { return idproduitlib; }
+    public void setIdproduitlib(String v) { this.idproduitlib = v; }
 }
