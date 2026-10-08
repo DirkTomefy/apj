@@ -8,26 +8,28 @@
 <div class="content-wrapper">
   <h1>Saisie de bon de réception poussin</h1>
 
-  <%--  JS : very = qte - maty --%>
+  <%-- JS : reste = qte - maty - very --%>
   <script>
-    function recalcVery(i) {
-      var qteEl  = document.getElementsByName('qte_'  + i)[0];
-      var matyEl = document.getElementsByName('maty_' + i)[0];
-      var veryEl = document.getElementsByName('very_' + i)[0];
-      if (!qteEl || !matyEl || !veryEl) return;
-
-      var qte  = parseFloat(qteEl.value)  || 0;
-      var maty = parseFloat(matyEl.value) || 0;
-      var very = qte - maty;
-      if (very < 0) very = 0;
-
-      veryEl.value = very.toFixed(2);
+    function getVal(name) {
+      var el = document.getElementsByName(name)[0];
+      return el ? (parseFloat(el.value) || 0) : 0;
     }
 
-    // Recalcul initial de toutes les lignes au chargement
+    function recalcReste(i) {
+      var qte   = getVal('qte_'   + i);
+      var maty  = getVal('maty_'  + i);
+      var very  = getVal('very_'  + i);
+      var reste = qte - maty - very;
+      if (reste < 0) reste = 0;
+
+      var resteEl = document.getElementsByName('reste_' + i)[0];
+      if (resteEl) resteEl.value = reste.toFixed(2);
+    }
+
+    // Recalcul initial au chargement
     window.addEventListener('DOMContentLoaded', function() {
       for (var i = 0; i < <%= nombreLigne %>; i++) {
-        recalcVery(i);
+        recalcReste(i);
       }
     });
   </script>

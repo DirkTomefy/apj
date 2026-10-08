@@ -13,6 +13,7 @@ public class BonReceptionPoussinFille extends ClassFille {
     private double pu;
     private double maty;
     private double very;
+    private double reste;       
 
     // Champs joints (lecture seule)
     private String produitlib;
@@ -61,6 +62,9 @@ public class BonReceptionPoussinFille extends ClassFille {
 
     public double getVery() { return very; }
     public void setVery(double very) { this.very = very; }
+
+    public double getReste() { return reste; }
+    public void setReste(double reste) { this.reste = reste; }
 
     public String getProduitlib() { return produitlib; }
     public void setProduitlib(String v) { this.produitlib = v; }
