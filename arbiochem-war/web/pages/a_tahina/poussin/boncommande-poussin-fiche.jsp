@@ -4,26 +4,27 @@
 <% try {
     String lien = (String) session.getValue("lien");
 
-    // 1) Construire la PageConsulte via le FH
     PageConsulte pc = BonCommandePoussinFH.getPageConsulte(request, session);
 
     BonCommandePoussinLib o = (BonCommandePoussinLib) pc.getBase();
-    String id     = o.getTuppleID();
-    int    etat   = o.getEtat();
+    String id   = o.getTuppleID();
+    int    etat = o.getEtat();
 
-    // 2) Préparer l'onglet (un seul)
-    java.util.Map<String,String> map = new java.util.HashMap<>();
-    map.put("inc/boncommande-poussin-fille-liste", "");
+    String pageActuel     = "a_tahina/poussin/boncommande-poussin-fiche.jsp";
+    String pageModif      = "a_tahina/poussin/boncommande-poussin-modif.jsp";
+    String pageReception  = "a_tahina/poussin/bonreception-poussin-saisie.jsp";
+    String classe         = "a_tahina.poussin.BonCommandePoussin";
 
-    String tab = request.getParameter("tab");
-    if (tab == null) tab = "inc/boncommande-poussin-fille-liste";
-    map.put(tab, "active");
-    String pageIncluse = tab + ".jsp";
+    String urlViser       = lien + "?but=apresTarif.jsp&acte=valider&id=" + id
+                          + "&bute=" + pageActuel + "&classe=" + classe;
+    String urlAnnuler     = lien + "?but=apresTarif.jsp&acte=annuler&id=" + id
+                          + "&bute=" + pageActuel + "&classe=" + classe;
+    String urlAnnulerVisa = lien + "?but=apresTarif.jsp&acte=annulerVisa&id=" + id
+                          + "&bute=" + pageActuel + "&classe=" + classe;
+    String urlModifier    = lien + "?but=" + pageModif + "&id=" + id + "&acte=update";
 
-    // 3) Chemins / classes
-    String pageActuel = "a_tahina/poussin/boncommande-poussin-fiche.jsp";
-    String pageModif  = "a_tahina/poussin/boncommande-poussin-modif.jsp";
-    String classe     = "a_tahina.poussin.BonCommandePoussin";
+    String urlReceptionner = lien + "?but=" + pageReception
+                           + "&idboncommande=" + id;
 %>
 <div class="content-wrapper">
   <h1 class="box-title">
@@ -41,32 +42,25 @@
         <br>
         <div class="box-footer">
           <% if (etat < 11) { %>
-            <%-- Bouton Viser --%>
-            <a class="btn btn-primary pull-right"
-               href="<%= lien %>?but=apresTarif.jsp&acte=valider&id=<%= id %>
-                     &bute=<%= pageActuel %>&classe=<%= classe %>">Viser</a>
-
-            <%-- Bouton Modifier --%>
-            <a class="btn btn-secondary pull-right"
-               href="<%= lien %>?but=<%= pageModif %>&id=<%= id %>&acte=update">
-               Modifier</a>
-
-            <%-- Bouton Annuler --%>
-            <a class="btn btn-danger pull-left"
-               href="<%= lien %>?but=apresTarif.jsp&acte=annuler&id=<%= id %>
-                     &bute=<%= pageActuel %>&classe=<%= classe %>">Annuler</a>
+            <%-- BC non visé : on peut viser, modifier, annuler --%>
+            <a class="btn btn-primary pull-right"   href="<%= urlViser %>">Viser</a>
+            <a class="btn btn-secondary pull-right" href="<%= urlModifier %>">Modifier</a>
+            <a class="btn btn-danger pull-left"     href="<%= urlAnnuler %>">Annuler</a>
           <% } %>
 
-          <% if (etat >= 11) { %>
-            <%-- Annuler visa --%>
-            <a class="btn btn-danger pull-left"
-               href="<%= lien %>?but=apresTarif.jsp&acte=annulerVisa&id=<%= id %>
-                     &bute=<%= pageActuel %>&classe=<%= classe %>">Annuler Visa</a>
+          <% if (etat == 11) { %>
+            <%-- BC visé : on peut réceptionner ou annuler le visa --%>
+            <a class="btn btn-success pull-right" href="<%= urlReceptionner %>">
+              <i class="material-symbols-rounded">inventory</i> Réceptionner
+            </a>
+            <a class="btn btn-danger pull-left"   href="<%= urlAnnulerVisa %>">
+              Annuler Visa
+            </a>
+          <% } %>
 
-            <%-- Clôturer --%>
-            <a class="btn btn-warning pull-right"
-               href="<%= lien %>?but=apresTarif.jsp&acte=cloturer&id=<%= id %>
-                     &bute=<%= pageActuel %>&classe=<%= classe %>">Clôturer</a>
+          <% if (etat == 0) { %>
+            <%-- BC annulé : aucune action --%>
+            <span class="text-muted">Bon de commande annulé</span>
           <% } %>
         </div>
 
@@ -74,12 +68,12 @@
     </div>
   </div>
 
-  <%-- Onglet unique --%>
+  <%-- Détails (toujours affichés) --%>
   <div class="row m-0">
     <div class="col-md-12 nopadding">
       <div class="nav-tabs-custom">
         <div class="tab-content">
-          <jsp:include page="<%= pageIncluse %>">
+          <jsp:include page="inc/boncommande-poussin-fille-liste.jsp">
             <jsp:param name="idMere" value="<%= id %>" />
           </jsp:include>
         </div>

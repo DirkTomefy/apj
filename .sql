@@ -1,3 +1,4 @@
+sqlplus arbiochemstandard/arbiochemstandard
 CREATE USER arbiochemstandard IDENTIFIED BY arbiochemstandard;
 
 ALTER USER arbiochemstandard QUOTA UNLIMITED ON USERS;
