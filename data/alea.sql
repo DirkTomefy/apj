@@ -1,9 +1,4 @@
--- ============================================================================
---  Vue 1 : BCPF_VIVANTS_LIB
---  Pour chaque ligne de BC, calcule le total des very du (des) dernier(s) BR
---  - "dernier BR" = BR non référencé par un autre BR via idbrprecedent
---  - On matche par produit + souche
--- ============================================================================
+
 
 CREATE OR REPLACE VIEW BCPF_VIVANTS_LIB AS
 SELECT bcpf.id           AS idbcpf,
@@ -12,8 +7,14 @@ SELECT bcpf.id           AS idbcpf,
        bcpf.idsouche,
        bcpf.qte          AS qteCommande,
        bcpf.pu,
+       NVL(SUM(brpf.qte),  0) AS totalQteBR,
        NVL(SUM(brpf.very), 0) AS totalVivants,
-       NVL(SUM(brpf.maty), 0) AS totalMorts
+       NVL(SUM(brpf.maty), 0) AS totalMorts,
+       CASE
+         WHEN NVL(SUM(brpf.very), 0) > 0
+         THEN (NVL(SUM(brpf.qte), 0) * bcpf.pu) / NVL(SUM(brpf.very), 0)
+         ELSE bcpf.pu
+       END               AS valeurUnitaire
 FROM BONCOMMANDE_POUSSIN_FILLE bcpf
 LEFT JOIN BONCOMMANDE_POUSSIN bcp
        ON bcp.id = bcpf.idmere
@@ -30,60 +31,61 @@ WHERE brp.id IS NULL
    )
 GROUP BY bcpf.id, bcpf.idmere, bcpf.idproduit, bcpf.idsouche,
          bcpf.qte, bcpf.pu;
+/
 
-COMMIT;
 
--- ============================================================================
---  Vue 2 : COMPARTIMENT_VALEUR_LIB
---  Agrège par compartiment :
---    - somme des ICF (qte, valeur, pu)
---    - valeur unitaire = valeurTotale / totalVivants (sur les BCPF distinctes)
--- ============================================================================
+CREATE OR REPLACE VIEW INSERTION_COMP_FILLE_LIB AS
+SELECT icf.id,
+       icf.idmere,
+       icf.idcompartiment,
+       icf.idbcpf,
+       icf.qte,
+       icf.pu,
+       icf.valeurCompartiment,
+       icf.sexe,
+       icf.idsante,
+       c.nom    AS compartimentlib,
+       s.val    AS sexelib,
+       sp.val   AS santelib,
+       bcpf.idproduit     AS bcpfidproduit,
+       ai.libelle         AS bcpfproduitlib,
+       bcpf.idsouche      AS bcpfidsouche,
+       so.val             AS bcpfsouchelibr,
+       bcpf.qte           AS bcpfqte,
+       bcpf.pu            AS bcpfpu,
+       v.valeurUnitaire   AS valeurUnitaire
+FROM INSERTION_COMPARTIMENT_FILLE icf
+LEFT JOIN COMPARTIMENT c  ON c.id  = icf.idcompartiment
+LEFT JOIN SEXE         s  ON s.id  = icf.sexe
+LEFT JOIN SANTEPOUSSIN sp ON sp.id = icf.idsante
+LEFT JOIN BONCOMMANDE_POUSSIN_FILLE bcpf ON bcpf.id = icf.idbcpf
+LEFT JOIN AS_INGREDIENTS ai ON ai.id = bcpf.idproduit
+LEFT JOIN SOUCHE         so ON so.id = bcpf.idsouche
+LEFT JOIN BCPF_VIVANTS_LIB v ON v.idbcpf = icf.idbcpf;
+/
 
 CREATE OR REPLACE VIEW COMPARTIMENT_VALEUR_LIB AS
 SELECT c.id,
        c.nom,
        c.capacite,
-       NVL((SELECT SUM(icf.qte) FROM INSERTION_COMPARTIMENT_FILLE icf
-            WHERE icf.idcompartiment = c.id), 0)              AS qteActuelle,
-       NVL((SELECT SUM(icf.valeurCompartiment) FROM INSERTION_COMPARTIMENT_FILLE icf
-            WHERE icf.idcompartiment = c.id), 0)              AS valeurActuelle,
-       NVL((SELECT MAX(icf.pu) FROM INSERTION_COMPARTIMENT_FILLE icf
-            WHERE icf.idcompartiment = c.id), 0)              AS pu,
-       (c.capacite * NVL((SELECT MAX(icf.pu) FROM INSERTION_COMPARTIMENT_FILLE icf
-                          WHERE icf.idcompartiment = c.id), 0))
-                                                              AS valeurTheorique,
-       (c.capacite * NVL((SELECT MAX(icf.pu) FROM INSERTION_COMPARTIMENT_FILLE icf
-                          WHERE icf.idcompartiment = c.id), 0))
-           - NVL((SELECT SUM(icf.valeurCompartiment) FROM INSERTION_COMPARTIMENT_FILLE icf
-                  WHERE icf.idcompartiment = c.id), 0)        AS valeurNonRemplie,
-       -- ⚡ Valeur unitaire = valeurTotale / totalVivants cumulés
+       NVL(SUM(icf.qte), 0)                                    AS qteActuelle,
+       NVL(SUM(icf.valeurCompartiment), 0)                     AS valeurActuelle,
+       NVL(MAX(icf.pu), 0)                                     AS pu,
+       (c.capacite * NVL(MAX(icf.pu), 0))                      AS valeurTheorique,
+       (c.capacite * NVL(MAX(icf.pu), 0))
+           - NVL(SUM(icf.valeurCompartiment), 0)               AS valeurNonRemplie,
        CASE
-         WHEN NVL((SELECT SUM(v.totalVivants)
-                   FROM BCPF_VIVANTS_LIB v
-                   WHERE v.idbcpf IN (
-                       SELECT DISTINCT icf.idbcpf
-                       FROM INSERTION_COMPARTIMENT_FILLE icf
-                       WHERE icf.idcompartiment = c.id
-                   )), 0) > 0
-         THEN NVL((SELECT SUM(icf.valeurCompartiment)
-                   FROM INSERTION_COMPARTIMENT_FILLE icf
-                   WHERE icf.idcompartiment = c.id), 0)
-              / (SELECT SUM(v.totalVivants)
-                 FROM BCPF_VIVANTS_LIB v
-                 WHERE v.idbcpf IN (
-                     SELECT DISTINCT icf.idbcpf
-                     FROM INSERTION_COMPARTIMENT_FILLE icf
-                     WHERE icf.idcompartiment = c.id
-                 ))
+         WHEN NVL(SUM(icf.qte), 0) > 0
+         THEN NVL(SUM(icf.qte * v.valeurUnitaire), 0) / SUM(icf.qte)
          ELSE 0
-       END                                                    AS valeurUnitaire
-FROM COMPARTIMENT c;
+       END                                                     AS valeurUnitaire
+FROM COMPARTIMENT c
+LEFT JOIN INSERTION_COMPARTIMENT_FILLE icf
+       ON icf.idcompartiment = c.id
+LEFT JOIN BCPF_VIVANTS_LIB v
+       ON v.idbcpf = icf.idbcpf
+GROUP BY c.id, c.nom, c.capacite;
+
+/
 
 COMMIT;
-
--- Vérification
-SELECT id, nom, capacite, qteActuelle, pu,
-       valeurActuelle, valeurUnitaire
-FROM COMPARTIMENT_VALEUR_LIB
-ORDER BY id;

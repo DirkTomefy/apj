@@ -15,6 +15,7 @@ public class InsertionCompartimentFille extends ClassFille {
     private String sexe;
     private String idsante;
 
+
     // Champs joints (lecture seule)
     private String compartimentlib;
     private String sexelib;
