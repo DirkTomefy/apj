@@ -2,6 +2,7 @@
 --  MENU POUSSIN — Niveau 1/2/3
 --  BC  : Saisir + Liste
 --  BR  : Saisir + Liste
+--  IC  : Saisir + Liste
 -- ============================================================================
 
 -- ---------------------------------------------------------------------------
@@ -24,6 +25,11 @@ INSERT INTO MENUDYNAMIQUE (ID, LIBELLE, ICONE, HREF, RANG, NIVEAU, ID_PERE)
 VALUES ('MENUPOUSSON_BR', 'Bons de r&eacute;ception', 'inventory_2',
         'module.jsp?but=a_tahina/v1/br/bonreception-liste.jsp',
         2, 2, 'MENUPOUSSON');
+
+INSERT INTO MENUDYNAMIQUE (ID, LIBELLE, ICONE, HREF, RANG, NIVEAU, ID_PERE)
+VALUES ('MENUPOUSSON_IC', 'Insertions compartiment', 'grid_view',
+        'module.jsp?but=a_tahina/v1/ic/insertioncompartiment-liste.jsp',
+        3, 2, 'MENUPOUSSON');
 
 -- ---------------------------------------------------------------------------
 -- 3) Sous-menus niveau 3 — BC
@@ -52,7 +58,20 @@ VALUES ('MENUPOUSSON_BR_LIST', 'Liste des BR', 'list',
         2, 3, 'MENUPOUSSON_BR');
 
 -- ---------------------------------------------------------------------------
--- 5) Droits d'accès (rôle "resp")
+-- 5) Sous-menus niveau 3 — IC
+-- ---------------------------------------------------------------------------
+INSERT INTO MENUDYNAMIQUE (ID, LIBELLE, ICONE, HREF, RANG, NIVEAU, ID_PERE)
+VALUES ('MENUPOUSSON_IC_ADD', 'Saisir une insertion', 'add_box',
+        'module.jsp?but=a_tahina/v1/ic/insertioncompartiment-saisie.jsp',
+        1, 3, 'MENUPOUSSON_IC');
+
+INSERT INTO MENUDYNAMIQUE (ID, LIBELLE, ICONE, HREF, RANG, NIVEAU, ID_PERE)
+VALUES ('MENUPOUSSON_IC_LIST', 'Liste des IC', 'list',
+        'module.jsp?but=a_tahina/v1/ic/insertioncompartiment-liste.jsp',
+        2, 3, 'MENUPOUSSON_IC');
+
+-- ---------------------------------------------------------------------------
+-- 6) Droits d'accès (rôle "resp")
 -- ---------------------------------------------------------------------------
 INSERT INTO USERMENU (ID, IDMENU, IDROLE, INTERDIT)
 VALUES (sequsermenu.nextval, 'MENUPOUSSON',          'resp', 0);
@@ -62,6 +81,9 @@ VALUES (sequsermenu.nextval, 'MENUPOUSSON_BC',       'resp', 0);
 
 INSERT INTO USERMENU (ID, IDMENU, IDROLE, INTERDIT)
 VALUES (sequsermenu.nextval, 'MENUPOUSSON_BR',       'resp', 0);
+
+INSERT INTO USERMENU (ID, IDMENU, IDROLE, INTERDIT)
+VALUES (sequsermenu.nextval, 'MENUPOUSSON_IC',       'resp', 0);
 
 INSERT INTO USERMENU (ID, IDMENU, IDROLE, INTERDIT)
 VALUES (sequsermenu.nextval, 'MENUPOUSSON_BC_ADD',   'resp', 0);
@@ -74,6 +96,12 @@ VALUES (sequsermenu.nextval, 'MENUPOUSSON_BR_ADD',   'resp', 0);
 
 INSERT INTO USERMENU (ID, IDMENU, IDROLE, INTERDIT)
 VALUES (sequsermenu.nextval, 'MENUPOUSSON_BR_LIST',  'resp', 0);
+
+INSERT INTO USERMENU (ID, IDMENU, IDROLE, INTERDIT)
+VALUES (sequsermenu.nextval, 'MENUPOUSSON_IC_ADD',   'resp', 0);
+
+INSERT INTO USERMENU (ID, IDMENU, IDROLE, INTERDIT)
+VALUES (sequsermenu.nextval, 'MENUPOUSSON_IC_LIST',  'resp', 0);
 
 COMMIT;
 
