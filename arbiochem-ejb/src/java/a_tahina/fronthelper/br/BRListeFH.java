@@ -18,31 +18,18 @@ public class BRListeFH {
     public static final String PAGE_FICHE  = "a_tahina/v1/br/bonreception-fiche.jsp";
     public static final String PAGE_SAISIE = "a_tahina/v1/br/bonreception-saisie.jsp";
 
-    // =========================================================
-    //  Helpers null-safe
-    // =========================================================
+    // -------- Helpers --------
     private static void setLabel(PageRecherche pr, String champ, String libelle) {
         Champ c = pr.getFormu().getChamp(champ);
-        if (c != null) {
-            c.setLibelle(libelle);
-        } else {
-            System.out.println(">>> [BRListeFH] Champ absent (libelle) : " + champ);
-        }
+        if (c != null) c.setLibelle(libelle);
     }
-
     private static void setDefaut(PageRecherche pr, String champ, String valeur) {
         Champ c = pr.getFormu().getChamp(champ);
-        if (c != null) {
-            c.setDefaut(valeur);
-        } else {
-            System.out.println(">>> [BRListeFH] Champ absent (defaut) : " + champ);
-        }
+        if (c != null) c.setDefaut(valeur);
     }
 
-    // =========================================================
-    //  Config globale
-    // =========================================================
-    public static void prepareGlobaleInfForPageRecherche(PageRecherche pr, HttpSession session) {
+    // -------- Config --------
+    public static void prepareGlobaleInf(PageRecherche pr, HttpSession session) {
         pr.setTitre("Liste des bons de r&eacute;ception poussin");
         pr.setUtilisateur((user.UserEJB) session.getValue("u"));
         pr.setLien((String) session.getValue("lien"));
@@ -50,36 +37,21 @@ public class BRListeFH {
         pr.setNpp(50);
     }
 
-    // =========================================================
-    //  Libellés des champs de recherche
-    // =========================================================
     public static void prepareLibelleChamp(PageRecherche pr) {
-        // Champs "simples"
-        setLabel(pr, "id",                    "Id");
-        setLabel(pr, "reference",             "R&eacute;f&eacute;rence");
-        setLabel(pr, "etat",                  "&Eacute;tat");
-        setLabel(pr, "etatlib",               "&Eacute;tat");
+        setLabel(pr, "id",                 "Id");
+        setLabel(pr, "reference",          "R&eacute;f&eacute;rence");
+        setLabel(pr, "etat",               "&Eacute;tat");
+        setLabel(pr, "daty1",              "Date min");
+        setLabel(pr, "daty2",              "Date max");
+        setLabel(pr, "idboncommandelib",   "Bon de commande");
+        setLabel(pr, "idlieureceptionlib", "Lieu");
+        setLabel(pr, "idbrprecedentlib",   "BR pr&eacute;c&eacute;dent");
+        setLabel(pr, "idmagasinlib",       "Magasin");
 
-        // Champs "intervalle" (daty → daty1/daty2)
-        setLabel(pr, "daty1",                 "Date min");
-        setLabel(pr, "daty2",                 "Date max");
-
-        // Champs joints de la vue
-        setLabel(pr, "idboncommandelib",      "Bon de commande");
-        setLabel(pr, "idlieureceptionlib",    "Lieu");
-        setLabel(pr, "idbrprecedentlib",      "BR pr&eacute;c&eacute;dent");
-        setLabel(pr, "idmagasinlib",          "Magasin");
-        setLabel(pr, "produitlib",            "Produit");
-        setLabel(pr, "souchelibr",            "Souche");
-
-        // Valeurs par défaut sur la date
         setDefaut(pr, "daty1", utilitaire.Utilitaire.dateDuJour());
         setDefaut(pr, "daty2", utilitaire.Utilitaire.dateDuJour());
     }
 
-    // =========================================================
-    //  Transformation d'un champ en liste déroulante
-    // =========================================================
     public static void changeChampIntoListe(PageRecherche pr) throws Exception {
         Liste[] listeMere = new Liste[1];
         listeMere[0] = new Liste("etat", new TypeObjet("ETAT"), "desce", "id");
@@ -87,12 +59,9 @@ public class BRListeFH {
         pr.getFormu().getChamp("etat").setLibelle("&Eacute;tat");
     }
 
-    // =========================================================
-    //  Liens (clic sur id, clic droit contextuel)
-    // =========================================================
     public static void handleFicheLink(PageRecherche pr) {
-        String[] lienTableau  = { pr.getLien() + "?but=" + PAGE_FICHE };
-        String[] colonneLien  = { "id" };
+        String[] lienTableau = { pr.getLien() + "?but=" + PAGE_FICHE };
+        String[] colonneLien = { "id" };
         pr.getTableau().setLien(lienTableau);
         pr.getTableau().setColonneLien(colonneLien);
     }
@@ -104,16 +73,14 @@ public class BRListeFH {
         pr.getTableau().setLienClicDroite(lienTab);
     }
 
-    // =========================================================
-    //  Point d'entrée
-    // =========================================================
+    // -------- Point d'entrée --------
     public static PageRecherche getPageRechercheForList(HttpServletRequest request,
                                                         HttpSession session) throws Exception {
-
         BonReceptionPoussinLib f = new BonReceptionPoussinLib();
         f.setNomTable("BONRECEPTION_POUSSIN_LIB");
 
-        String[] listeCrt  = { "id", "daty", "reference", "idboncommandelib", "etat" };
+        String[] listeCrt  = { "id", "daty", "reference", "idboncommandelib",
+                               "idlieureceptionlib", "etat" };
         String[] listeInt  = { "daty" };
         String[] libEntete = { "id", "daty", "reference", "idboncommandelib",
                                "idlieureceptionlib", "etatlib" };
@@ -121,24 +88,17 @@ public class BRListeFH {
         PageRecherche pr = new PageRecherche(f, request, listeCrt, listeInt, 3,
                 libEntete, libEntete.length);
 
-        prepareGlobaleInfForPageRecherche(pr, session);
-
-        // ---- DIAGNOSTIC (décommenter si besoin) ----
-        // for (Champ c : pr.getFormu().getListeChamp()) {
-        //     System.out.println(">>> CHAMP DISPO LISTE = '" + c.getNom() + "'");
-        // }
-
+        prepareGlobaleInf(pr, session);
         prepareLibelleChamp(pr);
         changeChampIntoListe(pr);
 
         pr.creerObjetPage(libEntete, null);
 
         handleFicheLink(pr);
-        pr.getTableau().setLibelleAffiche(new String[] {
+        pr.getTableau().setLibelleAffiche(new String[]{
                 "Id", "Date", "R&eacute;f&eacute;rence", "Bon de commande",
                 "Lieu", "&Eacute;tat"
         });
-
         handleContextualClickableLink(pr);
 
         pr.getFormu().setAnotherButton(

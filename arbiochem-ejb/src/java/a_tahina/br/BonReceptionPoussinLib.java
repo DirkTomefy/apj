@@ -2,7 +2,6 @@ package a_tahina.br;
 
 public class BonReceptionPoussinLib extends BonReceptionPoussin {
 
-    // colonnes jointes de la vue BONRECEPTION_POUSSIN_LIB
     private String idboncommandelib;
     private String idboncommandefilleproduit;
     private String idbrprecedentlib;

@@ -3,27 +3,29 @@
 <%@page import="user.UserEJB"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%
-  // ---- Garde-fou session ----
   UserEJB u = (UserEJB) session.getValue("u");
   if (u == null) {
       response.sendRedirect(request.getContextPath() + "/login.jsp");
       return;
   }
-
   try {
     PageInsert pi = BRInsertFH.getPageInsert(request, session);
+
     String idbc   = BRInsertFH.getIdbc(request);
     String bute   = BRInsertFH.getButeRetour(request);
     String lien   = pi.getLien();
 
-    // Titre et lien retour conditionnels
-    String titre  = (idbc != null)
-                    ? "R&eacute;ception du bon de commande " + idbc
-                    : "Nouvelle r&eacute;ception";
-    String retour = (idbc != null)
-                    ? lien + "?but=" + BRInsertFH.PAGE_BC_FICHE + "&id=" + idbc
-                    : lien + "?but=" + BRInsertFH.PAGE_LISTE;
+    String titre  = (idbc != null) ? "R&eacute;ception du BC " + idbc : "Nouvelle r&eacute;ception";
+    String retour = (idbc != null) ? lien + "?but=" + BRInsertFH.PAGE_BC_FICHE + "&id=" + idbc
+                                   : lien + "?but=" + BRInsertFH.PAGE_LISTE;
 %>
+<style>
+  #br .form-group   { margin-bottom: 18px; }
+  #br label         { font-weight: 500; margin-bottom: 6px; display: block; }
+  #br .form-control { padding: 8px 12px; min-height: 38px; }
+  #br .box-body     { padding: 24px 28px; }
+</style>
+
 <div class="content-wrapper">
   <h1 class="box-title">
     <a href="<%= retour %>"><i class="fa fa-angle-left"></i></a>
@@ -35,14 +37,9 @@
     <div class="col-md-8">
       <div class="box box-primary">
         <div class="box-body">
-
           <form action="<%= lien %>?but=apresTarif.jsp"
                 method="post" name="br" id="br">
-
-            <%-- Le framework génère le formulaire ET le bouton Enregistrer --%>
             <% out.println(pi.getFormu().getHtmlInsert()); %>
-
-            <%-- Paramètres cachés pour apresTarif.jsp --%>
             <input type="hidden" name="acte"   value="insert" />
             <input type="hidden" name="bute"   value="<%= bute %>" />
             <input type="hidden" name="classe"
@@ -50,22 +47,21 @@
             <% if (idbc != null) { %>
               <input type="hidden" name="idbc" value="<%= idbc %>" />
             <% } %>
-
           </form>
-
-          <%-- Bouton Annuler uniquement (pas de doublon de Enregistrer) --%>
-          <div class="box-footer" style="border-top:none; background:transparent; padding-top:0;">
-            <a href="<%= retour %>" class="btn btn-secondary pull-left">
-              Annuler
-            </a>
-          </div>
-
+        </div>
+        <div class="box-footer" style="background:#fafafa; padding:15px 28px;">
+          <button type="submit" form="br" class="btn btn-primary pull-right">
+            <i class="fa fa-save"></i> Enregistrer
+          </button>
+          <a href="<%= retour %>" class="btn btn-secondary pull-left">
+            <i class="fa fa-times"></i> Annuler
+          </a>
+          <div style="clear:both;"></div>
         </div>
       </div>
     </div>
   </div>
 </div>
-
 <% } catch (Exception e) {
      out.println("<pre style='color:red'>");
      e.printStackTrace(new java.io.PrintWriter(out));

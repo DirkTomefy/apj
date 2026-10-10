@@ -1,8 +1,11 @@
 package a_tahina.br;
 
-import bean.ClassEtat;
 import java.sql.Connection;
 import java.sql.Date;
+
+import a_tahina.bc.BonCommandePoussinFille;
+import bean.CGenUtil;
+import bean.ClassEtat;
 
 public class BonReceptionPoussin extends ClassEtat {
 
@@ -34,6 +37,40 @@ public class BonReceptionPoussin extends ClassEtat {
     @Override public String getAttributIDName() { return "id"; }
     @Override public String getTuppleID()       { return this.getId(); }
 
+    // =========================================================
+    //  DÉDUCTION AUTO : BC parent + BR précédent
+    //  Appelé par PageInsert avant l'insertion
+    // =========================================================
+    @Override
+    public void controler(Connection c) throws Exception {
+        super.controler(c);
+
+        if (this.idboncommandefille == null || this.idboncommandefille.trim().isEmpty()) {
+            throw new Exception("La ligne de bon de commande est obligatoire.");
+        }
+
+        // 1) Déduire le BC parent à partir de la ligne BC
+        BonCommandePoussinFille bcf = new BonCommandePoussinFille();
+        bcf = (BonCommandePoussinFille) bcf.getById(this.idboncommandefille, null, c);
+        if (bcf == null) {
+            throw new Exception("Ligne BC introuvable : " + this.idboncommandefille);
+        }
+        this.idboncommande = bcf.getIdmere();
+
+        // 2) Déduire le BR précédent (dernier BR sur la même ligne BC)
+        BonReceptionPoussin crit = new BonReceptionPoussin();
+        BonReceptionPoussin[] precedents = (BonReceptionPoussin[]) CGenUtil.rechercher(
+                crit, null, null, c,
+                " AND idboncommandefille = '" + this.idboncommandefille + "'"
+              + " ORDER BY daty DESC, id DESC");
+        if (precedents != null && precedents.length > 0) {
+            this.idbrprecedent = precedents[0].getId();
+        }
+    }
+
+    // =========================================================
+    //  Getters / Setters
+    // =========================================================
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 
