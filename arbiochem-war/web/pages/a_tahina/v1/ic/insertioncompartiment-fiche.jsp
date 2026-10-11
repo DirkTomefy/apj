@@ -2,14 +2,10 @@
 <%@page import="a_tahina.fronthelper.ic.*"%>
 <%@page import="affichage.*"%>
 <%@page import="user.*"%>
+<%@page import="java.util.HashMap"%>
+<%@page import="java.util.Map"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%
-  UserEJB u = (UserEJB) session.getValue("u");
-  if (u == null) {
-      response.sendRedirect(request.getContextPath() + "/login.jsp");
-      return;
-  }
-  try {
+<% try {
     PageConsulte pc = ICFicheFH.getPageConsulte(request, session);
     String lien = (String) session.getValue("lien");
     InsertionCompartimentLib ic = (InsertionCompartimentLib) pc.getBase();
@@ -18,47 +14,41 @@
     int    etat = ic.getEtat();
     String idbr = ic.getIdbonreception();
 
+    String pageActuel = ICFicheFH.PAGE_ACTUEL;
+
     String tab = request.getParameter("tab");
-    if (tab == null || tab.isEmpty()) tab = "inc/ic-liste-detail";
+    Map<String,String> map = new HashMap<String,String>();
+    map.put("inc/ic-liste-detail", "");
+    map.put("inc/ic-liste-lots",   "");
+    if (tab == null) tab = "inc/ic-liste-detail";
+    map.put(tab, "active");
     String tabJsp = tab + ".jsp";
 %>
 <div class="content-wrapper">
-  <h1 class="box-title">
-    <a href="<%= lien %>?but=<%= ICFicheFH.PAGE_LISTE %>">
-      <i class="fa fa-angle-left"></i>
-    </a>
-    <%= pc.getTitre() %> &nbsp;
-    <small style="color:#888;">#<%= id %></small>
+  <h1>
+    <a href="<%= lien %>?but=<%= ICFicheFH.PAGE_LISTE %>"><i class="fa fa-angle-left"></i></a>
+    <%= pc.getTitre() %> #<%= id %>
   </h1>
 
-  <!-- FICHE MÈRE -->
   <div class="row m-0">
-    <div class="col-md-2"></div>
-    <div class="col-md-8">
+    <div class="col-md-3"></div>
+    <div class="col-md-6">
       <div class="box-fiche">
         <div class="box">
           <div class="box-body">
             <% out.println(pc.getHtml()); %>
             <br/>
-
-            <div class="box-footer" style="background:#fafafa; padding:15px 20px;">
+            <div class="box-footer">
               <% if (etat < 11) { %>
-                <a class="btn btn-primary pull-right" style="margin-right:8px"
-                   href="<%= lien %>?but=apresTarif.jsp&acte=valider&id=<%= id %>&bute=<%= ICFicheFH.PAGE_ACTUEL %>&classe=<%= ICFicheFH.CLASSE %>">
-                  <i class="fa fa-check"></i> Viser
-                </a>
+                <a class="btn btn-primary pull-right" style="margin-right:10px"
+                   href="<%= lien %>?but=apresTarif.jsp&acte=valider&id=<%= id %>&bute=<%= pageActuel %>&classe=<%= ICFicheFH.CLASSE %>">Viser</a>
                 <a class="btn btn-danger pull-left"
-                   href="<%= lien %>?but=apresTarif.jsp&acte=annuler&id=<%= id %>&bute=<%= ICFicheFH.PAGE_ACTUEL %>&classe=<%= ICFicheFH.CLASSE %>">
-                  <i class="fa fa-times"></i> Annuler
-                </a>
+                   href="<%= lien %>?but=apresTarif.jsp&acte=annuler&id=<%= id %>&bute=<%= pageActuel %>&classe=<%= ICFicheFH.CLASSE %>">Annuler</a>
               <% } %>
               <% if (idbr != null) { %>
-                <a class="btn btn-info pull-left" style="margin-left:8px"
-                   href="<%= lien %>?but=<%= ICFicheFH.PAGE_BR_FICHE %>&id=<%= idbr %>">
-                  <i class="fa fa-truck"></i> Voir le BR
-                </a>
+                <a class="btn btn-info pull-left" style="margin-left:10px"
+                   href="<%= lien %>?but=<%= ICFicheFH.PAGE_BR_FICHE %>&id=<%= idbr %>">Voir le BR</a>
               <% } %>
-              <div style="clear:both;"></div>
             </div>
             <br/>
           </div>
@@ -67,20 +57,15 @@
     </div>
   </div>
 
-  <!-- ONGLETS -->
   <div class="row m-0">
     <div class="col-md-12 nopadding">
       <div class="nav-tabs-custom">
         <ul class="nav nav-tabs">
-          <li class="<%= "inc/ic-liste-detail".equals(tab) ? "active" : "" %>">
-            <a href="<%= lien %>?but=<%= ICFicheFH.PAGE_ACTUEL %>&id=<%= id %>&tab=inc/ic-liste-detail">
-              D&eacute;tails
-            </a>
+          <li class="<%= map.get("inc/ic-liste-detail") %>">
+            <a href="<%= lien %>?but=<%= pageActuel %>&id=<%= id %>&tab=inc/ic-liste-detail">D&eacute;tails</a>
           </li>
-          <li class="<%= "inc/ic-liste-lots".equals(tab) ? "active" : "" %>">
-            <a href="<%= lien %>?but=<%= ICFicheFH.PAGE_ACTUEL %>&id=<%= id %>&tab=inc/ic-liste-lots">
-              Lots cr&eacute;&eacute;s
-            </a>
+          <li class="<%= map.get("inc/ic-liste-lots") %>">
+            <a href="<%= lien %>?but=<%= pageActuel %>&id=<%= id %>&tab=inc/ic-liste-lots">Lots cr&eacute;&eacute;s</a>
           </li>
         </ul>
         <div class="tab-content">

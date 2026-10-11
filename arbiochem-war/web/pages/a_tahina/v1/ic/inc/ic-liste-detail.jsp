@@ -2,8 +2,7 @@
 <%@page import="affichage.*"%>
 <%@page import="user.*"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%
-  try {
+<% try {
     UserEJB u = (UserEJB) session.getValue("u");
     String lien   = (String) session.getValue("lien");
     String idMere = request.getParameter("idMere");
@@ -30,18 +29,14 @@
     pr.getTableau().setLibelleAffiche(new String[]{
         "Compartiment", "Qt&eacute;", "P.U.", "Sexe", "Sant&eacute;"
     });
-%>
-<div class="box-body">
-  <%
+
     if (pr.getTableau().getHtml() != null) {
         out.println(pr.getTableau().getHtml());
     } else {
-  %>
-      <center><h4>Aucune ligne trouv&eacute;e</h4></center>
-  <% } %>
-</div>
-<% } catch (Exception e) {
-     out.println("<pre style='color:red'>");
-     e.printStackTrace(new java.io.PrintWriter(out));
-     out.println("</pre>");
-   } %>
+        out.println("<center><h4>Aucune ligne trouv&eacute;e</h4></center>");
+    }
+} catch (Exception e) {
+    out.println("<pre style='color:red'>");
+    e.printStackTrace(new java.io.PrintWriter(out));
+    out.println("</pre>");
+} %>

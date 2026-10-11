@@ -5,13 +5,12 @@
 <%@page import="bean.*"%>
 <%@page import="java.sql.Connection"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%
-  try {
+<% try {
     UserEJB u = (UserEJB) session.getValue("u");
     String lien   = (String) session.getValue("lien");
     String idMere = request.getParameter("idMere");
 
-    // Récupérer les IDs des filles de cette IC
+    // Récupérer les filles pour filtrer les lots
     Connection c = new utilitaire.UtilDB().GetConn();
     InsertionCompartimentFille crit = new InsertionCompartimentFille();
     InsertionCompartimentFille[] filles =
@@ -19,7 +18,6 @@
             crit, null, null, c, " AND idmere = '" + idMere + "'");
     c.close();
 
-    // Construire la clause IN
     StringBuilder in = new StringBuilder();
     for (int i = 0; i < filles.length; i++) {
         if (i > 0) in.append(",");
@@ -55,18 +53,14 @@
         "Id", "Produit", "Souche", "Qt&eacute;", "P.U.",
         "Qt&eacute; actuelle", "Sexe", "Sant&eacute;", "Compartiment"
     });
-%>
-<div class="box-body">
-  <%
+
     if (pr.getTableau().getHtml() != null) {
         out.println(pr.getTableau().getHtml());
     } else {
-  %>
-      <center><h4>Aucun lot cr&eacute;&eacute;</h4></center>
-  <% } %>
-</div>
-<% } catch (Exception e) {
-     out.println("<pre style='color:red'>");
-     e.printStackTrace(new java.io.PrintWriter(out));
-     out.println("</pre>");
-   } %>
+        out.println("<center><h4>Aucun lot cr&eacute;&eacute;</h4></center>");
+    }
+} catch (Exception e) {
+    out.println("<pre style='color:red'>");
+    e.printStackTrace(new java.io.PrintWriter(out));
+    out.println("</pre>");
+} %>
