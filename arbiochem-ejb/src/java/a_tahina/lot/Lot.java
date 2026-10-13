@@ -9,7 +9,14 @@ public class Lot extends ClassMAPTable {
     private String idbonreception;
     private String idproduit;
     private String idsouche;
-    private double qte;
+    private double qteinit;
+    public double getQteinit() {
+        return qteinit;
+    }
+
+    public void setQteinit(double qteinit) {
+        this.qteinit = qteinit;
+    }
     private double pu;
     private String sexe;
     private String idsante;
@@ -42,8 +49,6 @@ public class Lot extends ClassMAPTable {
     public String getIdsouche() { return idsouche; }
     public void setIdsouche(String v) { this.idsouche = v; }
 
-    public double getQte() { return qte; }
-    public void setQte(double v) { this.qte = v; }
 
     public double getPu() { return pu; }
     public void setPu(double v) { this.pu = v; }

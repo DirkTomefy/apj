@@ -13,6 +13,12 @@ VALUES ('MENUPOUSSON', 'Poussins', 'egg',
         'module.jsp?but=a_tahina/v1/bc/boncommande-liste.jsp',
         50, 1, NULL);
 
+INSERT INTO MENUDYNAMIQUE (ID, LIBELLE, ICONE, HREF, RANG, NIVEAU, ID_PERE)
+VALUES ('MENUPOUSSON_SITUCOMP', 'Situation des compartiments', 'egg',
+        'module.jsp?but=a_tahina/v1/compartiment/situation.jsp',
+        50, 1, NULL);
+
+
 -- ---------------------------------------------------------------------------
 -- 2) Sous-menus niveau 2
 -- ---------------------------------------------------------------------------
@@ -70,6 +76,7 @@ VALUES ('MENUPOUSSON_IC_LIST', 'Liste des IC', 'list',
         'module.jsp?but=a_tahina/v1/ic/insertioncompartiment-liste.jsp',
         2, 3, 'MENUPOUSSON_IC');
 
+
 -- ---------------------------------------------------------------------------
 -- 6) Droits d'accès (rôle "resp")
 -- ---------------------------------------------------------------------------
@@ -102,6 +109,10 @@ VALUES (sequsermenu.nextval, 'MENUPOUSSON_IC_ADD',   'resp', 0);
 
 INSERT INTO USERMENU (ID, IDMENU, IDROLE, INTERDIT)
 VALUES (sequsermenu.nextval, 'MENUPOUSSON_IC_LIST',  'resp', 0);
+
+INSERT INTO USERMENU (ID, IDMENU, IDROLE, INTERDIT)
+VALUES (sequsermenu.nextval, 'MENUPOUSSON_SITUCOMP',  'resp', 0);
+
 
 COMMIT;
 
