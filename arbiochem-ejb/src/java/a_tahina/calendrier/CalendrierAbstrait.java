@@ -1,186 +1,239 @@
 package a_tahina.calendrier;
 
 import java.time.LocalDate;
+import java.time.format.TextStyle;
 import java.util.*;
 
-/**
- * Generateur de calendrier HTML.
- *
- * Une sous-classe doit fournir :
- *   - la liste des mois affiches (12 en general)
- *   - les lignes (1..31)
- *   - le contenu d'une cellule (jour, mois)
- *   - le total d'un mois
- *   - le libelle de la ligne de total
- *
- * Le HTML et le CSS sont entierement factorises ici.
- * Aucune logique metier : la sous-classe decide quoi afficher,
- * cette classe decide comment l'afficher.
- */
+import javax.servlet.http.HttpServletRequest;
+
+import a_tahina.calendrier.helper.Mois;
+
+
 public abstract class CalendrierAbstrait {
 
-    // ==================================================================
-    // Contrat de la sous-classe
-    // ==================================================================
+   
+    protected int         anneeAffichee;
+    protected LocalDate   debut;
+    protected LocalDate   fin;
+    protected List<Mois>  moisList = new ArrayList<>();
+    protected int[]       lignes;
 
-    /** Titre du calendrier (ex: "Prevision globale des poussins"). */
+    
+    protected CalendrierAbstrait(HttpServletRequest request) {
+        initPeriode(request);
+        initMois();
+        initLignes();
+    }
+
     public abstract String getTitre();
 
-    /** Liste des mois a afficher en colonnes. */
-    public abstract List<Mois> getMoisList();
-
-    /** Numero des lignes (ex: 1..31). */
-    public abstract int[] getListeLignes();
-
-    /** Retourne la cellule pour un jour et un mois donnes, ou null. */
-    public abstract CelluleCalendrierAbstraite getCellule(int jour, Mois mois);
-
-    /** Retourne la valeur totale d'un mois (pour la ligne de pied). */
-    public abstract double getTotalMois(Mois mois);
-
-    /** Libelle de la ligne de pied (ex: "TOTAL POUSSINS"). */
+ 
     public abstract String getLibelleTotal();
+    
+    protected abstract void charger() throws Exception;
 
-    // ==================================================================
-    // Generation du HTML
-    // ==================================================================
+    protected abstract void simuler() throws Exception;
+
+    protected final void initAll() throws Exception {
+        charger();
+        simuler();
+    }
+
+    private void initPeriode(HttpServletRequest request) {
+        debut = LocalDate.now();
+        fin   = debut.plusDays(60);
+
+        try {
+            String p = request.getParameter("dateDebut");
+            if (p != null && !p.isEmpty()) debut = LocalDate.parse(p);
+        } catch (Exception ignore) {}
+
+        try {
+            String p = request.getParameter("dateFin");
+            if (p != null && !p.isEmpty()) fin = LocalDate.parse(p);
+        } catch (Exception ignore) {}
+
+        if (fin.isBefore(debut)) fin = debut;
+
+        anneeAffichee = debut.getYear();
+        try {
+            String p = request.getParameter("annee");
+            if (p != null && !p.isEmpty()) anneeAffichee = Integer.parseInt(p);
+        } catch (Exception ignore) {}
+    }
+
+    private void initMois() {
+        for (int m = 1; m <= 12; m++) {
+            LocalDate ref = LocalDate.of(anneeAffichee, m, 1);
+            String nom = ref.getMonth().getDisplayName(TextStyle.FULL, Locale.FRENCH);
+            String libelle = capitalize(nom) + " " + anneeAffichee;
+            String nomCourt = ref.getMonth().getDisplayName(TextStyle.SHORT, Locale.FRENCH);
+            String libelleCourt = capitalize(nomCourt).replace(".", "").toUpperCase()
+                                  + " " + anneeAffichee;
+            moisList.add(new Mois(anneeAffichee, m, libelle, libelleCourt));
+        }
+    }
+
+    private void initLignes() {
+        lignes = new int[31];
+        for (int i = 0; i < 31; i++) lignes[i] = i + 1;
+    }
+
+    public void ajouterCellule(LocalDate date, CelluleCalendrierAbstraite cell) {
+        if (date == null || date.getYear() != anneeAffichee) return;
+        Mois mois = moisList.get(date.getMonthValue() - 1);
+        mois.ajouterCellule(date.getDayOfMonth(), cell);
+    }
+
+    protected String libelleJourSemaine(LocalDate date) {
+        return date.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.FRENCH)
+                   .replace(".", "") + ".";
+    }
+
+    protected boolean estDimanche(LocalDate date) {
+        return date.getDayOfWeek().getValue() == 7;
+    }
+
+    protected static String capitalize(String s) {
+        if (s == null || s.isEmpty()) return s;
+        return s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase();
+    }
+
+    public List<Mois> getMoisList()      { return moisList; }
+    public int[]      getListeLignes()   { return lignes; }
+    public LocalDate  getDebut()         { return debut; }
+    public LocalDate  getFin()           { return fin; }
+    public int        getAnneeAffichee() { return anneeAffichee; }
+
+    public CelluleCalendrierAbstraite getCellule(int jour, Mois mois) {
+        return mois.getCellule(jour);
+    }
+
+    public double getTotalMois(Mois mois) {
+        double t = 0;
+        for (CelluleCalendrierAbstraite c : mois.getCellules().values()) {
+            t += c.getValeurNumerique();
+        }
+        return t;
+    }
+
+
+    protected String getCss() {
+        return "<style>\n"
+            // ---- Structure ----
+            + ".table-container { max-width:100%; max-height:80vh; overflow:auto; border:1px solid #ccc; margin-top:10px; }\n"
+            + "table.cal { border-collapse:collapse; width:100%; table-layout:auto; min-width:fit-content; }\n"
+            + "table.cal th, table.cal td { border:1px solid #999; padding:5px; font-size:12px; text-align:right; }\n"
+            + "table.cal th { background:#f2f2f2; text-align:center; position:sticky; top:0; z-index:2; }\n"
+            + "table.cal td.jour-cell { text-align:center; }\n"
+            + "table.cal td.jour { text-align:left; position:sticky; left:0; background:#fff; z-index:3; min-width:80px; max-width:80px; white-space:nowrap; }\n"
+            + ".total { font-weight:bold; background:#eef; }\n"
+            + ".bold { font-weight:bold; }\n"
+            + ".small { font-size:10px; padding:2px; }\n"
+
+            // ---- Couleurs de base ----
+            + ".rouge   { background:#fbb; color:#800; font-weight:bold; }\n"
+            + ".vert    { background:#cfc; color:#060; }\n"
+            + ".jaune   { background:#ffd; color:#880; }\n"
+            + ".orange  { background:#fed; color:#850; }\n"
+            + ".bleu    { background:#cef; color:#006; }\n"
+            + ".violet  { background:#ecf; color:#606; }\n"
+            + ".gris    { background:#eee; color:#333; }\n"
+            + ".noir    { background:#333; color:#fff; }\n"
+            + ".blanc   { background:#fff; color:#000; }\n"
+            + ".rose    { background:#fce; color:#800; }\n"
+            + ".dimanche{ background:#fdd; }\n"
+
+            // ---- Variantes renforcees ----
+            + ".rouge.bold  { background:#e33; color:#fff; }\n"
+            + ".vert.bold   { background:#8e8; color:#030; }\n"
+            + ".noir.bold   { background:#000; color:#ff0; }\n"
+            + ".jaune.bold  { background:#ff0; color:#000; }\n"
+            + ".bleu.bold   { background:#08f; color:#fff; }\n"
+            + ".orange.bold { background:#f80; color:#fff; }\n"
+            + "</style>\n";
+    }
+    
     public String generateHtml() {
         StringBuilder sb = new StringBuilder();
 
-        // ---- CSS ----
-        sb.append("<style>\n")
-          .append(".table-container { max-width:100%; max-height:80vh; overflow:auto; ")
-          .append("border:1px solid #ccc; margin-top:10px; }\n")
+        // ---- CSS (methode dediee pour faciliter la surcharge) ----
+        sb.append(getCss());
 
-          .append("table.cal { border-collapse:collapse; width:100%; ")
-          .append("table-layout:auto; min-width:fit-content; }\n")
-
-          .append("table.cal th, table.cal td { border:1px solid #999; ")
-          .append("padding:5px; font-size:12px; text-align:right; }\n")
-
-          .append("table.cal th { background:#f2f2f2; text-align:center; ")
-          .append("position:sticky; top:0; z-index:2; }\n")
-
-          .append("table.cal td.jour-cell { text-align:center; }\n")
-
-          .append("table.cal td.jour { text-align:left; position:sticky; ")
-          .append("left:0; background:#fff; z-index:3; min-width:80px; ")
-          .append("max-width:80px; white-space:nowrap; }\n")
-
-          .append(".dimanche { background:#fdd; }\n")
-          .append(".rouge { background:#fbb; color:#800; font-weight:bold; }\n")
-          .append(".vert { background:#cfc; }\n")
-          .append(".total { font-weight:bold; background:#eef; }\n")
-          .append("</style>\n");
-
-        // ---- Conteneur + table ----
         sb.append("<div class=\"table-container\">\n");
         sb.append("  <table class=\"cal\">\n");
 
-        List<Mois> moisList = getMoisList();
-        int[] lignes = getListeLignes();
-
-        // ---- En-tete ----
-        sb.append("    <thead>\n");
-        sb.append("      <tr>\n");
-        sb.append("        <th class=\"jour\">Jours</th>\n");
+        // En-tete
+        sb.append("    <thead>\n      <tr>\n")
+          .append("        <th class=\"jour\">Jours</th>\n");
         for (Mois m : moisList) {
-            sb.append("        <th class=\"jour-cell\">Jour</th>\n");
-            sb.append("        <th class=\"jour-cell\">")
-              .append(esc(m.libelleCourt))
-              .append("</th>\n");
+            sb.append("        <th class=\"jour-cell\">Jour</th>\n")
+              .append("        <th class=\"jour-cell\">")
+              .append(esc(m.getLibelleCourt())).append("</th>\n");
         }
-        sb.append("      </tr>\n");
-        sb.append("    </thead>\n");
+        sb.append("      </tr>\n    </thead>\n");
 
-        // ---- Corps ----
+        // Corps
         sb.append("    <tbody>\n");
         for (int jour : lignes) {
-            sb.append("      <tr>\n");
-            sb.append("        <td class=\"jour\">").append(jour).append("</td>\n");
+            sb.append("      <tr>\n")
+              .append("        <td class=\"jour\">").append(jour).append("</td>\n");
 
             for (Mois m : moisList) {
-                // Le jour existe-t-il dans ce mois ? (ex: 31 fevrier n'existe pas)
                 boolean jourExiste = false;
-                try {
-                    LocalDate.of(m.annee, m.mois, jour);
-                    jourExiste = true;
-                } catch (Exception ignore) {
-                    jourExiste = false;
-                }
+                try { LocalDate.of(m.getAnnee(), m.getMois(), jour); jourExiste = true; }
+                catch (Exception ignore) { jourExiste = false; }
 
                 if (!jourExiste) {
-                    sb.append("        <td class=\"jour-cell\">-</td>\n");
-                    sb.append("        <td class=\"jour-cell\">-</td>\n");
+                    sb.append("        <td class=\"jour-cell\">-</td>\n")
+                      .append("        <td class=\"jour-cell\">-</td>\n");
                     continue;
                 }
 
                 CelluleCalendrierAbstraite c = getCellule(jour, m);
                 if (c == null || !c.isAffichee()) {
-                    sb.append("        <td class=\"jour-cell\">-</td>\n");
-                    sb.append("        <td class=\"jour-cell\">-</td>\n");
+                    sb.append("        <td class=\"jour-cell\">-</td>\n")
+                      .append("        <td class=\"jour-cell\">-</td>\n");
                     continue;
                 }
 
-                String css = c.getCssClass() == null ? "" : c.getCssClass();
+                String css   = c.getCssClass() == null ? "" : c.getCssClass();
+                String style = c.getStyle();
+                String styleAttr = (style == null || style.isEmpty())
+                                   ? "" : " style=\"" + esc(style) + "\"";
 
-                sb.append("        <td class=\"jour-cell ").append(css).append("\">")
-                  .append(esc(c.getLibelleCourt())).append("</td>\n");
-
-                sb.append("        <td class=\"jour-cell ").append(css).append("\">")
-                  .append(fmt(c.getValeur())).append("</td>\n");
+                sb.append("        <td class=\"jour-cell ").append(css).append("\"").append(styleAttr).append(">")
+                  .append(esc(c.getLibelleCourt())).append("</td>\n")
+                  .append("        <td class=\"jour-cell ").append(css).append("\"").append(styleAttr).append(">")
+                  .append(esc(c.getValeurAffichee())).append("</td>\n");
             }
             sb.append("      </tr>\n");
         }
         sb.append("    </tbody>\n");
 
-        // ---- Pied ----
-        sb.append("    <tfoot>\n");
-        sb.append("      <tr class=\"total\">\n");
-        sb.append("        <td class=\"jour\">")
-          .append(esc(getLibelleTotal()))
-          .append("</td>\n");
+        // Pied
+        sb.append("    <tfoot>\n      <tr class=\"total\">\n")
+          .append("        <td class=\"jour\">").append(esc(getLibelleTotal())).append("</td>\n");
         for (Mois m : moisList) {
             sb.append("        <td class=\"jour-cell\" colspan=\"2\">")
-              .append(fmt(getTotalMois(m)))
-              .append("</td>\n");
+              .append(fmt(getTotalMois(m))).append("</td>\n");
         }
-        sb.append("      </tr>\n");
-        sb.append("    </tfoot>\n");
+        sb.append("      </tr>\n    </tfoot>\n");
 
-        // ---- Fermeture ----
-        sb.append("  </table>\n");
-        sb.append("</div>\n");
-
+        sb.append("  </table>\n</div>\n");
         return sb.toString();
     }
 
     // ==================================================================
-    // Helpers de formatage
+    // Formatage
     // ==================================================================
-
-    /** Formate une valeur numerique : "-" si <= 0, sinon "1 234". */
     protected String fmt(double v) {
         if (v <= 0) return "-";
         return String.format("%,.0f", v);
     }
 
-    /** Echappe les caracteres HTML sensibles. */
     protected String esc(String s) {
         if (s == null) return "";
-        return s.replace("&", "&amp;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;");
-    }
-
-    // ==================================================================
-    // Structure Mois (utilisee par toutes les sous-classes)
-    // ==================================================================
-    public static class Mois {
-        public int    annee;
-        public int    mois;          // 1..12
-        public String libelle;       // ex: "Octobre 2026"
-        public String libelleCourt;  // ex: "OCT 2026"
-        public Map<Integer, CelluleCalendrierAbstraite> cellules = new LinkedHashMap<>();
+        return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 }
