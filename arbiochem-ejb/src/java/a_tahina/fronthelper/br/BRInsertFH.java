@@ -11,13 +11,6 @@ import affichage.PageInsert;
 import bean.TypeObjet;
 import magasin.Magasin;
 
-/**
- * Front-Helper de saisie d'un Bon de Réception.
- *
- *  L'utilisateur choisit UNIQUEMENT la ligne BC.
- *  Le BC parent et le BR précédent sont déduits dans
- *  BonReceptionPoussin.controler().
- */
 public class BRInsertFH {
 
     public static final String PAGE_ACTUEL   = "a_tahina/v1/br/bonreception-saisie.jsp";
@@ -25,7 +18,7 @@ public class BRInsertFH {
     public static final String PAGE_BR_FICHE = "a_tahina/v1/br/bonreception-fiche.jsp";
     public static final String PAGE_BC_FICHE = "a_tahina/v1/bc/boncommande-fiche.jsp";
 
-    // -------- Lecture paramètres --------
+    // -------- Lecture parametres --------
     public static String getParam(HttpServletRequest req, String name) {
         String v = req.getParameter(name);
         if (v == null || v.trim().isEmpty() || "null".equalsIgnoreCase(v)) return null;
@@ -60,18 +53,19 @@ public class BRInsertFH {
 
     // -------- Config --------
     private static void prepareLibelle(PageInsert pi) {
-        setLabel(pi, "daty",               "Date");
+        setLabel(pi, "daty",               "Date de r&eacute;ception");
         setLabel(pi, "reference",          "R&eacute;f&eacute;rence");
         setLabel(pi, "idboncommandefille", "Ligne BC");
         setLabel(pi, "idlieureception",    "Lieu de r&eacute;ception");
         setLabel(pi, "idmagasin",          "Magasin");
         setLabel(pi, "qtAvantCumule",      "Qt&eacute; avant cumul");
         setLabel(pi, "qtApresCumule",      "Qt&eacute; apr&egrave;s cumul");
-        setLabel(pi, "maty",               "Maty");
-        setLabel(pi, "very",               "Very");
+        setLabel(pi, "maty",               "Morts");
+        setLabel(pi, "very",               "Perdus");
         setLabel(pi, "remarque",           "Remarque");
+        setLabel(pi, "dateEclosion",       "Date d'&eacute;closion");   // <-- NOUVEAU
 
-        // Champs déduits automatiquement → cachés
+        // Champs deduits automatiquement -> caches
         hide(pi, "etat");
         hide(pi, "idboncommande");
         hide(pi, "idbrprecedent");
@@ -99,11 +93,11 @@ public class BRInsertFH {
         }
     }
 
-    // -------- Point d'entrée --------
+    // -------- Point d'entree --------
     public static PageInsert getPageInsert(HttpServletRequest request,
                                            HttpSession session) throws Exception {
         user.UserEJB u = (user.UserEJB) session.getValue("u");
-        if (u == null) throw new Exception("Session expir\u00e9e. Reconnectez-vous.");
+        if (u == null) throw new Exception("Session expiree. Reconnectez-vous.");
 
         BonReceptionPoussin br = new BonReceptionPoussin();
         PageInsert pi = new PageInsert(br, request, u);

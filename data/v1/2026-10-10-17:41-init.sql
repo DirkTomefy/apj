@@ -53,7 +53,6 @@ CREATE SEQUENCE SEQ_INSERTIONCOMPFILLE  START WITH 1;
 CREATE SEQUENCE SEQ_SANTEPOUSSIN        START WITH 1;
 CREATE SEQUENCE SEQ_LIEURECEPTION       START WITH 1;
 CREATE SEQUENCE SEQ_LOT                 START WITH 1;
-CREATE SEQUENCE SEQ_DECL_PERTE_LOT      START WITH 1;
 
 -- ============================================================================
 -- 3. FONCTIONS APJ
@@ -131,13 +130,7 @@ BEGIN
 END;
 /
 
-CREATE OR REPLACE FUNCTION GETSEQDECL_PERTE_LOT RETURN NUMBER IS
-    v NUMBER;
-BEGIN
-    SELECT SEQ_DECL_PERTE_LOT.NEXTVAL INTO v FROM DUAL;
-    RETURN v;
-END;
-/
+
 
 -- ============================================================================
 -- 4. TABLES MÉTIER
@@ -219,17 +212,6 @@ CREATE TABLE LOT (
     qte_actuelle          NUMBER(15,2)
 );
 
--- Déclaration de perte
-CREATE TABLE DECL_PERTE_LOT (
-    id                    VARCHAR2(30) PRIMARY KEY,
-    idlot                 VARCHAR2(30),
-    qte_maty              NUMBER(15,2),
-    qte_very              NUMBER(15,2),
-    daty                  DATE,
-    reference             VARCHAR2(100),
-    remarque              VARCHAR2(500)
-);
-
 -- ============================================================================
 -- 5. CONTRAINTES CHECK
 -- ============================================================================
@@ -263,9 +245,6 @@ ALTER TABLE LOT
 
 ALTER TABLE LOT
     ADD CONSTRAINT ck_lot_qte_actuelle CHECK (qte_actuelle >= 0);
-
-ALTER TABLE DECL_PERTE_LOT
-    ADD CONSTRAINT ck_dpl_qte CHECK (qte_maty >= 0 AND qte_very >= 0);
 
 -- ============================================================================
 -- 6. CLÉS ÉTRANGÈRES
@@ -331,10 +310,6 @@ ALTER TABLE LOT
     ADD CONSTRAINT fk_lot_sante FOREIGN KEY (idsante)
         REFERENCES SANTEPOUSSIN(id);
 
--- DECL_PERTE_LOT
-ALTER TABLE DECL_PERTE_LOT
-    ADD CONSTRAINT fk_dpl_lot FOREIGN KEY (idlot)
-        REFERENCES LOT(id);
 
 -- ============================================================================
 --  CLÉS ÉTRANGÈRES vers MAGASIN2
@@ -370,7 +345,6 @@ CREATE INDEX idx_lot_br        ON LOT (idbonreception);
 CREATE INDEX idx_lot_bc        ON LOT (idboncommande);
 CREATE INDEX idx_lot_icf       ON LOT (idinsertcompfille);
 
-CREATE INDEX idx_dpl_lot       ON DECL_PERTE_LOT (idlot);
 
 -- ============================================================================
 -- 8. VUES
@@ -508,19 +482,6 @@ LEFT JOIN SANTEPOUSSIN               sp  ON sp.id  = l.idsante
 LEFT JOIN SEXE                       sx  ON sx.id  = l.sexe
 LEFT JOIN INSERTION_COMPARTIMENT_FILLE icf ON icf.id = l.idinsertcompfille
 LEFT JOIN COMPARTIMENT               c   ON c.id   = icf.idcompartiment;
-/
-
--- Vue DECL_PERTE_LOT
-CREATE OR REPLACE VIEW DECL_PERTE_LOT_LIB AS
-SELECT dpl.id, dpl.idlot, dpl.qte_maty, dpl.qte_very,
-       dpl.daty, dpl.reference, dpl.remarque,
-       l.idproduit, l.idsouche,
-       i.libelle AS produitlib,
-       s.val     AS souchelibr
-FROM DECL_PERTE_LOT dpl
-LEFT JOIN LOT         l ON l.id = dpl.idlot
-LEFT JOIN AS_INGREDIENTS i ON i.id = l.idproduit
-LEFT JOIN SOUCHE         s ON s.id = l.idsouche;
 /
 
 

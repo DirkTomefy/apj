@@ -1,7 +1,12 @@
 package a_tahina.lot;
 
 import java.sql.Connection;
+import java.sql.Date;
+
+import bean.CGenUtil;
 import bean.ClassMAPTable;
+
+import a_tahina.br.BonReceptionPoussin;
 
 public class Lot extends ClassMAPTable {
 
@@ -10,19 +15,13 @@ public class Lot extends ClassMAPTable {
     private String idproduit;
     private String idsouche;
     private double qteinit;
-    public double getQteinit() {
-        return qteinit;
-    }
-
-    public void setQteinit(double qteinit) {
-        this.qteinit = qteinit;
-    }
     private double pu;
     private String sexe;
     private String idsante;
     private String idinsertcompfille;
     private String idboncommande;
     private double qteActuelle;
+    private Date dateEclosion;    
 
     public Lot() throws Exception {
         this.setNomTable("LOT");
@@ -37,6 +36,43 @@ public class Lot extends ClassMAPTable {
     @Override public String getAttributIDName() { return "id"; }
     @Override public String getTuppleID()       { return this.getId(); }
 
+    @Override
+    public void controler(Connection c) throws Exception {
+
+        // 1. Si QTEACTUELLE n'est pas definie, l'initialiser a QTEINIT
+        if (this.qteActuelle == 0 && this.qteinit > 0) {
+            this.qteActuelle = this.qteinit;
+        }
+
+        // 2. Si DATE_ECLOSION absente ET qu'on a un BR -> copier
+        if (this.dateEclosion == null && this.idbonreception != null) {
+            BonReceptionPoussin[] arr = (BonReceptionPoussin[]) CGenUtil.rechercher(
+                    new BonReceptionPoussin(), null, null, c,
+                    " AND id = '" + this.idbonreception + "' ");
+            if (arr != null && arr.length > 0) {
+                BonReceptionPoussin br = arr[0];
+                if (br.getDateEclosion() != null) {
+                    this.dateEclosion = br.getDateEclosion();
+                }
+            }
+        }
+
+        // 3. Verifications
+        if (this.qteinit < 0) {
+            throw new Exception("QTEINIT ne peut pas etre negatif");
+        }
+        if (this.sexe == null || (!this.sexe.equals("0") && !this.sexe.equals("1"))) {
+            throw new Exception("SEXE doit etre '0' (Femelle) ou '1' (Male)");
+        }
+        if (this.dateEclosion == null) {
+            throw new Exception("DATE_ECLOSION introuvable (BR " + this.idbonreception
+                    + " sans date d'eclosion)");
+        }
+    }
+
+    // =========================================================
+    // Getters / Setters
+    // =========================================================
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 
@@ -49,6 +85,8 @@ public class Lot extends ClassMAPTable {
     public String getIdsouche() { return idsouche; }
     public void setIdsouche(String v) { this.idsouche = v; }
 
+    public double getQteinit() { return qteinit; }
+    public void setQteinit(double qteinit) { this.qteinit = qteinit; }
 
     public double getPu() { return pu; }
     public void setPu(double v) { this.pu = v; }
@@ -67,4 +105,7 @@ public class Lot extends ClassMAPTable {
 
     public double getQteActuelle() { return qteActuelle; }
     public void setQteActuelle(double v) { this.qteActuelle = v; }
+
+    public Date getDateEclosion() { return dateEclosion; }
+    public void setDateEclosion(Date v) { this.dateEclosion = v; }
 }

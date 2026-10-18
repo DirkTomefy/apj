@@ -29,32 +29,33 @@ public class BRFicheFH {
     public static PageConsulte getPageConsulte(HttpServletRequest request,
                                                HttpSession session) throws Exception {
         UserEJB u = (UserEJB) session.getValue("u");
-        if (u == null) throw new Exception("Session expir\u00e9e. Reconnectez-vous.");
+        if (u == null) throw new Exception("Session expiree. Reconnectez-vous.");
 
         BonReceptionPoussinLib f = new BonReceptionPoussinLib();
         f.setNomTable("BONRECEPTION_POUSSIN_LIB");
 
         PageConsulte pc = new PageConsulte(f, request, u);
-        pc.setTitre("Fiche bon de r\u00e9ception poussin");
+        pc.setTitre("Fiche bon de reception poussin");
         pc.setLien((String) session.getValue("lien"));
         pc.setCanUploadFile(false);
 
         setLabel(pc, "id",                 "Id");
-        setLabel(pc, "daty",               "Date");
-        setLabel(pc, "reference",          "R&eacute;f&eacute;rence");
+        setLabel(pc, "daty",               "Date reception");
+        setLabel(pc, "reference",          "Reference");
         setLabel(pc, "idboncommandelib",   "Bon de commande");
-        setLabel(pc, "idbrprecedentlib",   "BR pr&eacute;c&eacute;dent");
-        setLabel(pc, "idlieureceptionlib", "Lieu de r&eacute;ception");
+        setLabel(pc, "idbrprecedentlib",   "BR precedent");
+        setLabel(pc, "idlieureceptionlib", "Lieu de reception");
         setLabel(pc, "idmagasinlib",       "Magasin");
-        setLabel(pc, "etat",               "&Eacute;tat");
-        setLabel(pc, "etatlib",            "&Eacute;tat");
-        setLabel(pc, "qtAvantCumule",      "Qt&eacute; avant cumul");
-        setLabel(pc, "qtApresCumule",      "Qt&eacute; apr&egrave;s cumul");
-        setLabel(pc, "maty",               "Maty");
-        setLabel(pc, "very",               "Very");
+        setLabel(pc, "etat",               "Etat");
+        setLabel(pc, "etatlib",            "Etat");
+        setLabel(pc, "qtAvantCumule",      "Qte avant cumul");
+        setLabel(pc, "qtApresCumule",      "Qte apres cumul");
+        setLabel(pc, "maty",               "Morts");
+        setLabel(pc, "very",               "Perdus");
         setLabel(pc, "remarque",           "Remarque");
         setLabel(pc, "produitlib",         "Produit");
         setLabel(pc, "souchelibr",         "Souche");
+        setLabel(pc, "dateEclosion",       "Date d'eclosion");    // <-- NOUVEAU
 
         hide(pc, "idboncommande");
         hide(pc, "idbrprecedent");
