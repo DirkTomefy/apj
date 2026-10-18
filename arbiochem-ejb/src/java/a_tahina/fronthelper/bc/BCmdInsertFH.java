@@ -7,6 +7,8 @@ import a_tahina.bc.BonCommandePoussin;
 import a_tahina.bc.BonCommandePoussinFille;
 import affichage.Liste;
 import affichage.PageInsertMultiple;
+import bean.TypeObjet;
+import a_tahina.prevision.Fournisseur;        
 import ferme.configuration.Souche;
 
 public class BCmdInsertFH {
@@ -23,6 +25,7 @@ public class BCmdInsertFH {
     public static void prepareLibelleChampFille(PageInsertMultiple pi) throws Exception {
         pi.getFormufle().getChamp("idproduit_0").setLibelle("Produit");
         pi.getFormufle().getChamp("idsouche_0").setLibelle("Souche");
+        pi.getFormufle().getChamp("fournisseur_0").setLibelle("Fournisseur");   // <-- NOUVEAU
         pi.getFormufle().getChamp("qte_0").setLibelle("Qté");
         pi.getFormufle().getChamp("pu_0").setLibelle("P.U.");
 
@@ -39,17 +42,15 @@ public class BCmdInsertFH {
 
     public static void changeChampIntoListe(PageInsertMultiple pi) throws Exception {
         // !mère
-
         Liste[] listeMere = new Liste[1];
         listeMere[0] = new Liste("idmagasin", new magasin.Magasin(), "val", "id");
-
         pi.getFormu().changerEnChamp(listeMere);
 
-        // ! fille
-        Liste[] listeFille = new Liste[2];
-        listeFille[0] = new Liste("idproduit", new produits.Ingredients(), "libelle", "id");
-        listeFille[1] = new Liste("idsouche", new Souche(), "val", "id");
-
+        // !fille
+        Liste[] listeFille = new Liste[3];                                      
+        listeFille[0] = new Liste("idproduit",   new produits.Ingredients(), "libelle", "id");
+        listeFille[1] = new Liste("idsouche",    new Souche(),               "val",     "id");
+        listeFille[2] = new Liste("fournisseur", new Fournisseur(), "nom",   "id"); 
         pi.getFormufle().changerEnChamp(listeFille);
     }
 
@@ -72,7 +73,7 @@ public class BCmdInsertFH {
         prepareDefaultValueForFille(pi, nombreLigne);
 
         pi.getFormufle().setColOrdre(new String[] {
-                "idproduit", "idsouche", "qte", "pu"
+                "idproduit", "idsouche", "fournisseur", "qte", "pu"           // <-- fournisseur ajouté
         });
 
         pi.getFormu().makeHtmlInsertTabIndex();

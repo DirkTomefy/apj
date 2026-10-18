@@ -69,10 +69,14 @@ public class BRInsertFH {
         hide(pi, "etat");
         hide(pi, "idboncommande");
         hide(pi, "idbrprecedent");
+        hide(pi,"qtAvantCumule");
+        hide(pi,"qtApresCumule");
     }
 
     private static void prepareDefaultValues(PageInsert pi) {
-        setDefaut(pi, "daty",          utilitaire.Utilitaire.dateDuJour());
+        String aujourdHui = utilitaire.Utilitaire.dateDuJour();
+        setDefaut(pi, "daty",    aujourdHui      );
+        setDefaut(pi, "dateEclosion",  aujourdHui);
         setDefaut(pi, "maty",          "0");
         setDefaut(pi, "very",          "0");
         setDefaut(pi, "qtAvantCumule", "0");

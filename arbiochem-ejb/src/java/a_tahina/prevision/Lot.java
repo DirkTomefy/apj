@@ -44,7 +44,7 @@ public class Lot extends ClassMAPTable {
             this.qteActuelle = this.qteinit;
         }
 
-        // 2. Si DATE_ECLOSION absente ET qu'on a un BR -> copier
+        // 2. Si DATEECLOSION absente ET qu'on a un BR -> copier
         if (this.dateEclosion == null && this.idbonreception != null) {
             BonReceptionPoussin[] arr = (BonReceptionPoussin[]) CGenUtil.rechercher(
                     new BonReceptionPoussin(), null, null, c,
@@ -65,7 +65,7 @@ public class Lot extends ClassMAPTable {
             throw new Exception("SEXE doit etre '0' (Femelle) ou '1' (Male)");
         }
         if (this.dateEclosion == null) {
-            throw new Exception("DATE_ECLOSION introuvable (BR " + this.idbonreception
+            throw new Exception("DATEECLOSION introuvable (BR " + this.idbonreception
                     + " sans date d'eclosion)");
         }
     }
