@@ -42,8 +42,8 @@ SELECT l.id                                AS idlot,
        TRUNC(l.dateeclosion)               AS dateeclosion,
        NVL(s.nb_jours_eclosion, 21)        AS nb_jours_eclosion,
        NVL(s.semaine_debut_ponte, 21)      AS semaine_debut_ponte,
-       NVL(s.taux_eclosion, 85)            AS taux_eclosion,
-       NVL(s.ratio_femelle, 50)            AS ratio_femelle
+       NVL(s.taux_eclosion, 100)            AS taux_eclosion,
+       NVL(s.ratio_femelle, 100)            AS ratio_femelle
 FROM   LOT l
        LEFT JOIN SOUCHE s ON s.id = l.idsouche
 WHERE  l.sexe = '0'
