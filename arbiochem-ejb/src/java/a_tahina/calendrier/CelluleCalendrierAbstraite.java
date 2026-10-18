@@ -1,18 +1,9 @@
 package a_tahina.calendrier;
 
-/**
- * Contrat abstrait d'une cellule de calendrier.
- *
- * Deux facons de colorer une cellule :
- *   1. getCssClass() : retourne une classe CSS parmi les constantes ci-dessous
- *   2. getStyle()    : retourne un style inline (ex: "background:#abc")
- *
- * Les deux peuvent etre combines (CSS + style inline).
- */
 public abstract class CelluleCalendrierAbstraite {
 
     // ==================================================================
-    // Constantes de classes CSS (a utiliser dans getCssClass())
+    // Constantes de classes CSS
     // ==================================================================
     public static final String ROUGE    = "rouge";
     public static final String VERT     = "vert";
@@ -23,38 +14,24 @@ public abstract class CelluleCalendrierAbstraite {
     public static final String GRIS     = "gris";
     public static final String NOIR     = "noir";
     public static final String BLANC    = "blanc";
+    public static final String ROSE     = "rose";
     public static final String DIMANCHE = "dimanche";
 
     // ==================================================================
     // Contrat
     // ==================================================================
-
-    /** Valeur a afficher (Double, Integer, String, ...). */
     public abstract Object getValeur();
-
-    /** Classe CSS (une ou plusieurs, separees par espace). */
     public abstract String getCssClass();
-
-    /** Libelle court affiche dans la 1ere sous-colonne (ex: "Lun."). */
     public abstract String getLibelleCourt();
 
-    /** true si la cellule doit etre affichee (sinon "-"). */
-    public boolean isAffichee() {
-        return true;
-    }
+    public boolean isAffichee() { return true; }
 
-    /**
-     * Style inline optionnel (ex: "background:#abc;color:#fff").
-     * Retourner null ou "" si aucun style supplementaire n'est necessaire.
-     */
-    public String getStyle() {
-        return null;
-    }
+    /** Style inline optionnel (ex: "background:#abc;color:#fff"). */
+    public String getStyle() { return null; }
 
     // ==================================================================
-    // Helpers par defaut (surchargeables)
+    // Helpers par defaut
     // ==================================================================
-
     public double getValeurNumerique() {
         Object v = getValeur();
         if (v instanceof Number) return ((Number) v).doubleValue();
@@ -72,9 +49,7 @@ public abstract class CelluleCalendrierAbstraite {
         return v.toString();
     }
 
-    // ==================================================================
-    // Helper de heatmap : renvoie une classe CSS selon un ratio 0..1
-    // ==================================================================
+    /** Helper heatmap : renvoie une classe selon un ratio 0..1. */
     protected static String couleurSelonRatio(double ratio) {
         if (ratio >= 0.8) return ROUGE;
         if (ratio >= 0.6) return ORANGE;

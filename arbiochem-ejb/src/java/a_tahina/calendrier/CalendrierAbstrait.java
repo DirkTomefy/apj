@@ -8,37 +8,59 @@ import javax.servlet.http.HttpServletRequest;
 
 import a_tahina.calendrier.helper.Mois;
 
-
+/**
+ * Generateur de calendrier HTML.
+ *
+ * La classe abstraite fait tout le generique :
+ *   - lecture des parametres HTTP (dateDebut, dateFin, annee)
+ *   - creation des 12 mois de l'annee
+ *   - creation des lignes 1..31
+ *   - ajout de cellules dans le bon mois
+ *   - calcul des totaux par mois
+ *   - generation complete HTML + CSS
+ *
+ * La sous-classe fournit :
+ *   - charger() : lecture des donnees
+ *   - simuler() : remplissage via ajouterCellule(...)
+ *   - getTitre(), getLibelleTotal()
+ */
 public abstract class CalendrierAbstrait {
 
-   
+    // ==================================================================
+    // Champs communs
+    // ==================================================================
     protected int         anneeAffichee;
     protected LocalDate   debut;
     protected LocalDate   fin;
     protected List<Mois>  moisList = new ArrayList<>();
     protected int[]       lignes;
 
-    
+    // ==================================================================
+    // Constructeur : lit les parametres + init structure
+    // ==================================================================
     protected CalendrierAbstrait(HttpServletRequest request) {
         initPeriode(request);
         initMois();
         initLignes();
     }
 
+    // ==================================================================
+    // Contrat minimal de la sous-classe
+    // ==================================================================
     public abstract String getTitre();
-
- 
     public abstract String getLibelleTotal();
-    
     protected abstract void charger() throws Exception;
-
     protected abstract void simuler() throws Exception;
 
+    /** A appeler dans le constructeur de la sous-classe APRES super(request). */
     protected final void initAll() throws Exception {
         charger();
         simuler();
     }
 
+    // ==================================================================
+    // Initialisation generique
+    // ==================================================================
     private void initPeriode(HttpServletRequest request) {
         debut = LocalDate.now();
         fin   = debut.plusDays(60);
@@ -79,6 +101,9 @@ public abstract class CalendrierAbstrait {
         for (int i = 0; i < 31; i++) lignes[i] = i + 1;
     }
 
+    // ==================================================================
+    // Helpers communs
+    // ==================================================================
     public void ajouterCellule(LocalDate date, CelluleCalendrierAbstraite cell) {
         if (date == null || date.getYear() != anneeAffichee) return;
         Mois mois = moisList.get(date.getMonthValue() - 1);
@@ -99,6 +124,9 @@ public abstract class CalendrierAbstrait {
         return s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase();
     }
 
+    // ==================================================================
+    // Accesseurs JSP
+    // ==================================================================
     public List<Mois> getMoisList()      { return moisList; }
     public int[]      getListeLignes()   { return lignes; }
     public LocalDate  getDebut()         { return debut; }
@@ -117,10 +145,11 @@ public abstract class CalendrierAbstrait {
         return t;
     }
 
-
+    // ==================================================================
+    // CSS
+    // ==================================================================
     protected String getCss() {
         return "<style>\n"
-            // ---- Structure ----
             + ".table-container { max-width:100%; max-height:80vh; overflow:auto; border:1px solid #ccc; margin-top:10px; }\n"
             + "table.cal { border-collapse:collapse; width:100%; table-layout:auto; min-width:fit-content; }\n"
             + "table.cal th, table.cal td { border:1px solid #999; padding:5px; font-size:12px; text-align:right; }\n"
@@ -129,9 +158,6 @@ public abstract class CalendrierAbstrait {
             + "table.cal td.jour { text-align:left; position:sticky; left:0; background:#fff; z-index:3; min-width:80px; max-width:80px; white-space:nowrap; }\n"
             + ".total { font-weight:bold; background:#eef; }\n"
             + ".bold { font-weight:bold; }\n"
-            + ".small { font-size:10px; padding:2px; }\n"
-
-            // ---- Couleurs de base ----
             + ".rouge   { background:#fbb; color:#800; font-weight:bold; }\n"
             + ".vert    { background:#cfc; color:#060; }\n"
             + ".jaune   { background:#ffd; color:#880; }\n"
@@ -143,21 +169,15 @@ public abstract class CalendrierAbstrait {
             + ".blanc   { background:#fff; color:#000; }\n"
             + ".rose    { background:#fce; color:#800; }\n"
             + ".dimanche{ background:#fdd; }\n"
-
-            // ---- Variantes renforcees ----
-            + ".rouge.bold  { background:#e33; color:#fff; }\n"
-            + ".vert.bold   { background:#8e8; color:#030; }\n"
-            + ".noir.bold   { background:#000; color:#ff0; }\n"
-            + ".jaune.bold  { background:#ff0; color:#000; }\n"
-            + ".bleu.bold   { background:#08f; color:#fff; }\n"
-            + ".orange.bold { background:#f80; color:#fff; }\n"
             + "</style>\n";
     }
-    
+
+    // ==================================================================
+    // Generation HTML
+    // ==================================================================
     public String generateHtml() {
         StringBuilder sb = new StringBuilder();
 
-        // ---- CSS (methode dediee pour faciliter la surcharge) ----
         sb.append(getCss());
 
         sb.append("<div class=\"table-container\">\n");
