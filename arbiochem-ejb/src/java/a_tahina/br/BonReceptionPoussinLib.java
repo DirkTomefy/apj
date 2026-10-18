@@ -11,6 +11,9 @@ public class BonReceptionPoussinLib extends BonReceptionPoussin {
     private String souchelibr;
     private String etatlib;
 
+    private String idsouche;          
+    private double qtecommandee;     
+
     public BonReceptionPoussinLib() throws Exception {
         super();
         this.setNomTable("BONRECEPTION_POUSSIN_LIB");
@@ -39,4 +42,11 @@ public class BonReceptionPoussinLib extends BonReceptionPoussin {
 
     public String getEtatlib() { return etatlib; }
     public void setEtatlib(String v) { this.etatlib = v; }
+
+    // ----- NOUVEAUX -----
+    public String getIdsouche() { return idsouche; }
+    public void   setIdsouche(String v) { this.idsouche = v; }
+
+    public double getQtecommandee() { return qtecommandee; }
+    public void   setQtecommandee(double v) { this.qtecommandee = v; }
 }

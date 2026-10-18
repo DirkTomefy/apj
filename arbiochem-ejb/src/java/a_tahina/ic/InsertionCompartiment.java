@@ -58,7 +58,7 @@ public class InsertionCompartiment extends ClassMere {
                 lot.setIdbonreception(this.idbonreception);
                 lot.setIdboncommande(br.getIdboncommande());
                 lot.setIdproduit(br.getIdboncommandefilleproduit());
-                lot.setIdsouche(br.getSouchelibr());
+                lot.setIdsouche(br.getIdsouche());
                 lot.setQteinit(icf.getQte());
                 lot.setPu(icf.getPu());
                 lot.setSexe(icf.getSexe());
