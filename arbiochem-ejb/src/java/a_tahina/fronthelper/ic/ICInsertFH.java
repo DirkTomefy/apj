@@ -125,14 +125,14 @@ public class ICInsertFH {
     private static void prepareLibelleFille(PageInsertMultiple pi) {
         setFilleLabelByPrefix(pi, "idcompartiment",     "Compartiment");
         setFilleLabelByPrefix(pi, "qte",                "Qt&eacute;");
-        setFilleLabelByPrefix(pi, "pu",                 "P.U.");
-        setFilleLabelByPrefix(pi, "valeurcompartiment", "Valeur");
         setFilleLabelByPrefix(pi, "sexe",               "Sexe");
         setFilleLabelByPrefix(pi, "idsante",            "Sant&eacute;");
 
         // Masquer les colonnes techniques
         masquerFilleByPrefix(pi, "idmere_");
         masquerFilleByPrefix(pi, "id_");
+        masquerFilleByPrefix(pi, "pu_");                    // <-- NOUVEAU
+        masquerFilleByPrefix(pi, "valeurcompartiment_");   
     }
 
     // =========================================================

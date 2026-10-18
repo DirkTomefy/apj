@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.Date;
 
 import a_tahina.br.BonReceptionPoussinLib;
-import a_tahina.lot.Lot;
+import a_tahina.prevision.Lot;
 import bean.ClassFille;
 import bean.ClassMAPTable;
 import bean.ClassMere;
