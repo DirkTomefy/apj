@@ -19,6 +19,25 @@ SET LINESIZE 200
 --    = naissances cumulees - pertes cumulees (plancher 0).
 -- ============================================================
 
+PROMPT === DECL_PERTE_LOT_CPL ===
+CREATE OR REPLACE VIEW DECL_PERTE_LOT_CPL AS
+SELECT
+    dp.id as id,
+    dp.sexe as sexe, 
+    dp.IDCOMPARTIMENT as IDCOMPARTIMENT,
+    l.id AS IDLOT,
+    NVL(dp.QTEMORT, 0) as QTEMORT,
+    NVL(dp.QTEVERY, 0) as QTEVERY,
+    NVL (dp.QTEMORT, 0) + NVL(dp.QTEVERY, 0) as QTEPERTE,
+    ((NVL (dp.QTEMORT, 0) + NVL(dp.QTEVERY, 0)) * NVL(ic.pu, 0)) as cout,
+    dp.daty as daty, 
+    ic.pu as pu 
+FROM DECL_PERTE_LOT dp
+LEFT JOIN INSERTION_COMPARTIMENT_FILLE ic ON ic.idcompartiment = dp.IDCOMPARTIMENT  
+LEFT JOIN LOT l ON l.IDINSERTCOMPFILLE = ic.id;
+SHOW ERRORS VIEW DECL_PERTE_LOT_CPL
+
+
 PROMPT === V_CAL_JOURS ===
 CREATE OR REPLACE VIEW V_CAL_JOURS AS
 SELECT b.d_min + LEVEL - 1 AS daty
@@ -148,12 +167,14 @@ SELECT d.daty,
        NVL(t.pertesmales, 0)                                       AS pertesmales,
        NVL(t.pertesfemelles, 0)                                    AS pertesfemelles,
        NVL(p.ca, 0)                                                AS ca,
-       NVL(i.cout, 0)                                              AS cout,
-       NVL(p.ca, 0) - NVL(i.cout, 0)                               AS benefice
+       NVL(dp.cout, 0)                                              AS cout,
+       NVL(p.ca, 0) - NVL(dp.cout, 0)                               AS benefice
 FROM   V_CAL_JOURS d
        LEFT JOIN V_CAL_INITIAUX   i ON i.daty = d.daty
        LEFT JOIN V_CAL_PONTE_JOUR p ON p.daty = d.daty
-       LEFT JOIN V_CAL_PERTES     t ON t.daty = d.daty;
+       LEFT JOIN V_CAL_PERTES     t ON t.daty = d.daty
+       LEFT JOIN DECL_PERTE_LOT_CPL dp ON dp.daty = d.daty
+       ;
 SHOW ERRORS VIEW CALENDRIER_POUSSIN_RAW
 
 PROMPT === CALENDRIER_POUSSIN_CUMUL ===
