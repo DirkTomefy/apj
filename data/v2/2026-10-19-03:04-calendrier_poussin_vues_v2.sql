@@ -4,21 +4,19 @@ SET LINESIZE 200
 -- ============================================================
 -- Vues du calendrier poussin, version compartiments + CA / benefice.
 -- A lancer APRES migration_decl_perte_lot.sql.
--- Remplace calendrier_poussin_modulaire.sql, calendrier_poussin_fix_ponte.sql
--- et calendrier_poussin_cumul.sql (la regle de ponte corrigee y est incluse).
 --
 -- Regles :
 --  * Ponte : une poule pond a partir de SEMAINE_DEBUT_PONTE semaines revolues
 --    apres l'eclosion ; les poussins arrivent NB_JOURS_ECLOSION jours apres.
 --  * Pertes : declarees par compartiment et par sexe. Une perte de sexe '0'
 --    reduit les poules des lots femelles du compartiment (reparties au
---    prorata de QTEINIT), sans plafond d'effectif : c'est une simulation,
---    on peut "tuer" des poussins qui n'existent pas encore.
---  * PU commande : prix unitaire moyen (pondere par QTE) des lignes de
---    BONCOMMANDE_POUSSIN_FILLE du bon du lot et de sa souche ; a defaut LOT.PU.
+--    prorata de QTEINIT), sans plafond d'effectif.
+--  * PU commande : PU moyen pondere des lignes BCF du bon du lot et de sa souche.
 --  * CA du jour   = poussins issus de la ponte x PU commande.
 --  * Cout du jour = poussins achetes (lots) x PU commande, au jour d'eclosion.
 --  * Benefice     = CA - cout.
+--  * Cumuls (poussinscumules/malescumules/femellescumulees) = VIVANTS
+--    = naissances cumulees - pertes cumulees (plancher 0).
 -- ============================================================
 
 PROMPT === V_CAL_JOURS ===
@@ -69,7 +67,6 @@ SELECT x.idlot,
        x.taux_eclosion,
        x.ratio_femelle,
        x.pu,
-       -- part du lot dans les pertes de son compartiment
        NVL(x.qteinit / NULLIF(SUM(x.qteinit) OVER (PARTITION BY x.idcompartiment), 0), 0) AS part_comp
 FROM  (SELECT l.id                            AS idlot,
               l.idsouche,
@@ -92,7 +89,6 @@ SHOW ERRORS VIEW V_CAL_LOT_INFO
 PROMPT === V_CAL_PONTE_JOUR : poussins issus de la ponte et CA, par jour ===
 CREATE OR REPLACE VIEW V_CAL_PONTE_JOUR AS
 WITH cfg AS (
-    -- MAX evite ORA-01427 si doublons (idsouche, semaine)
     SELECT idsouche, semaine, MAX(nbjour) AS nbjour
     FROM   CONFIG_PREVISION
     GROUP  BY idsouche, semaine
@@ -102,7 +98,6 @@ ponte AS (
            li.idlot, li.idsouche, li.idcompartiment, li.qteinit, li.part_comp, li.pu,
            li.taux_eclosion, li.ratio_femelle,
            li.nb_jours_eclosion, li.semaine_debut_ponte,
-           -- age de la poule (semaines revolues) le jour de la ponte
            FLOOR((d.daty - li.nb_jours_eclosion - li.dateeclosion) / 7) AS sem
     FROM   V_CAL_JOURS d
            JOIN V_CAL_LOT_INFO li
@@ -132,10 +127,12 @@ FROM   ponte_calc
 GROUP  BY daty;
 SHOW ERRORS VIEW V_CAL_PONTE_JOUR
 
-PROMPT === V_CAL_PERTES : pertes declarees par jour ===
+PROMPT === V_CAL_PERTES : pertes declarees par jour (avec ventilation sexe) ===
 CREATE OR REPLACE VIEW V_CAL_PERTES AS
 SELECT TRUNC(daty) AS daty,
-       SUM(NVL(qtemort,0) + NVL(qtevery,0)) AS pertes
+       SUM(NVL(qtemort,0) + NVL(qtevery,0))                                      AS pertes,
+       SUM(CASE WHEN sexe = '0' THEN NVL(qtemort,0) + NVL(qtevery,0) ELSE 0 END) AS pertesfemelles,
+       SUM(CASE WHEN sexe = '1' THEN NVL(qtemort,0) + NVL(qtevery,0) ELSE 0 END) AS pertesmales
 FROM   DECL_PERTE_LOT
 WHERE  daty IS NOT NULL
 GROUP  BY TRUNC(daty);
@@ -148,6 +145,8 @@ SELECT d.daty,
        NVL(i.males, 0)    + (NVL(p.total, 0) - NVL(p.femelles, 0)) AS poussinsmales,
        NVL(i.femelles, 0) + NVL(p.femelles, 0)                     AS poussinsfemelles,
        NVL(t.pertes, 0)                                            AS pertes,
+       NVL(t.pertesmales, 0)                                       AS pertesmales,
+       NVL(t.pertesfemelles, 0)                                    AS pertesfemelles,
        NVL(p.ca, 0)                                                AS ca,
        NVL(i.cout, 0)                                              AS cout,
        NVL(p.ca, 0) - NVL(i.cout, 0)                               AS benefice
@@ -158,6 +157,8 @@ FROM   V_CAL_JOURS d
 SHOW ERRORS VIEW CALENDRIER_POUSSIN_RAW
 
 PROMPT === CALENDRIER_POUSSIN_CUMUL ===
+-- CORRIGE : poussinscumules = naissances cumulees - pertes cumulees
+-- (avant : cumul des naissances brutes, sans deduction des morts)
 CREATE OR REPLACE VIEW CALENDRIER_POUSSIN_CUMUL AS
 SELECT daty,
        poussins,
@@ -167,9 +168,20 @@ SELECT daty,
        ca,
        cout,
        benefice,
-       SUM(poussins)         OVER (ORDER BY daty) AS poussinscumules,
-       SUM(poussinsmales)    OVER (ORDER BY daty) AS malescumules,
-       SUM(poussinsfemelles) OVER (ORDER BY daty) AS femellescumulees
+       -- Cumuls bruts (info)
+       SUM(poussins)         OVER (ORDER BY daty) AS naissancescumulees,
+       SUM(poussinsmales)    OVER (ORDER BY daty) AS malesnescumules,
+       SUM(poussinsfemelles) OVER (ORDER BY daty) AS femellesneescumulees,
+       SUM(pertes)           OVER (ORDER BY daty) AS pertescumulees,
+       SUM(pertesmales)      OVER (ORDER BY daty) AS pertesmalescumulees,
+       SUM(pertesfemelles)   OVER (ORDER BY daty) AS pertesfemellescumulees,
+       -- ✅ VIVANTS = naissances - pertes (plancher a 0)
+       GREATEST(0, SUM(poussins)         OVER (ORDER BY daty)
+                 - SUM(pertes)           OVER (ORDER BY daty)) AS poussinscumules,
+       GREATEST(0, SUM(poussinsmales)    OVER (ORDER BY daty)
+                 - SUM(pertesmales)      OVER (ORDER BY daty)) AS malescumules,
+       GREATEST(0, SUM(poussinsfemelles) OVER (ORDER BY daty)
+                 - SUM(pertesfemelles)   OVER (ORDER BY daty)) AS femellescumulees
 FROM   CALENDRIER_POUSSIN_RAW;
 SHOW ERRORS VIEW CALENDRIER_POUSSIN_CUMUL
 
@@ -191,6 +203,21 @@ PROMPT --- Premier jour avec des poussins issus de la ponte ---
 SELECT TO_CHAR(MIN(daty),'DD/MM/YYYY') AS premier_jour
 FROM   V_CAL_PONTE_JOUR
 WHERE  total > 0;
+
+PROMPT --- Verification cumuls : le 20/01 doit deduire les pertes ---
+SELECT TO_CHAR(daty,'DD/MM/YYYY') daty,
+       poussins,
+       pertes,
+       poussinscumules,
+       malescumules,
+       femellescumulees
+FROM   CALENDRIER_POUSSIN_CUMUL
+WHERE  daty IN (TO_DATE('2026-01-13','YYYY-MM-DD'),
+                TO_DATE('2026-01-19','YYYY-MM-DD'),
+                TO_DATE('2026-01-20','YYYY-MM-DD'),
+                TO_DATE('2026-01-21','YYYY-MM-DD'),
+                TO_DATE('2026-06-30','YYYY-MM-DD'))
+ORDER  BY daty;
 
 PROMPT --- Resume par mois (ce que le calendrier affichera en pied) ---
 SELECT TO_CHAR(daty,'YYYY-MM')   AS mois,
