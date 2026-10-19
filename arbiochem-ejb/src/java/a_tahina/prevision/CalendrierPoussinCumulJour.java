@@ -2,16 +2,14 @@ package a_tahina.prevision;
 
 import bean.ClassMAPTable;
 
-/**
- * Bean mappe sur la vue CALENDRIER_POUSSIN_CUMUL.
- * Une ligne = un jour : poussins nes ce jour, pertes declarees ce jour
- * et cumul des poussins depuis le premier jour.
- */
 public class CalendrierPoussinCumulJour extends ClassMAPTable {
 
     private java.sql.Date daty;
     private double poussins;
     private double pertes;
+    private double ca;
+    private double cout;
+    private double benefice;
     private double poussinscumules;
 
     public CalendrierPoussinCumulJour() throws Exception {
@@ -30,6 +28,15 @@ public class CalendrierPoussinCumulJour extends ClassMAPTable {
 
     public double getPertes()                    { return pertes; }
     public void   setPertes(double v)            { this.pertes = v; }
+
+    public double getCa()                        { return ca; }
+    public void   setCa(double v)                { this.ca = v; }
+
+    public double getCout()                      { return cout; }
+    public void   setCout(double v)              { this.cout = v; }
+
+    public double getBenefice()                  { return benefice; }
+    public void   setBenefice(double v)          { this.benefice = v; }
 
     public double getPoussinscumules()           { return poussinscumules; }
     public void   setPoussinscumules(double v)   { this.poussinscumules = v; }

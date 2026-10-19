@@ -6,24 +6,9 @@ import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 
+import a_tahina.calendrier.helper.Indicateur;
 import a_tahina.calendrier.helper.Mois;
 
-/**
- * Generateur de calendrier HTML.
- *
- * La classe abstraite fait tout le generique :
- *   - lecture des parametres HTTP (dateDebut, dateFin, annee)
- *   - creation des 12 mois de l'annee
- *   - creation des lignes 1..31
- *   - ajout de cellules dans le bon mois
- *   - calcul des totaux par mois
- *   - generation complete HTML + CSS
- *
- * La sous-classe fournit :
- *   - charger() : lecture des donnees
- *   - simuler() : remplissage via ajouterCellule(...)
- *   - getTitre(), getLibelleTotal()
- */
 public abstract class CalendrierAbstrait {
 
     // ==================================================================
@@ -51,6 +36,14 @@ public abstract class CalendrierAbstrait {
     public abstract String getLibelleTotal();
     protected abstract void charger() throws Exception;
     protected abstract void simuler() throws Exception;
+
+    /**
+     * Indicateurs affiches en pied de tableau, sous la ligne de total.
+     * Aucun par defaut : le pied reste identique a l'ancien comportement.
+     */
+    public List<Indicateur> getIndicateurs() {
+        return Collections.emptyList();
+    }
 
     /** A appeler dans le constructeur de la sous-classe APRES super(request). */
     protected final void initAll() throws Exception {
@@ -145,6 +138,16 @@ public abstract class CalendrierAbstrait {
         return t;
     }
 
+    /** Somme, sur le mois, de l'indicateur de cle donnee (valeurs negatives possibles). */
+    public double getTotalIndicateur(Mois mois, String cle) {
+        double t = 0;
+        for (CelluleCalendrierAbstraite c : mois.getCellules().values()) {
+            Double v = c.getIndicateurs().get(cle);
+            if (v != null) t += v;
+        }
+        return t;
+    }
+
     // ==================================================================
     // CSS
     // ==================================================================
@@ -231,14 +234,31 @@ public abstract class CalendrierAbstrait {
         }
         sb.append("    </tbody>\n");
 
-        // Pied
+        // Pied : ligne de total puis une ligne par indicateur
         sb.append("    <tfoot>\n      <tr class=\"total\">\n")
           .append("        <td class=\"jour\">").append(esc(getLibelleTotal())).append("</td>\n");
         for (Mois m : moisList) {
             sb.append("        <td class=\"jour-cell\" colspan=\"2\">")
               .append(fmt(getTotalMois(m))).append("</td>\n");
         }
-        sb.append("      </tr>\n    </tfoot>\n");
+        sb.append("      </tr>\n");
+
+        for (Indicateur ind : getIndicateurs()) {
+            sb.append("      <tr class=\"total\">\n")
+              .append("        <td class=\"jour\">").append(esc(ind.getLibelle())).append("</td>\n");
+            for (Mois m : moisList) {
+                double v = getTotalIndicateur(m, ind.getCle());
+                String cls = "";
+                if (ind.isColorSigne()) {
+                    if (v < -0.5)     cls = " rouge";
+                    else if (v > 0.5) cls = " vert";
+                }
+                sb.append("        <td class=\"jour-cell").append(cls).append("\" colspan=\"2\">")
+                  .append(fmtSigne(v)).append("</td>\n");
+            }
+            sb.append("      </tr>\n");
+        }
+        sb.append("    </tfoot>\n");
 
         sb.append("  </table>\n</div>\n");
         return sb.toString();
@@ -249,6 +269,12 @@ public abstract class CalendrierAbstrait {
     // ==================================================================
     protected String fmt(double v) {
         if (v <= 0) return "-";
+        return String.format("%,.0f", v);
+    }
+
+    /** Comme fmt, mais les valeurs negatives sont affichees (ex: benefice negatif). */
+    protected String fmtSigne(double v) {
+        if (Math.abs(v) < 0.5) return "-";
         return String.format("%,.0f", v);
     }
 

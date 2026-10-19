@@ -1,5 +1,8 @@
 package a_tahina.calendrier;
 
+import java.util.Collections;
+import java.util.Map;
+
 public abstract class CelluleCalendrierAbstraite {
 
     // ==================================================================
@@ -28,6 +31,13 @@ public abstract class CelluleCalendrierAbstraite {
 
     /** Style inline optionnel (ex: "background:#abc;color:#fff"). */
     public String getStyle() { return null; }
+
+    /**
+     * Valeurs chiffrees supplementaires de la cellule, par cle (ex: "ca", "benefice").
+     * Le calendrier les additionne par mois pour les indicateurs declares dans
+     * CalendrierAbstrait.getIndicateurs(). Vide par defaut.
+     */
+    public Map<String, Double> getIndicateurs() { return Collections.emptyMap(); }
 
     // ==================================================================
     // Helpers par defaut
