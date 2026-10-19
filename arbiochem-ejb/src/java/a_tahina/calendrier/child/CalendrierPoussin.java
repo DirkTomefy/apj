@@ -42,7 +42,8 @@ public class CalendrierPoussin extends CalendrierAbstrait {
     public List<Indicateur> getIndicateurs() {
         return Arrays.asList(
                 new Indicateur(CellulePoussin.IND_CA,       "CA",       false),
-                new Indicateur(CellulePoussin.IND_BENEFICE, "BENEFICE", true));
+                new Indicateur(CellulePoussin.IND_BENEFICE, "BENEFICE", true)
+            );
     }
 
     // ------------------------------------------------------------------
