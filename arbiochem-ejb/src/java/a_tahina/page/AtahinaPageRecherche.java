@@ -103,11 +103,22 @@ public class AtahinaPageRecherche extends PageRecherche {
         return this;
     }
 
-    /** Colonne `colonne` cliquable vers `pageFiche` (+ menu clic droit « fiche »). */
+    /** Colonne `colonne` cliquable vers `pageFiche` (+ menu clic droit « fiche »), parametre `id`. */
     public AtahinaPageRecherche lienFiche(String colonne, String pageFiche) {
+        return lienFiche(colonne, pageFiche, colonne);
+    }
+
+    /**
+     * Idem, mais le lien transmet la valeur de `colonne` sous le nom `parametre`
+     * (ex: colonne idavoir -> fiche?id=...).
+     */
+    public AtahinaPageRecherche lienFiche(String colonne, String pageFiche, String parametre) {
         String lienFiche = getLien() + "?but=" + pageFiche;
         getTableau().setLien(new String[] { lienFiche });
         getTableau().setColonneLien(new String[] { colonne });
+        if (!colonne.equals(parametre)) {
+            getTableau().setAttLien(new String[] { parametre });
+        }
         Map<String, String> menu = new HashMap<String, String>();
         menu.put("fiche", lienFiche);
         getTableau().setLienClicDroite(menu);

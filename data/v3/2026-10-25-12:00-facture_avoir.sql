@@ -18,6 +18,9 @@ SET SERVEROUTPUT ON
 --     (avoirs les plus anciens d'abord) : une ligne ATH_AVOIR_USAGE par avoir
 --     consomme + ATH_FACTURE.montantavoir ; l'avoir peut etre applique a une
 --     facture qui ne contient pas les produits retournes ;
+--   - la deduction est PLAFONNEE : montant deduit = MIN(solde du client,
+--     TTC de la facture x ATH_CLIENT.pourcentageavoir / 100). Une facture ne
+--     peut donc jamais etre payee entierement par avoir (pourcentage < 100) ;
 --   - annuler une facture visee supprime ses lignes ATH_AVOIR_USAGE
 --     (le credit est restitue).
 -- ============================================================================
@@ -104,7 +107,8 @@ CREATE TABLE ATH_CLIENT (
     nom       VARCHAR2(200) NOT NULL,
     contact   VARCHAR2(100),
     adresse   VARCHAR2(300),
-    mail      VARCHAR2(150)
+    mail      VARCHAR2(150),
+    pourcentageavoir NUMBER(5,2) DEFAULT 40   -- % du TTC d'une facture payable par avoir
 );
 
 -- Produit
@@ -172,6 +176,9 @@ CREATE TABLE ATH_AVOIR_USAGE (
 PROMPT ============================================================
 PROMPT 4. CONTRAINTES CHECK
 PROMPT ============================================================
+
+ALTER TABLE ATH_CLIENT
+    ADD CONSTRAINT ck_athc_pctavoir CHECK (pourcentageavoir >= 0 AND pourcentageavoir <= 100);
 
 ALTER TABLE ATH_PRODUIT
     ADD CONSTRAINT ck_athp_pu CHECK (pu >= 0);
@@ -271,6 +278,8 @@ SELECT f.id, f.daty, f.reference, f.idclient, f.etat, f.remarque,
        NVL(t.montantht, 0)                           AS montantht,
        NVL(t.montanttva, 0)                          AS montanttva,
        NVL(t.montantttc, 0)                          AS montantttc,
+       NVL(c.pourcentageavoir, 0)                    AS pourcentageavoir,
+       ROUND(NVL(t.montantttc, 0) * NVL(c.pourcentageavoir, 0) / 100, 2) AS plafondavoir,
        NVL(t.montantttc, 0) - NVL(f.montantavoir, 0) AS netapayer,
        CASE f.etat
             WHEN 0  THEN 'Annule'
@@ -341,7 +350,7 @@ LEFT JOIN (SELECT idavoir, SUM(montant) AS montantutilise
 
 -- Solde de credit par client (avoirs vises - credit deja consomme)
 CREATE OR REPLACE VIEW ATH_CLIENT_SOLDE AS
-SELECT c.id, c.nom,
+SELECT c.id, c.nom, c.pourcentageavoir,
        NVL(s.totalavoir, 0)                         AS totalavoir,
        NVL(s.totalutilise, 0)                       AS totalutilise,
        NVL(s.totalavoir, 0) - NVL(s.totalutilise, 0) AS solde
@@ -358,8 +367,8 @@ PROMPT ============================================================
 PROMPT 8. DONNEES D'EXEMPLE (via les fonctions GETSEQ, comme le fait l'ORM)
 PROMPT ============================================================
 
-INSERT INTO ATH_CLIENT (id, nom, contact, adresse)
-VALUES ('ACL' || LPAD(GETSEQATHCLIENT, 6, '0'), 'Client Exemple', '034 00 000 00', 'Antananarivo');
+INSERT INTO ATH_CLIENT (id, nom, contact, adresse, pourcentageavoir)
+VALUES ('ACL' || LPAD(GETSEQATHCLIENT, 6, '0'), 'Client Exemple', '034 00 000 00', 'Antananarivo', 40);
 
 INSERT INTO ATH_PRODUIT (id, libelle, unite, pu)
 VALUES ('APR' || LPAD(GETSEQATHPRODUIT, 6, '0'), 'Coca-Cola', 'bouteille', 2500);
