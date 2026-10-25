@@ -1,5 +1,6 @@
 <%@ page import="java.time.LocalDate, java.time.format.DateTimeFormatter" %>
 <%@ page import="affichage.PageInsert" %>
+<%@ page import="a_tahina.page.AtahinaUtil" %>
 <%@ page import="a_tahina.fronthelper.prevision.PrevisionPoussinFH" %>
 <%@ page import="a_tahina.fronthelper.prevision.DeclPerteLotFH" %>
 <%@ page import="a_tahina.calendrier.child.CalendrierPoussin" %>
@@ -36,7 +37,7 @@ CalendrierPoussin cal = PrevisionPoussinFH.getCalendrier(request, session);
   </section>
 
   <% if (flash != null && !flash.isEmpty()) { %>
-    <p class="<%= flashErr ? "msg-err" : "msg-ok" %>"><%= flash %></p>
+    <p class="<%= flashErr ? "msg-err" : "msg-ok" %>"><%= AtahinaUtil.esc(flash) %></p>
   <% } %>
 
   <!-- ==================== Filtre periode ==================== -->

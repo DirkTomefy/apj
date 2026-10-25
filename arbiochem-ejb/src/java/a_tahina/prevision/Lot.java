@@ -7,6 +7,7 @@ import bean.CGenUtil;
 import bean.ClassMAPTable;
 
 import a_tahina.br.BonReceptionPoussin;
+import a_tahina.page.AtahinaUtil;
 
 public class Lot extends ClassMAPTable {
 
@@ -48,7 +49,7 @@ public class Lot extends ClassMAPTable {
         if (this.dateEclosion == null && this.idbonreception != null) {
             BonReceptionPoussin[] arr = (BonReceptionPoussin[]) CGenUtil.rechercher(
                     new BonReceptionPoussin(), null, null, c,
-                    " AND id = '" + this.idbonreception + "' ");
+                    AtahinaUtil.egal("id", this.idbonreception));
             if (arr != null && arr.length > 0) {
                 BonReceptionPoussin br = arr[0];
                 if (br.getDateEclosion() != null) {

@@ -1,20 +1,17 @@
 <%@page import="a_tahina.ic.*"%>
 <%@page import="a_tahina.fronthelper.ic.*"%>
-<%@page import="affichage.*"%>
-<%@page import="user.*"%>
+<%@page import="a_tahina.page.*"%>
 <%@page import="java.util.HashMap"%>
 <%@page import="java.util.Map"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <% try {
-    PageConsulte pc = ICFicheFH.getPageConsulte(request, session);
-    String lien = (String) session.getValue("lien");
+    AtahinaPageConsulte pc = ICFicheFH.getPageConsulte(request, session);
+    String lien = pc.getLien();
     InsertionCompartimentLib ic = (InsertionCompartimentLib) pc.getBase();
 
     String id   = ic.getTuppleID();
     int    etat = ic.getEtat();
     String idbr = ic.getIdbonreception();
-
-    String pageActuel = ICFicheFH.PAGE_ACTUEL;
 
     String tab = request.getParameter("tab");
     Map<String,String> map = new HashMap<String,String>();
@@ -39,12 +36,8 @@
             <% out.println(pc.getHtml()); %>
             <br/>
             <div class="box-footer">
-              <% if (etat < 11) { %>
-                <a class="btn btn-primary pull-right" style="margin-right:10px"
-                   href="<%= lien %>?but=apresTarif.jsp&acte=valider&id=<%= id %>&bute=<%= pageActuel %>&classe=<%= ICFicheFH.CLASSE %>">Viser</a>
-                <a class="btn btn-danger pull-left"
-                   href="<%= lien %>?but=apresTarif.jsp&acte=annuler&id=<%= id %>&bute=<%= pageActuel %>&classe=<%= ICFicheFH.CLASSE %>">Annuler</a>
-              <% } %>
+              <%-- pas de page de modification pour une insertion : pageModif = null --%>
+              <% out.println(pc.getBoutonsWorkflow(id, etat, ICFicheFH.PAGE_ACTUEL, ICFicheFH.CLASSE, null)); %>
               <% if (idbr != null) { %>
                 <a class="btn btn-info pull-left" style="margin-left:10px"
                    href="<%= lien %>?but=<%= ICFicheFH.PAGE_BR_FICHE %>&id=<%= idbr %>">Voir le BR</a>
@@ -62,10 +55,10 @@
       <div class="nav-tabs-custom">
         <ul class="nav nav-tabs">
           <li class="<%= map.get("inc/ic-liste-detail") %>">
-            <a href="<%= lien %>?but=<%= pageActuel %>&id=<%= id %>&tab=inc/ic-liste-detail">D&eacute;tails</a>
+            <a href="<%= lien %>?but=<%= ICFicheFH.PAGE_ACTUEL %>&id=<%= id %>&tab=inc/ic-liste-detail">D&eacute;tails</a>
           </li>
           <li class="<%= map.get("inc/ic-liste-lots") %>">
-            <a href="<%= lien %>?but=<%= pageActuel %>&id=<%= id %>&tab=inc/ic-liste-lots">Lots cr&eacute;&eacute;s</a>
+            <a href="<%= lien %>?but=<%= ICFicheFH.PAGE_ACTUEL %>&id=<%= id %>&tab=inc/ic-liste-lots">Lots cr&eacute;&eacute;s</a>
           </li>
         </ul>
         <div class="tab-content">
@@ -78,7 +71,5 @@
   </div>
 </div>
 <% } catch (Exception e) {
-     out.println("<pre style='color:red'>");
-     e.printStackTrace(new java.io.PrintWriter(out));
-     out.println("</pre>");
+     out.println(AtahinaUtil.erreurHtml(e));
    } %>

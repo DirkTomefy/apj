@@ -1,42 +1,21 @@
-<%@page import="a_tahina.ic.*"%>
-<%@page import="affichage.*"%>
-<%@page import="user.*"%>
+<%@page import="a_tahina.page.AtahinaUtil"%>
+<%@page import="a_tahina.page.AtahinaPageRecherche"%>
+<%@page import="a_tahina.ic.InsertionCompFilleLib"%>
+<%@page import="a_tahina.fronthelper.ic.ICFicheFH"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <% try {
-    UserEJB u = (UserEJB) session.getValue("u");
-    String lien   = (String) session.getValue("lien");
     String idMere = request.getParameter("idMere");
 
-    InsertionCompFilleLib t = new InsertionCompFilleLib();
-    t.setNomTable("INSERTION_COMP_FILLE_LIB");
+    String[] libEntete = {"compartimentlib", "qte", "pu", "sexelib", "santelib"};
 
-    String[] listeCrt  = {};
-    String[] listeInt  = {};
-    String[] libEntete = { "compartimentlib", "qte", "pu",
-                           "sexelib", "santelib" };
-
-    PageRecherche pr = new PageRecherche(t, request, listeCrt, listeInt, 3,
-                                          libEntete, libEntete.length);
-    pr.setUtilisateur(u);
-    pr.setLien(lien);
-    pr.setApres("a_tahina/v1/ic/insertioncompartiment-fiche.jsp&id=" + idMere
-              + "&tab=inc/ic-liste-detail");
-    pr.setAWhere(" and idmere = '" + idMere + "'");
+    AtahinaPageRecherche pr = new AtahinaPageRecherche(new InsertionCompFilleLib(), request, session,
+            ICFicheFH.PAGE_ACTUEL + "&id=" + AtahinaUtil.url(idMere) + "&tab=inc/ic-liste-detail",
+            "", new String[]{}, new String[]{}, libEntete);
+    pr.filtreEgal("idmere", idMere);
     pr.setNpp(10);
+    pr.construire("Compartiment", "Qt&eacute;", "P.U.", "Sexe", "Sant&eacute;");
 
-    pr.creerObjetPage(libEntete, null);
-
-    pr.getTableau().setLibelleAffiche(new String[]{
-        "Compartiment", "Qt&eacute;", "P.U.", "Sexe", "Sant&eacute;"
-    });
-
-    if (pr.getTableau().getHtml() != null) {
-        out.println(pr.getTableau().getHtml());
-    } else {
-        out.println("<center><h4>Aucune ligne trouv&eacute;e</h4></center>");
-    }
+    out.println(pr.getHtmlOnglet("Aucune ligne trouv&eacute;e"));
 } catch (Exception e) {
-    out.println("<pre style='color:red'>");
-    e.printStackTrace(new java.io.PrintWriter(out));
-    out.println("</pre>");
+    out.println(AtahinaUtil.erreurHtml(e));
 } %>

@@ -3,11 +3,11 @@ package a_tahina.fronthelper.br;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import a_tahina.bc.BonCommandePoussinFilleLib;
 import a_tahina.br.BonReceptionPoussin;
-import a_tahina.bc.BonCommandePoussinFille;
-import affichage.Champ;
+import a_tahina.page.AtahinaPageInsert;
+import a_tahina.page.AtahinaUtil;
 import affichage.Liste;
-import affichage.PageInsert;
 import bean.TypeObjet;
 import magasin.Magasin;
 
@@ -33,88 +33,50 @@ public class BRInsertFH {
         return PAGE_LISTE;
     }
 
-    // -------- Helpers null-safe --------
-    private static void setLabel(PageInsert pi, String nom, String libelle) {
-        Champ c = pi.getFormu().getChamp(nom);
-        if (c != null) c.setLibelle(libelle);
-    }
-    private static void setDefaut(PageInsert pi, String nom, String valeur) {
-        Champ c = pi.getFormu().getChamp(nom);
-        if (c != null) c.setDefaut(valeur);
-    }
-    private static void hide(PageInsert pi, String nom) {
-        Champ c = pi.getFormu().getChamp(nom);
-        if (c != null) c.setVisible(false);
-    }
-    private static void setReadonly(PageInsert pi, String nom) {
-        Champ c = pi.getFormu().getChamp(nom);
-        if (c != null) c.setAutre("readonly");
-    }
-
-    // -------- Config --------
-    private static void prepareLibelle(PageInsert pi) {
-        setLabel(pi, "daty",               "Date de r&eacute;ception");
-        setLabel(pi, "reference",          "R&eacute;f&eacute;rence");
-        setLabel(pi, "idboncommandefille", "Ligne BC");
-        setLabel(pi, "idlieureception",    "Lieu de r&eacute;ception");
-        setLabel(pi, "idmagasin",          "Magasin");
-        setLabel(pi, "qtAvantCumule",      "Qt&eacute; avant cumul");
-        setLabel(pi, "qtApresCumule",      "Qt&eacute; apr&egrave;s cumul");
-        setLabel(pi, "maty",               "Morts");
-        setLabel(pi, "very",               "Perdus");
-        setLabel(pi, "remarque",           "Remarque");
-        setLabel(pi, "dateEclosion",       "Date d'&eacute;closion");   // <-- NOUVEAU
-
-        // Champs deduits automatiquement -> caches
-        hide(pi, "etat");
-        hide(pi, "idboncommande");
-        hide(pi, "idbrprecedent");
-        hide(pi,"qtAvantCumule");
-        hide(pi,"qtApresCumule");
-    }
-
-    private static void prepareDefaultValues(PageInsert pi) {
-        String aujourdHui = utilitaire.Utilitaire.dateDuJour();
-        setDefaut(pi, "daty",    aujourdHui      );
-        setDefaut(pi, "dateEclosion",  aujourdHui);
-        setDefaut(pi, "maty",          "0");
-        setDefaut(pi, "very",          "0");
-        setDefaut(pi, "qtAvantCumule", "0");
-        setDefaut(pi, "qtApresCumule", "0");
-    }
-
-    private static void changeChampIntoListe(PageInsert pi, String idbcf) throws Exception {
-        Liste[] listes = new Liste[3];
-        listes[0] = new Liste("idlieureception", new TypeObjet("LIEURECEPTION"), "val", "id");
-        listes[1] = new Liste("idmagasin",       new Magasin(), "val", "id");
-        listes[2] = new Liste("idboncommandefille", new BonCommandePoussinFille(), "idproduit", "id");
-
-        pi.getFormu().changerEnChamp(listes);
-
-        if (idbcf != null) {
-            setDefaut(pi, "idboncommandefille", idbcf);
-            setReadonly(pi, "idboncommandefille");
-        }
-    }
-
     // -------- Point d'entree --------
-    public static PageInsert getPageInsert(HttpServletRequest request,
-                                           HttpSession session) throws Exception {
-        user.UserEJB u = (user.UserEJB) session.getValue("u");
-        if (u == null) throw new Exception("Session expiree. Reconnectez-vous.");
-
-        BonReceptionPoussin br = new BonReceptionPoussin();
-        PageInsert pi = new PageInsert(br, request, u);
-        pi.setLien((String) session.getValue("lien"));
-
+    public static AtahinaPageInsert getPageInsert(HttpServletRequest request,
+                                                  HttpSession session) throws Exception {
+        String idbc  = getIdbc(request);
         String idbcf = getIdbcf(request);
 
-        prepareLibelle(pi);
-        prepareDefaultValues(pi);
-        changeChampIntoListe(pi, idbcf);
+        AtahinaPageInsert pi = new AtahinaPageInsert(new BonReceptionPoussin(), request, session, null);
 
-        pi.preparerDataFormu();
-        pi.getFormu().makeHtmlInsertTabIndex();
-        return pi;
+        // Ligne BC : libelle « id - produit », limitee au BC d'origine s'il est connu
+        Liste ligneBc = (idbc != null)
+                ? new Liste("idboncommandefille", new BonCommandePoussinFilleLib(), "idproduitlib", "id",
+                            AtahinaUtil.egal("idmere", idbc))
+                : new Liste("idboncommandefille", new BonCommandePoussinFilleLib(), "idproduitlib", "id");
+
+        pi.listes(
+                new Liste("idlieureception", new TypeObjet("LIEURECEPTION"), "val", "id"),
+                new Liste("idmagasin",       new Magasin(), "val", "id"),
+                ligneBc);
+
+        pi.libelle("daty", "Date de r&eacute;ception")
+          .libelle("reference", "R&eacute;f&eacute;rence")
+          .libelle("idboncommandefille", "Ligne BC")
+          .libelle("idlieureception", "Lieu de r&eacute;ception")
+          .libelle("idmagasin", "Magasin")
+          .libelle("maty", "Morts")
+          .libelle("very", "Perdus")
+          .libelle("remarque", "Remarque")
+          .libelle("dateEclosion", "Date d'&eacute;closion");
+
+        // Champs deduits automatiquement par BonReceptionPoussin.controler() -> caches
+        pi.cacher("etat", "idboncommande", "idbrprecedent", "qtAvantCumule", "qtApresCumule");
+
+        String aujourdHui = utilitaire.Utilitaire.dateDuJour();
+        pi.defaut("daty", aujourdHui)
+          .defaut("dateEclosion", aujourdHui)
+          .defaut("maty", "0")
+          .defaut("very", "0")
+          .defaut("qtAvantCumule", "0")
+          .defaut("qtApresCumule", "0");
+
+        if (idbcf != null) {
+            pi.defaut("idboncommandefille", idbcf).lectureSeule("idboncommandefille");
+        }
+
+        return pi.preparer();
     }
 }

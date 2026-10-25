@@ -4,8 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import a_tahina.bc.BonCommandePoussinLib;
-import affichage.PageConsulte;
-import user.UserEJB;
+import a_tahina.page.AtahinaPageConsulte;
 
 public class BCmdFicheFH {
 
@@ -14,33 +13,19 @@ public class BCmdFicheFH {
     public static final String PAGE_MODIF  = "a_tahina/v1/bc/boncommande-modif.jsp";
     public static final String PAGE_SAISIE = "a_tahina/v1/bc/boncommande-saisie.jsp";
     public static final String CLASSE      = "a_tahina.bc.BonCommandePoussin";
+    public static final String CLASSE_FILLE = "a_tahina.bc.BonCommandePoussinFille";
 
-    public static PageConsulte getPageConsulte(HttpServletRequest request,
-                                               HttpSession session) throws Exception {
-
-        UserEJB u = (UserEJB) session.getValue("u");
-
-        BonCommandePoussinLib f = new BonCommandePoussinLib();
-        f.setNomTable("BONCOMMANDE_POUSSIN_LIB");
-
-        PageConsulte pc = new PageConsulte(f, request, u);
-        pc.setTitre("Fiche bon de commande poussin");
-        pc.setLien((String) session.getValue("lien"));
-        pc.setCanUploadFile(false);
-
-        pc.getChampByName("id").setLibelle("Id");
-        pc.getChampByName("daty").setLibelle("Date");
-        pc.getChampByName("reference").setLibelle("R&eacute;f&eacute;rence");
-        pc.getChampByName("descri").setLibelle("Description");
-        pc.getChampByName("idmagasin").setLibelle("Magasin");
-        pc.getChampByName("idmagasinlib").setLibelle("Magasin");
-        pc.getChampByName("etat").setLibelle("&Eacute;tat");
-        pc.getChampByName("etatlib").setLibelle("&Eacute;tat");
-        pc.getChampByName("remarque").setLibelle("Remarque");
-
-        pc.getChampByName("idmagasin").setVisible(false);
-        pc.getChampByName("etatlib").setVisible(false);
-
-        return pc;
+    public static AtahinaPageConsulte getPageConsulte(HttpServletRequest request,
+                                                      HttpSession session) throws Exception {
+        return new AtahinaPageConsulte(new BonCommandePoussinLib(), request, session,
+                "Fiche bon de commande poussin")
+                .libelle("id", "Id")
+                .libelle("daty", "Date")
+                .libelle("reference", "R&eacute;f&eacute;rence")
+                .libelle("descri", "Description")
+                .libelle("idmagasinlib", "Magasin")
+                .libelle("etat", "&Eacute;tat")
+                .libelle("remarque", "Remarque")
+                .cacher("idmagasin", "etatlib");
     }
 }

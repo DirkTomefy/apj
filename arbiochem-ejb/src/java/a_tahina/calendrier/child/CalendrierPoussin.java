@@ -1,7 +1,6 @@
 package a_tahina.calendrier.child;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -9,15 +8,11 @@ import javax.servlet.http.HttpServletRequest;
 
 import a_tahina.calendrier.CalendrierAbstrait;
 import a_tahina.calendrier.helper.Indicateur;
-import a_tahina.ic.Compartiment;
 import a_tahina.prevision.CalendrierPoussinCumulJour;
-import a_tahina.prevision.Lot;
 import bean.CGenUtil;
 
 public class CalendrierPoussin extends CalendrierAbstrait {
 
-    private List<Lot>          lotsFemelles  = new ArrayList<>();
-    private List<Compartiment> compartiments = new ArrayList<>();
     private boolean periodeExplicite;
 
     public CalendrierPoussin(HttpServletRequest request) throws Exception {
@@ -47,25 +42,10 @@ public class CalendrierPoussin extends CalendrierAbstrait {
     }
 
     // ------------------------------------------------------------------
-    // Chargement : listes pour le formulaire de perte
+    // Chargement : rien a precharger, tout vient de la vue cumul (cf. simuler)
     // ------------------------------------------------------------------
     @Override
-    protected void charger() throws Exception {
-        Object[] arrComp = CGenUtil.rechercher(new Compartiment(), null, null, " ORDER BY id ");
-        if (arrComp != null) {
-            for (Object o : arrComp) {
-                compartiments.add((Compartiment) o);
-            }
-        }
-
-        Object[] arrLots = CGenUtil.rechercher(new Lot(), null, null,
-                " AND sexe = '0' ORDER BY id ");
-        if (arrLots != null) {
-            for (Object o : arrLots) {
-                lotsFemelles.add((Lot) o);
-            }
-        }
-    }
+    protected void charger() {}
 
     // ------------------------------------------------------------------
     // Simulation : lecture directe de la vue cumul
@@ -97,10 +77,4 @@ public class CalendrierPoussin extends CalendrierAbstrait {
             ajouterCellule(d, cell);
         }
     }
-
-    // ------------------------------------------------------------------
-    // Accesseurs JSP
-    // ------------------------------------------------------------------
-    public List<Compartiment> getCompartiments() { return compartiments; }
-    public List<Lot>          getLotsFemelles()  { return lotsFemelles; }
 }

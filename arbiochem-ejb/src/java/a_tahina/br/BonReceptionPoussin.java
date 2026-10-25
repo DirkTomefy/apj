@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.Date;
 
 import a_tahina.bc.BonCommandePoussinFille;
+import a_tahina.page.AtahinaUtil;
 import bean.CGenUtil;
 import bean.ClassEtat;
 
@@ -57,12 +58,14 @@ public class BonReceptionPoussin extends ClassEtat {
         }
         this.idboncommande = bcf.getIdmere();
 
-        // 2. Chercher le dernier BR sur cette ligne BC
+        // 2. Chercher le dernier BR sur cette ligne BC (hors lui-meme en cas de modification)
         BonReceptionPoussin crit = new BonReceptionPoussin();
+        String where = AtahinaUtil.egal("idboncommandefille", this.idboncommandefille);
+        if (this.id != null && !this.id.isEmpty()) {
+            where += " AND id <> " + AtahinaUtil.quote(this.id);
+        }
         BonReceptionPoussin[] precedents = (BonReceptionPoussin[]) CGenUtil.rechercher(
-                crit, null, null, c,
-                " AND idboncommandefille = '" + this.idboncommandefille + "'"
-                        + " ORDER BY daty DESC, id DESC");
+                crit, null, null, c, where + " ORDER BY daty DESC, id DESC");
 
         // 3. Calcul des cumuls (gere le premier BR)
         double quantiteDisponible;
@@ -75,7 +78,7 @@ public class BonReceptionPoussin extends ClassEtat {
         } else {
             // --- PREMIER BR : pas de precedent ---
             this.idbrprecedent = null;
-            this.qtAvantCumule = (int) bcf.getQte();
+            this.qtAvantCumule = bcf.getQte();
             quantiteDisponible = bcf.getQte();   // on part de la qte commandee
         }
 

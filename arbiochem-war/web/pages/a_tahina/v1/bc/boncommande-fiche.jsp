@@ -1,23 +1,17 @@
 <%@page import="a_tahina.bc.*"%>
 <%@page import="a_tahina.fronthelper.bc.*"%>
-<%@page import="affichage.*"%>
-<%@page import="user.*"%>
+<%@page import="a_tahina.fronthelper.br.BRInsertFH"%>
+<%@page import="a_tahina.page.*"%>
 <%@page import="java.util.Map"%>
 <%@page import="java.util.HashMap"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%
-  UserEJB u = (UserEJB) session.getValue("u");
   try {
-    PageConsulte pc = BCmdFicheFH.getPageConsulte(request, session);
-    String lien = (String) session.getValue("lien");
+    AtahinaPageConsulte pc = BCmdFicheFH.getPageConsulte(request, session);
+    String lien = pc.getLien();
     BonCommandePoussinLib bc = (BonCommandePoussinLib) pc.getBase();
     String id = bc.getTuppleID();
     int etat = bc.getEtat();
-
-    String pageActuel = BCmdFicheFH.PAGE_ACTUEL;
-    String pageModif  = BCmdFicheFH.PAGE_MODIF;
-    String pageListe  = BCmdFicheFH.PAGE_LISTE;
-    String classe     = BCmdFicheFH.CLASSE;
 
     // Onglet actif
     String tab = request.getParameter("tab");
@@ -31,7 +25,7 @@
 %>
 <div class="content-wrapper">
   <h1 class="box-title">
-    <a href="<%= lien %>?but=<%= pageListe %>"><i class="fa fa-angle-left"></i></a>
+    <a href="<%= lien %>?but=<%= BCmdFicheFH.PAGE_LISTE %>"><i class="fa fa-angle-left"></i></a>
     <%= pc.getTitre() %>
   </h1>
 
@@ -44,23 +38,11 @@
             <% out.println(pc.getHtml()); %>
             <br/>
             <div class="box-footer">
-              <% if (etat < 11) { %>
-                <a class="btn btn-primary pull-right" style="margin-right:10px"
-                   href="<%= lien %>?but=apresTarif.jsp&acte=valider&id=<%= id %>&bute=<%= pageActuel %>&classe=<%= classe %>">
-                  Viser
-                </a>
-                <a class="btn btn-secondary pull-right" style="margin-right:10px"
-                   href="<%= lien %>?but=<%= pageModif %>&id=<%= id %>&acte=update">
-                  Modifier
-                </a>
-                <a class="btn btn-danger pull-left"
-                   href="<%= lien %>?but=apresTarif.jsp&acte=annuler&id=<%= id %>&bute=<%= pageActuel %>&classe=<%= classe %>">
-                  Annuler
-                </a>
-              <% } %>
+              <% out.println(pc.getBoutonsWorkflow(id, etat, BCmdFicheFH.PAGE_ACTUEL,
+                                                   BCmdFicheFH.CLASSE, BCmdFicheFH.PAGE_MODIF)); %>
               <% if (etat >= 11) { %>
                 <a class="btn btn-secondary pull-right" style="margin-right:10px"
-                   href="<%= lien %>?but=a_tahina/v1/br/bonreception-saisie.jsp&idbc=<%= id %>">
+                   href="<%= lien %>?but=<%= BRInsertFH.PAGE_ACTUEL %>&idbc=<%= id %>">
                   R&eacute;ceptionner
                 </a>
               <% } %>
@@ -77,7 +59,7 @@
       <div class="nav-tabs-custom">
         <ul class="nav nav-tabs">
           <li class="<%= map.get("inc/bc-liste-detail") %>">
-            <a href="<%= lien %>?but=<%= pageActuel %>&id=<%= id %>&tab=inc/bc-liste-detail">
+            <a href="<%= lien %>?but=<%= BCmdFicheFH.PAGE_ACTUEL %>&id=<%= id %>&tab=inc/bc-liste-detail">
               D&eacute;tails
             </a>
           </li>
@@ -92,7 +74,5 @@
   </div>
 </div>
 <% } catch (Exception e) {
-     out.println("<pre style='color:red'>");
-     e.printStackTrace(new java.io.PrintWriter(out));
-     out.println("</pre>");
+     out.println(AtahinaUtil.erreurHtml(e));
    } %>

@@ -1,13 +1,13 @@
-<%@page import="affichage.PageInsertMultiple"%>
+<%@page import="a_tahina.page.AtahinaPageInsertMultiple"%>
 <%@page import="a_tahina.fronthelper.ic.ICInsertFH"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <% try {
     int NB_LIGNES = 10;
-    PageInsertMultiple pi = ICInsertFH.getPageInsertMultiple(request, session, NB_LIGNES);
+    AtahinaPageInsertMultiple pi = ICInsertFH.getPageInsertMultiple(request, session, NB_LIGNES);
     String idbr = ICInsertFH.getIdbr(request);
     String lien = pi.getLien();
 
-    String titre  = (idbr != null) ? "Insertion compartiment pour le BR " + idbr
+    String titre  = (idbr != null) ? "Insertion compartiment pour le BR " + a_tahina.page.AtahinaUtil.esc(idbr)
                                    : "Nouvelle insertion compartiment";
     String retour = (idbr != null) ? lien + "?but=" + ICInsertFH.PAGE_BR_FICHE + "&id=" + idbr
                                    : lien + "?but=" + ICInsertFH.PAGE_LISTE;
@@ -32,7 +32,5 @@
   </form>
 </div>
 <% } catch (Exception e) {
-     out.println("<pre style='color:red'>");
-     e.printStackTrace(new java.io.PrintWriter(out));
-     out.println("</pre>");
+     out.println(a_tahina.page.AtahinaUtil.erreurHtml(e));
    } %>
