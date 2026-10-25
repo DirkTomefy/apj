@@ -1,0 +1,57 @@
+{
+  "package": "a_tahina.test",
+  "fhPackage": "a_tahina.fronthelper.test",
+  "jspDir": "a_tahina/v1/test",
+  "menuParent": "MENUTEST",
+  "role": "resp",
+  "entities": [
+    {
+      "name": "TestSelect",
+      "kind": "map",
+      "table": "TEST_SELECT",
+      "prefix": "TSEL",
+      "title": "TestSelects",
+      "fields": [
+        { "name": "libelle", "label": "Libelle", "size": 100, "required": true },
+        { "name": "valeur",  "type": "number", "label": "Valeur" }
+      ]
+    },
+    {
+      "name": "Test2",
+      "kind": "map",
+      "table": "TEST2",
+      "prefix": "T2",
+      "title": "Test2s",
+      "fields": [
+        { "name": "designation", "label": "Designation", "size": 100 }
+      ]
+    },
+    {
+      "name": "Test",
+      "kind": "mere",
+      "table": "TEST",
+      "prefix": "TEST",
+      "title": "Tests",
+      "fille": "TestFille",
+      "lignes": 5,
+      "fields": [
+        { "name": "daty",      "type": "date", "label": "Date", "required": true },
+        { "name": "reference", "label": "Reference", "size": 100 }
+      ]
+    },
+    {
+      "name": "TestFille",
+      "kind": "fille",
+      "table": "TEST_FILLE",
+      "prefix": "TESTF",
+      "mere": "Test",
+      "fields": [
+        { "name": "idtestselect", "label": "TestSelect", "size": 30,
+          "fk": { "table": "TEST_SELECT", "label": "libelle",
+                  "class": "a_tahina.test.TestSelect" } },
+        { "name": "qte", "type": "number", "label": "Quantite" },
+        { "name": "pu",  "type": "number", "label": "Prix unitaire" }
+      ]
+    }
+  ]
+}
