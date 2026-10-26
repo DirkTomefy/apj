@@ -6,9 +6,7 @@ import javax.servlet.http.HttpSession;
 import affichage.PageConsulte;
 import bean.ClassMAPTable;
 
-/**
- * PageConsulte (FICHE) : libelles / masquage null-safe + boutons du workflow d'etat.
- */
+
 public class AtahinaPageConsulte extends PageConsulte {
 
     public AtahinaPageConsulte(ClassMAPTable objet, HttpServletRequest request, HttpSession session,
@@ -29,19 +27,13 @@ public class AtahinaPageConsulte extends PageConsulte {
         return this;
     }
 
-    // ------------------------------------------------------------------
-    // Boutons
-    // ------------------------------------------------------------------
-    /** Lien vers apresTarif.jsp (acte = valider, annuler, ...). */
+   
     public String lienActe(String acte, String id, String pageRetour, String classe) {
         return getLien() + "?but=apresTarif.jsp&acte=" + acte + "&id=" + id
                 + "&bute=" + pageRetour + "&classe=" + classe;
     }
 
-    /**
-     * Boutons Viser / Annuler (et Modifier si pageModif != null) tant que etat &lt; 11.
-     * Vide sinon.
-     */
+   
     public String getBoutonsWorkflow(String id, int etat, String pageRetour, String classe, String pageModif) {
         if (etat >= 11) return "";
         StringBuilder sb = new StringBuilder();

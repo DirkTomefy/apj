@@ -10,12 +10,6 @@ import affichage.Liste;
 import affichage.PageRecherche;
 import bean.ClassMAPTable;
 
-/**
- * PageRecherche (LISTE) preconfiguree : utilisateur, lien, page de retour,
- * nombre par page, libelles, filtres surs, liens fiche, bouton « Saisir ».
- *
- * Usage : construire, configurer (libelle/liste/...), puis {@link #construire(String...)}.
- */
 public class AtahinaPageRecherche extends PageRecherche {
 
     private static final String BOUTON_SAISIR =
@@ -36,9 +30,7 @@ public class AtahinaPageRecherche extends PageRecherche {
         setNpp(50);
     }
 
-    // ------------------------------------------------------------------
-    // Formulaire de recherche (a appeler avant construire())
-    // ------------------------------------------------------------------
+  
     public AtahinaPageRecherche libelle(String champ, String libelle) {
         AtahinaUtil.libelle(getFormu().getChamp(champ), libelle);
         return this;

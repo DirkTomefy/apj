@@ -4,10 +4,7 @@ import java.sql.Connection;
 
 import bean.ClassMAPTable;
 
-/**
- * Client. pourcentageavoir = part maximale (en % du TTC) d'une facture qui peut
- * etre reglee par avoir.
- */
+
 public class AthClient extends ClassMAPTable {
 
     private String id;

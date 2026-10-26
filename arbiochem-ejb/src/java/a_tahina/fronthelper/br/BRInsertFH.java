@@ -33,7 +33,6 @@ public class BRInsertFH {
         return PAGE_LISTE;
     }
 
-    // -------- Point d'entree --------
     public static AtahinaPageInsert getPageInsert(HttpServletRequest request,
                                                   HttpSession session) throws Exception {
         String idbc  = getIdbc(request);
@@ -41,7 +40,6 @@ public class BRInsertFH {
 
         AtahinaPageInsert pi = new AtahinaPageInsert(new BonReceptionPoussin(), request, session, null);
 
-        // Ligne BC : libelle « id - produit », limitee au BC d'origine s'il est connu
         Liste ligneBc = (idbc != null)
                 ? new Liste("idboncommandefille", new BonCommandePoussinFilleLib(), "idproduitlib", "id",
                             AtahinaUtil.egal("idmere", idbc))

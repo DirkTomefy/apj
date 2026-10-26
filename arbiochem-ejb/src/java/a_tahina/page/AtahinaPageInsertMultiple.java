@@ -12,15 +12,7 @@ import affichage.Liste;
 import affichage.PageInsertMultiple;
 import bean.ClassMAPTable;
 
-/**
- * PageInsertMultiple (SAISIE maitre/detail).
- *
- * - Mere : libelle/defaut/cacher/lectureSeule/listes (par nom de champ).
- * - Fille : meme chose mais *Fille(...), applique a toutes les lignes (xxx_0, xxx_1, ...).
- *
- * Les champs sont retrouves a chaque appel : changerEnChamp les remplace, donc
- * l'ordre conseille est : listes, libelles, {@link #charger()}, defauts, {@link #finaliser(String...)}.
- */
+
 public class AtahinaPageInsertMultiple extends PageInsertMultiple {
 
     private final int nbLignes;
@@ -62,10 +54,7 @@ public class AtahinaPageInsertMultiple extends PageInsertMultiple {
         return this;
     }
 
-    // ------------------------------------------------------------------
-    // Fille (toutes les lignes)
-    // ------------------------------------------------------------------
-    /** Champs « nom_0 », « nom_1 », ... (insensible a la casse). */
+    
     public List<Champ> champsFille(String nom) {
         List<Champ> res = new ArrayList<Champ>();
         Champ[] tous = getFormufle().getListeChamp();

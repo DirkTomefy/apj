@@ -1,6 +1,5 @@
 package a_tahina.facture;
 
-/** Vue ATH_AVOIR_FILLE_LIB. */
 public class AthAvoirFilleLib extends AthAvoirFille {
 
     private String produitlib;

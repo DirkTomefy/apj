@@ -5,7 +5,6 @@ import java.sql.Date;
 
 import bean.ClassMAPTable;
 
-/** Part d'un avoir consommee par une facture. */
 public class AthAvoirUsage extends ClassMAPTable {
 
     private String id;

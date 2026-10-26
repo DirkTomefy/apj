@@ -20,7 +20,6 @@ public class BCmdInsertFH {
         AtahinaPageInsertMultiple pi = new AtahinaPageInsertMultiple(
                 new BonCommandePoussin(), new BonCommandePoussinFille(), request, session, nombreLigne);
 
-        // Les listes d'abord : changerEnChamp remplace le champ (libelle/defaut perdus sinon)
         pi.listes(new Liste("idmagasin", new magasin.Magasin(), "val", "id"))
           .listesFille(
                 new Liste("idproduit",   new produits.Ingredients(), "libelle", "id"),

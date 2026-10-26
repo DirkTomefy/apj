@@ -7,11 +7,7 @@ import affichage.Liste;
 import affichage.PageInsert;
 import bean.ClassMAPTable;
 
-/**
- * PageInsert (SAISIE simple) avec helpers null-safe sur les champs du formulaire.
- * Ordre conseille : listes(...) puis libelle/defaut/cacher (changerEnChamp remplace le champ),
- * puis {@link #preparer()}.
- */
+
 public class AtahinaPageInsert extends PageInsert {
 
     public AtahinaPageInsert(ClassMAPTable objet, HttpServletRequest request, HttpSession session,
@@ -46,7 +42,6 @@ public class AtahinaPageInsert extends PageInsert {
         return this;
     }
 
-    /** Charge les options des listes puis calcule les tabindex. */
     public AtahinaPageInsert preparer() throws Exception {
         preparerDataFormu();
         getFormu().makeHtmlInsertTabIndex();

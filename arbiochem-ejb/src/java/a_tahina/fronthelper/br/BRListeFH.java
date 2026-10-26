@@ -30,7 +30,6 @@ public class BRListeFH {
           .intervalleDatyAujourdhui()
           .listeEtat("&Eacute;tat");
 
-        // pas de page de modification : « modifier » ouvre la fiche
         return pr.construire("Id", "Date reception", "Reference", "Bon de commande", "Lieu", "Etat")
                  .lienFiche("id", PAGE_FICHE)
                  .menuClicDroit("modifier", PAGE_FICHE)

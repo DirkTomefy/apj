@@ -10,11 +10,7 @@ import bean.ClassMAPTable;
 import bean.ClassMere;
 import constante.ConstanteEtat;
 
-/**
- * Avoir sur une facture visee : retour partiel de quantites.
- * Une fois vise, son montant TTC alimente le solde du client, utilisable sur
- * n'importe quelle facture suivante (cf. AthAvoirService).
- */
+
 public class AthAvoir extends ClassMere {
 
     private static final double EPS = 0.000001;
