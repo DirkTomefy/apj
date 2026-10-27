@@ -1,13 +1,13 @@
 <%@page import="a_tahina.bc.orm.*"%>
 <%@page import="a_tahina.bc.fh.*"%>
-<%@page import="a_tahina.br.fh.BRInsertFH"%>
+<%@page import="a_tahina.br.fh.BRFH"%>
 <%@page import="a_tahina.core.page.*"%>
 <%@page import="java.util.Map"%>
 <%@page import="java.util.HashMap"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%
   try {
-    AtahinaPageConsulte pc = new BCmdFicheFH().getPageConsulte(request, session);
+    AtahinaPageConsulte pc = new BCmdFH().getPageConsulte(request, session);
     String lien = pc.getLien();
     BonCommandePoussinLib bc = (BonCommandePoussinLib) pc.getBase();
     String id = bc.getTuppleID();
@@ -25,7 +25,7 @@
 %>
 <div class="content-wrapper">
   <h1 class="box-title">
-    <a href="<%= lien %>?but=<%= BCmdFicheFH.PAGE_LISTE %>"><i class="fa fa-angle-left"></i></a>
+    <a href="<%= lien %>?but=<%= BCmdFH.PAGE_LISTE %>"><i class="fa fa-angle-left"></i></a>
     <%= pc.getTitre() %>
   </h1>
 
@@ -38,11 +38,11 @@
             <% out.println(pc.getHtml()); %>
             <br/>
             <div class="box-footer">
-              <% out.println(pc.getBoutonsWorkflow(id, etat, BCmdFicheFH.PAGE_ACTUEL,
-                                                   BCmdFicheFH.CLASSE, BCmdFicheFH.PAGE_MODIF)); %>
+              <% out.println(pc.getBoutonsWorkflow(id, etat, BCmdFH.PAGE_FICHE,
+                                                   BCmdFH.CLASSE, BCmdFH.PAGE_MODIF)); %>
               <% if (etat >= 11) { %>
                 <a class="btn btn-secondary pull-right" style="margin-right:10px"
-                   href="<%= lien %>?but=<%= BRInsertFH.PAGE_ACTUEL %>&idbc=<%= id %>">
+                   href="<%= lien %>?but=<%= BRFH.PAGE_SAISIE %>&idbc=<%= id %>">
                   R&eacute;ceptionner
                 </a>
               <% } %>
@@ -59,7 +59,7 @@
       <div class="nav-tabs-custom">
         <ul class="nav nav-tabs">
           <li class="<%= map.get("inc/bc-liste-detail") %>">
-            <a href="<%= lien %>?but=<%= BCmdFicheFH.PAGE_ACTUEL %>&id=<%= id %>&tab=inc/bc-liste-detail">
+            <a href="<%= lien %>?but=<%= BCmdFH.PAGE_FICHE %>&id=<%= id %>&tab=inc/bc-liste-detail">
               D&eacute;tails
             </a>
           </li>

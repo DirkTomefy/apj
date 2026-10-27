@@ -2,8 +2,8 @@
 <%@page import="a_tahina.bc.fh.*"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <% try {
-    int nombreLigne = BCmdInsertFH.NOMBRE_LIGNE;
-    AtahinaPageInsertMultiple pi = new BCmdInsertFH().getPageInsertMultiple(request, session, nombreLigne);
+    int nombreLigne = BCmdFH.NOMBRE_LIGNE;
+    AtahinaPageInsertMultiple pi = new BCmdFH().getPageInsertMultiple(request, session, nombreLigne);
 %>
 <div class="content-wrapper">
   <h1>Saisie de bon de commande poussin</h1>
@@ -13,9 +13,9 @@
     <% out.println(pi.getFormufle().getHtmlTableauInsert()); %>
 
     <input type="hidden" name="acte"        value="insert" />
-    <input type="hidden" name="bute"        value="<%= BCmdFicheFH.PAGE_ACTUEL %>" />
-    <input type="hidden" name="classe"      value="<%= BCmdFicheFH.CLASSE %>" />
-    <input type="hidden" name="classefille" value="<%= BCmdFicheFH.CLASSE_FILLE %>" />
+    <input type="hidden" name="bute"        value="<%= BCmdFH.PAGE_FICHE %>" />
+    <input type="hidden" name="classe"      value="<%= BCmdFH.CLASSE %>" />
+    <input type="hidden" name="classefille" value="<%= BCmdFH.CLASSE_FILLE %>" />
     <input type="hidden" name="nombreLigne" value="<%= nombreLigne %>" />
     <input type="hidden" name="colonneMere" value="idmere" />
     <input type="hidden" name="nomtable"    value="BONCOMMANDE_POUSSIN_FILLE" />

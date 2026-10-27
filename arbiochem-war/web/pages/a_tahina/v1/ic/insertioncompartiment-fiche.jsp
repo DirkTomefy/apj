@@ -6,7 +6,7 @@
 <%@page import="java.util.Map"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <% try {
-    AtahinaPageConsulte pc = new ICFicheFH().getPageConsulte(request, session);
+    AtahinaPageConsulte pc = new ICFH().getPageConsulte(request, session);
     String lien = pc.getLien();
     InsertionCompartimentLib ic = (InsertionCompartimentLib) pc.getBase();
 
@@ -24,7 +24,7 @@
 %>
 <div class="content-wrapper">
   <h1>
-    <a href="<%= lien %>?but=<%= ICFicheFH.PAGE_LISTE %>"><i class="fa fa-angle-left"></i></a>
+    <a href="<%= lien %>?but=<%= ICFH.PAGE_LISTE %>"><i class="fa fa-angle-left"></i></a>
     <%= pc.getTitre() %> #<%= id %>
   </h1>
 
@@ -38,10 +38,10 @@
             <br/>
             <div class="box-footer">
               <%-- pas de page de modification pour une insertion : pageModif = null --%>
-              <% out.println(pc.getBoutonsWorkflow(id, etat, ICFicheFH.PAGE_ACTUEL, ICFicheFH.CLASSE, null)); %>
+              <% out.println(pc.getBoutonsWorkflow(id, etat, ICFH.PAGE_FICHE, ICFH.CLASSE, null)); %>
               <% if (idbr != null) { %>
                 <a class="btn btn-info pull-left" style="margin-left:10px"
-                   href="<%= lien %>?but=<%= ICFicheFH.PAGE_BR_FICHE %>&id=<%= idbr %>">Voir le BR</a>
+                   href="<%= lien %>?but=<%= ICFH.PAGE_BR_FICHE %>&id=<%= idbr %>">Voir le BR</a>
               <% } %>
             </div>
             <br/>
@@ -56,10 +56,10 @@
       <div class="nav-tabs-custom">
         <ul class="nav nav-tabs">
           <li class="<%= map.get("inc/ic-liste-detail") %>">
-            <a href="<%= lien %>?but=<%= ICFicheFH.PAGE_ACTUEL %>&id=<%= id %>&tab=inc/ic-liste-detail">D&eacute;tails</a>
+            <a href="<%= lien %>?but=<%= ICFH.PAGE_FICHE %>&id=<%= id %>&tab=inc/ic-liste-detail">D&eacute;tails</a>
           </li>
           <li class="<%= map.get("inc/ic-liste-lots") %>">
-            <a href="<%= lien %>?but=<%= ICFicheFH.PAGE_ACTUEL %>&id=<%= id %>&tab=inc/ic-liste-lots">Lots cr&eacute;&eacute;s</a>
+            <a href="<%= lien %>?but=<%= ICFH.PAGE_FICHE %>&id=<%= id %>&tab=inc/ic-liste-lots">Lots cr&eacute;&eacute;s</a>
           </li>
         </ul>
         <div class="tab-content">
