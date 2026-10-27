@@ -1,6 +1,6 @@
-<%@page import="a_tahina.page.*"%>
-<%@page import="a_tahina.fronthelper.facture.AvoirFH"%>
-<%@page import="a_tahina.fronthelper.facture.FactureFH"%>
+<%@page import="a_tahina.core.page.*"%>
+<%@page import="a_tahina.facture.fh.AvoirFH"%>
+<%@page import="a_tahina.facture.fh.FactureFH"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <% try {
     String idfacture = AvoirFH.getIdfacture(request);

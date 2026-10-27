@@ -1,8 +1,8 @@
 <%@ page import="java.time.LocalDate, java.time.format.DateTimeFormatter" %>
 <%@ page import="affichage.PageInsert" %>
-<%@ page import="a_tahina.page.AtahinaUtil" %>
-<%@ page import="a_tahina.fronthelper.prevision.PrevisionPoussinFH" %>
-<%@ page import="a_tahina.fronthelper.prevision.DeclPerteLotFH" %>
+<%@ page import="a_tahina.core.page.AtahinaUtil" %>
+<%@ page import="a_tahina.prevision.fh.PrevisionPoussinFH" %>
+<%@ page import="a_tahina.prevision.fh.DeclPerteLotFH" %>
 <%@ page import="a_tahina.calendrier.child.CalendrierPoussin" %>
 <%@ page contentType="text/html" pageEncoding="UTF-8"%>
 
@@ -75,7 +75,7 @@ CalendrierPoussin cal = new PrevisionPoussinFH().getCalendrier(request, session)
       </div>
 
       <input type="hidden" name="acte"   value="insert" />
-      <input type="hidden" name="classe" value="a_tahina.prevision.DeclPerteLot" />
+      <input type="hidden" name="classe" value="a_tahina.prevision.orm.DeclPerteLot" />
       <input type="hidden" name="bute"   value="<%= bute %>" />
     </form>
   </div>

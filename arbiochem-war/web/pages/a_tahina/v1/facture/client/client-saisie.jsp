@@ -1,5 +1,5 @@
-<%@page import="a_tahina.page.*"%>
-<%@page import="a_tahina.fronthelper.facture.ClientFH"%>
+<%@page import="a_tahina.core.page.*"%>
+<%@page import="a_tahina.facture.fh.ClientFH"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <% try {
     AtahinaPageInsert pi = new ClientFH().getPageInsert(request, session);

@@ -1,5 +1,5 @@
-<%@page import="a_tahina.page.AtahinaUtil"%>
-<%@page import="a_tahina.fronthelper.ic.ICFicheFH"%>
+<%@page import="a_tahina.core.page.AtahinaUtil"%>
+<%@page import="a_tahina.ic.fh.ICFicheFH"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <% try {
     out.println(ICFicheFH.ongletDetail(request, session, request.getParameter("idMere")));

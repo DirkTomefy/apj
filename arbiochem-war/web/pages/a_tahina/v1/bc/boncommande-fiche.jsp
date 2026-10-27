@@ -1,7 +1,7 @@
-<%@page import="a_tahina.bc.*"%>
-<%@page import="a_tahina.fronthelper.bc.*"%>
-<%@page import="a_tahina.fronthelper.br.BRInsertFH"%>
-<%@page import="a_tahina.page.*"%>
+<%@page import="a_tahina.bc.orm.*"%>
+<%@page import="a_tahina.bc.fh.*"%>
+<%@page import="a_tahina.br.fh.BRInsertFH"%>
+<%@page import="a_tahina.core.page.*"%>
 <%@page import="java.util.Map"%>
 <%@page import="java.util.HashMap"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>

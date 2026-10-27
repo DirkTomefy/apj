@@ -1,6 +1,6 @@
-<%@page import="a_tahina.page.AtahinaUtil"%>
-<%@page import="a_tahina.page.AtahinaPageRecherche"%>
-<%@page import="a_tahina.fronthelper.br.BRListeFH"%>
+<%@page import="a_tahina.core.page.AtahinaUtil"%>
+<%@page import="a_tahina.core.page.AtahinaPageRecherche"%>
+<%@page import="a_tahina.br.fh.BRListeFH"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <% try {
     AtahinaPageRecherche pr = new BRListeFH().getPageRechercheForList(request, session);

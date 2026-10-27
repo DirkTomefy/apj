@@ -1,5 +1,5 @@
-<%@page import="a_tahina.page.*"%>
-<%@page import="a_tahina.fronthelper.bc.*"%>
+<%@page import="a_tahina.core.page.*"%>
+<%@page import="a_tahina.bc.fh.*"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <% try {
     int nombreLigne = BCmdInsertFH.NOMBRE_LIGNE;
