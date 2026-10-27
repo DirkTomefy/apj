@@ -2,6 +2,8 @@ package a_tahina.fronthelper.br;
 
 import static a_tahina.page.AtahinaChamp.champ;
 
+import a_tahina.fronthelper.GeneraticFH;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -12,18 +14,13 @@ import a_tahina.page.AtahinaPageInsert;
 import a_tahina.page.AtahinaUtil;
 import magasin.Magasin;
 
-public class BRInsertFH {
+public class BRInsertFH extends GeneraticFH {
 
     public static final String PAGE_ACTUEL   = "a_tahina/v1/br/bonreception-saisie.jsp";
     public static final String PAGE_LISTE    = "a_tahina/v1/br/bonreception-liste.jsp";
     public static final String PAGE_BR_FICHE = "a_tahina/v1/br/bonreception-fiche.jsp";
     public static final String PAGE_BC_FICHE = "a_tahina/v1/bc/boncommande-fiche.jsp";
 
-    public static String getParam(HttpServletRequest req, String name) {
-        String v = req.getParameter(name);
-        if (v == null || v.trim().isEmpty() || "null".equalsIgnoreCase(v)) return null;
-        return v.trim();
-    }
     public static String getIdbc(HttpServletRequest req)  { return getParam(req, "idbc"); }
     public static String getIdbcf(HttpServletRequest req) { return getParam(req, "idbcf"); }
 

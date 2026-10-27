@@ -2,6 +2,8 @@ package a_tahina.fronthelper.bc;
 
 import static a_tahina.page.AtahinaChamp.champ;
 
+import a_tahina.fronthelper.GeneraticFH;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -11,7 +13,7 @@ import a_tahina.page.AtahinaPageInsertMultiple;
 import a_tahina.prevision.Fournisseur;
 import ferme.configuration.Souche;
 
-public class BCmdInsertFH {
+public class BCmdInsertFH extends GeneraticFH {
 
     public static final int NOMBRE_LIGNE = 10;
 

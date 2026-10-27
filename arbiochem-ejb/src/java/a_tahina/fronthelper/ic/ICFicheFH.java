@@ -2,6 +2,8 @@ package a_tahina.fronthelper.ic;
 
 import static a_tahina.page.AtahinaChamp.champ;
 
+import a_tahina.fronthelper.GeneraticFH;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -12,7 +14,7 @@ import a_tahina.prevision.LotLib;
 import a_tahina.page.AtahinaPageRecherche;
 import a_tahina.page.AtahinaUtil;
 
-public class ICFicheFH {
+public class ICFicheFH extends GeneraticFH {
 
     public static final String PAGE_ACTUEL   = "a_tahina/v1/ic/insertioncompartiment-fiche.jsp";
     public static final String PAGE_LISTE    = "a_tahina/v1/ic/insertioncompartiment-liste.jsp";
@@ -21,9 +23,7 @@ public class ICFicheFH {
 
     public static AtahinaPageConsulte getPageConsulte(HttpServletRequest request,
                                                       HttpSession session) throws Exception {
-        return new AtahinaPageConsulte(new InsertionCompartimentLib(), request, session,
-                "Fiche insertion compartiment")
-            .champs(
+        return consulte(new InsertionCompartimentLib(), request, session, "Fiche insertion compartiment",
                 champ("id",                "Id"),
                 champ("daty",              "Date"),
                 champ("reference",         "R&eacute;f&eacute;rence"),
@@ -33,15 +33,12 @@ public class ICFicheFH {
     }
 
     public static String ongletDetail(HttpServletRequest request, HttpSession session, String idMere) throws Exception {
-        return AtahinaPageRecherche.onglet(new InsertionCompFilleLib(), request, session, PAGE_ACTUEL, idMere, "inc/ic-liste-detail",
+        return onglet(new InsertionCompFilleLib(), request, session, PAGE_ACTUEL, idMere, "inc/ic-liste-detail", "idmere", "Aucune ligne trouv&eacute;e",
                 champ("compartimentlib", "Compartiment"),
                 champ("qte", "Qt&eacute;"),
                 champ("pu", "P.U."),
                 champ("sexelib", "Sexe"),
-                champ("santelib", "Sant&eacute;"))
-            .filtreEgal("idmere", idMere)
-            .construire()
-            .getHtmlOnglet("Aucune ligne trouv&eacute;e");
+                champ("santelib", "Sant&eacute;"));
     }
 
     public static String ongletLots(HttpServletRequest request, HttpSession session, String idMere) throws Exception {

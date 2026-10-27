@@ -2,6 +2,8 @@ package a_tahina.fronthelper.facture;
 
 import static a_tahina.page.AtahinaChamp.champ;
 
+import a_tahina.fronthelper.GeneraticFH;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -9,7 +11,7 @@ import a_tahina.facture.AthProduit;
 import a_tahina.page.AtahinaPageInsert;
 import a_tahina.page.AtahinaPageRecherche;
 
-public class ProduitFH {
+public class ProduitFH extends GeneraticFH {
 
     public static final String DOSSIER     = "a_tahina/v1/facture/produit/";
     public static final String PAGE_LISTE  = DOSSIER + "produit-liste.jsp";
@@ -18,14 +20,13 @@ public class ProduitFH {
 
     public static AtahinaPageRecherche getPageRechercheForList(HttpServletRequest request,
                                                                HttpSession session) throws Exception {
-        return new AtahinaPageRecherche(new AthProduit(), request, session,
+        return liste(new AthProduit(), request, session,
                 PAGE_LISTE, "Liste des produits",
                 champ("id",      "Id").recherche(),
                 champ("libelle", "Libell&eacute;").recherche(),
                 champ("unite",   "Unit&eacute;"),
                 champ("pu",      "Prix unitaire"),
                 champ("actif",   "Actif (1/0)"))
-            .construire()
             .boutonSaisir(PAGE_SAISIE);
     }
 

@@ -2,6 +2,8 @@ package a_tahina.fronthelper.ic;
 
 import static a_tahina.page.AtahinaChamp.champ;
 
+import a_tahina.fronthelper.GeneraticFH;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -12,7 +14,7 @@ import a_tahina.ic.InsertionCompartimentFille;
 import a_tahina.page.AtahinaChamp;
 import a_tahina.page.AtahinaPageInsertMultiple;
 
-public class ICInsertFH {
+public class ICInsertFH extends GeneraticFH {
 
     public static final String PAGE_ACTUEL   = "a_tahina/v1/ic/insertioncompartiment-saisie.jsp";
     public static final String PAGE_LISTE    = "a_tahina/v1/ic/insertioncompartiment-liste.jsp";
@@ -21,12 +23,6 @@ public class ICInsertFH {
 
     public static final String CLASSE        = "a_tahina.ic.InsertionCompartiment";
     public static final String CLASSE_FILLE  = "a_tahina.ic.InsertionCompartimentFille";
-
-    public static String getParam(HttpServletRequest req, String name) {
-        String v = req.getParameter(name);
-        if (v == null || v.trim().isEmpty() || "null".equalsIgnoreCase(v)) return null;
-        return v.trim();
-    }
 
     public static String getIdbr(HttpServletRequest req) { return getParam(req, "idbr"); }
 

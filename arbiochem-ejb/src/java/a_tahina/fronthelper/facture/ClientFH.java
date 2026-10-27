@@ -2,6 +2,8 @@ package a_tahina.fronthelper.facture;
 
 import static a_tahina.page.AtahinaChamp.champ;
 
+import a_tahina.fronthelper.GeneraticFH;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -13,7 +15,7 @@ import a_tahina.page.AtahinaPageRecherche;
 import a_tahina.facture.AthFactureLib;
 import a_tahina.facture.AthAvoirLib;
 
-public class ClientFH {
+public class ClientFH extends GeneraticFH {
 
     public static final String DOSSIER     = "a_tahina/v1/facture/client/";
     public static final String PAGE_LISTE  = DOSSIER + "client-liste.jsp";
@@ -23,7 +25,7 @@ public class ClientFH {
 
     public static AtahinaPageRecherche getPageRechercheForList(HttpServletRequest request,
                                                                HttpSession session) throws Exception {
-        return new AtahinaPageRecherche(new AthClientSolde(), request, session,
+        return liste(new AthClientSolde(), request, session,
                 PAGE_LISTE, "Liste des clients",
                 champ("id",               "Id").recherche().lien(PAGE_FICHE),
                 champ("nom",              "Nom").recherche(),
@@ -31,14 +33,12 @@ public class ClientFH {
                 champ("totalavoir",       "Avoirs vis&eacute;s"),
                 champ("totalutilise",     "Avoirs utilis&eacute;s"),
                 champ("solde",            "Solde"))
-            .construire()
             .boutonSaisir(PAGE_SAISIE);
     }
 
     public static AtahinaPageConsulte getPageConsulte(HttpServletRequest request,
                                                       HttpSession session) throws Exception {
-        return new AtahinaPageConsulte(new AthClientSolde(), request, session, "Fiche client")
-            .champs(
+        return consulte(new AthClientSolde(), request, session, "Fiche client",
                 champ("id",               "Id"),
                 champ("nom",              "Nom"),
                 champ("pourcentageavoir", "% maximum d'une facture payable par avoir"),
@@ -60,30 +60,24 @@ public class ClientFH {
     }
 
     public static String ongletFactures(HttpServletRequest request, HttpSession session, String idMere) throws Exception {
-        return AtahinaPageRecherche.onglet(new AthFactureLib(), request, session, PAGE_FICHE, idMere, "inc/client-factures",
+        return onglet(new AthFactureLib(), request, session, PAGE_FICHE, idMere, "inc/client-factures", "idclient", "Aucune facture",
                 champ("id", "Id").lien(FactureFH.PAGE_FICHE),
                 champ("daty", "Date"),
                 champ("reference", "R&eacute;f&eacute;rence"),
                 champ("montantttc", "Total TTC"),
                 champ("montantavoir", "Avoir d&eacute;duit"),
                 champ("netapayer", "Net &agrave; payer"),
-                champ("etatlib", "&Eacute;tat"))
-            .filtreEgal("idclient", idMere)
-            .construire()
-            .getHtmlOnglet("Aucune facture");
+                champ("etatlib", "&Eacute;tat"));
     }
 
     public static String ongletAvoirs(HttpServletRequest request, HttpSession session, String idMere) throws Exception {
-        return AtahinaPageRecherche.onglet(new AthAvoirLib(), request, session, PAGE_FICHE, idMere, "inc/client-avoirs",
+        return onglet(new AthAvoirLib(), request, session, PAGE_FICHE, idMere, "inc/client-avoirs", "idclient", "Aucun avoir",
                 champ("id", "Id").lien(AvoirFH.PAGE_FICHE),
                 champ("daty", "Date"),
                 champ("idfacturelib", "Facture"),
                 champ("montantttc", "Montant TTC"),
                 champ("montantutilise", "D&eacute;j&agrave; utilis&eacute;"),
                 champ("reste", "Reste"),
-                champ("etatlib", "&Eacute;tat"))
-            .filtreEgal("idclient", idMere)
-            .construire()
-            .getHtmlOnglet("Aucun avoir");
+                champ("etatlib", "&Eacute;tat"));
     }
 }

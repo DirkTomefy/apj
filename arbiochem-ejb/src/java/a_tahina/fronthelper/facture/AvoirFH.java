@@ -2,6 +2,8 @@ package a_tahina.fronthelper.facture;
 
 import static a_tahina.page.AtahinaChamp.champ;
 
+import a_tahina.fronthelper.GeneraticFH;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -18,7 +20,7 @@ import bean.CGenUtil;
 import a_tahina.facture.AthAvoirFilleLib;
 import a_tahina.facture.AthAvoirUsage;
 
-public class AvoirFH {
+public class AvoirFH extends GeneraticFH {
 
     public static final String DOSSIER      = "a_tahina/v1/facture/avoir/";
     public static final String PAGE_LISTE   = DOSSIER + "avoir-liste.jsp";
@@ -27,15 +29,11 @@ public class AvoirFH {
     public static final String CLASSE       = "a_tahina.facture.AthAvoir";
     public static final String CLASSE_FILLE = "a_tahina.facture.AthAvoirFille";
 
-    public static String getIdfacture(HttpServletRequest req) {
-        String v = req.getParameter("idfacture");
-        if (v == null || v.trim().isEmpty() || "null".equalsIgnoreCase(v)) return null;
-        return v.trim();
-    }
+    public static String getIdfacture(HttpServletRequest req) { return getParam(req, "idfacture"); }
 
     public static AtahinaPageRecherche getPageRechercheForList(HttpServletRequest request,
                                                                HttpSession session) throws Exception {
-        return new AtahinaPageRecherche(new AthAvoirLib(), request, session,
+        return liste(new AthAvoirLib(), request, session,
                 PAGE_LISTE, "Liste des avoirs",
                 champ("id",             "Id").recherche().lien(PAGE_FICHE),
                 champ("daty",           "Date").intervalle().defautAujourdhui(),
@@ -46,14 +44,12 @@ public class AvoirFH {
                 champ("montantutilise", "D&eacute;j&agrave; utilis&eacute;"),
                 champ("reste",          "Reste"),
                 champ("etat",           "&Eacute;tat").filtreSeul().listeEtat(),
-                champ("etatlib",        "&Eacute;tat"))
-            .construire();
+                champ("etatlib",        "&Eacute;tat"));
     }
 
     public static AtahinaPageConsulte getPageConsulte(HttpServletRequest request,
                                                       HttpSession session) throws Exception {
-        return new AtahinaPageConsulte(new AthAvoirLib(), request, session, "Fiche avoir")
-            .champs(
+        return consulte(new AthAvoirLib(), request, session, "Fiche avoir",
                 champ("id",             "Id"),
                 champ("daty",           "Date"),
                 champ("reference",      "R&eacute;f&eacute;rence"),
@@ -120,25 +116,19 @@ public class AvoirFH {
     }
 
     public static String ongletDetail(HttpServletRequest request, HttpSession session, String idMere) throws Exception {
-        return AtahinaPageRecherche.onglet(new AthAvoirFilleLib(), request, session, PAGE_FICHE, idMere, "inc/avoir-detail",
+        return onglet(new AthAvoirFilleLib(), request, session, PAGE_FICHE, idMere, "inc/avoir-detail", "idmere", "Aucune ligne",
                 champ("produitlib", "Produit"),
                 champ("qte", "Qt&eacute; retourn&eacute;e"),
                 champ("pu", "P.U."),
                 champ("tva", "TVA %"),
                 champ("montantht", "Total HT"),
-                champ("montantttc", "Total TTC"))
-            .filtreEgal("idmere", idMere)
-            .construire()
-            .getHtmlOnglet("Aucune ligne");
+                champ("montantttc", "Total TTC"));
     }
 
     public static String ongletUsages(HttpServletRequest request, HttpSession session, String idMere) throws Exception {
-        return AtahinaPageRecherche.onglet(new AthAvoirUsage(), request, session, PAGE_FICHE, idMere, "inc/avoir-usages",
+        return onglet(new AthAvoirUsage(), request, session, PAGE_FICHE, idMere, "inc/avoir-usages", "idavoir", "Cet avoir n'a pas encore &eacute;t&eacute; utilis&eacute;",
                 champ("idfacture", "Facture").lien(FactureFH.PAGE_FICHE, "id"),
                 champ("montant", "Montant d&eacute;duit"),
-                champ("daty", "Date"))
-            .filtreEgal("idavoir", idMere)
-            .construire()
-            .getHtmlOnglet("Cet avoir n'a pas encore &eacute;t&eacute; utilis&eacute;");
+                champ("daty", "Date"));
     }
 }

@@ -2,6 +2,8 @@ package a_tahina.fronthelper.prevision;
 
 import static a_tahina.page.AtahinaChamp.champ;
 
+import a_tahina.fronthelper.GeneraticFH;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -9,7 +11,7 @@ import a_tahina.ic.Compartiment;
 import a_tahina.page.AtahinaPageInsert;
 import a_tahina.prevision.DeclPerteLot;
 
-public class DeclPerteLotFH {
+public class DeclPerteLotFH extends GeneraticFH {
 
     public static final String PAGE_ACTUEL = PrevisionPoussinFH.PAGE_ACTUEL;
 
