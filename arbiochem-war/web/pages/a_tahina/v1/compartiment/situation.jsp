@@ -1,6 +1,6 @@
-<%@page import="a_tahina.page.AtahinaUtil"%>
-<%@page import="a_tahina.page.AtahinaPageRecherche"%>
-<%@page import="a_tahina.fronthelper.compartiment.SituationCompListFH"%>
+<%@page import="a_tahina.core.page.AtahinaUtil"%>
+<%@page import="a_tahina.core.page.AtahinaPageRecherche"%>
+<%@page import="a_tahina.compartiment.fh.SituationCompListFH"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <% try {
     AtahinaPageRecherche pr = new SituationCompListFH().getPageRechercheForList(request, session);

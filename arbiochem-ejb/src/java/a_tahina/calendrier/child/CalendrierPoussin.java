@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import a_tahina.calendrier.CalendrierAbstrait;
 import a_tahina.calendrier.helper.Indicateur;
-import a_tahina.prevision.CalendrierPoussinCumulJour;
+import a_tahina.prevision.orm.CalendrierPoussinCumulJour;
 import bean.CGenUtil;
 
 public class CalendrierPoussin extends CalendrierAbstrait {

@@ -1,6 +1,7 @@
-<%@page import="a_tahina.ic.*"%>
-<%@page import="a_tahina.fronthelper.ic.*"%>
-<%@page import="a_tahina.page.*"%>
+<%@page import="a_tahina.ic.orm.*"%>
+<%@page import="a_tahina.compartiment.orm.*"%>
+<%@page import="a_tahina.ic.fh.*"%>
+<%@page import="a_tahina.core.page.*"%>
 <%@page import="java.util.HashMap"%>
 <%@page import="java.util.Map"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>

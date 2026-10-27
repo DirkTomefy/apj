@@ -1,6 +1,6 @@
-<%@page import="a_tahina.page.*"%>
-<%@page import="a_tahina.facture.*"%>
-<%@page import="a_tahina.fronthelper.facture.*"%>
+<%@page import="a_tahina.core.page.*"%>
+<%@page import="a_tahina.facture.orm.*"%>
+<%@page import="a_tahina.facture.fh.*"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <% try {
     AtahinaPageConsulte pc = new AvoirFH().getPageConsulte(request, session);

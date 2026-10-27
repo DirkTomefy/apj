@@ -1,6 +1,6 @@
-<%@page import="a_tahina.page.AtahinaUtil"%>
-<%@page import="a_tahina.page.AtahinaPageRecherche"%>
-<%@page import="a_tahina.fronthelper.facture.ProduitFH"%>
+<%@page import="a_tahina.core.page.AtahinaUtil"%>
+<%@page import="a_tahina.core.page.AtahinaPageRecherche"%>
+<%@page import="a_tahina.facture.fh.ProduitFH"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <% try {
     AtahinaPageRecherche pr = new ProduitFH().getPageRechercheForList(request, session);

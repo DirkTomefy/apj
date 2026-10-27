@@ -1,5 +1,5 @@
-<%@page import="a_tahina.page.*"%>
-<%@page import="a_tahina.fronthelper.facture.FactureFH"%>
+<%@page import="a_tahina.core.page.*"%>
+<%@page import="a_tahina.facture.fh.FactureFH"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <% try {
     int nombreLigne = FactureFH.NOMBRE_LIGNE;

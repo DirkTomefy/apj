@@ -1,6 +1,6 @@
-<%@page import="a_tahina.page.AtahinaUtil"%>
-<%@page import="a_tahina.page.AtahinaPageRecherche"%>
-<%@page import="a_tahina.fronthelper.bc.BCmdListeFH"%>
+<%@page import="a_tahina.core.page.AtahinaUtil"%>
+<%@page import="a_tahina.core.page.AtahinaPageRecherche"%>
+<%@page import="a_tahina.bc.fh.BCmdListeFH"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <% try {
     AtahinaPageRecherche pr = new BCmdListeFH().getPageRechercheForList(request, session);

@@ -1,6 +1,6 @@
-<%@page import="a_tahina.page.AtahinaPageInsert"%>
-<%@page import="a_tahina.fronthelper.br.BRInsertFH"%>
-<%@page import="a_tahina.fronthelper.br.BRFicheFH"%>
+<%@page import="a_tahina.core.page.AtahinaPageInsert"%>
+<%@page import="a_tahina.br.fh.BRInsertFH"%>
+<%@page import="a_tahina.br.fh.BRFicheFH"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <% try {
     AtahinaPageInsert pi = new BRInsertFH().getPageInsert(request, session);
@@ -9,7 +9,7 @@
     String bute   = BRInsertFH.getButeRetour(request);
     String lien   = pi.getLien();
 
-    String titre = (idbc != null) ? "R&eacute;ception du BC " + a_tahina.page.AtahinaUtil.esc(idbc)
+    String titre = (idbc != null) ? "R&eacute;ception du BC " + a_tahina.core.page.AtahinaUtil.esc(idbc)
                                   : "Nouvelle r&eacute;ception";
 %>
 <div class="content-wrapper">
@@ -27,5 +27,5 @@
   </form>
 </div>
 <% } catch (Exception e) {
-     out.println(a_tahina.page.AtahinaUtil.erreurHtml(e));
+     out.println(a_tahina.core.page.AtahinaUtil.erreurHtml(e));
    } %>
