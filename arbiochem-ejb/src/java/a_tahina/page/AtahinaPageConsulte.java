@@ -1,11 +1,14 @@
 package a_tahina.page;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import affichage.Champ;
 import affichage.PageConsulte;
 import bean.ClassMAPTable;
-
 
 public class AtahinaPageConsulte extends PageConsulte {
 
@@ -17,23 +20,38 @@ public class AtahinaPageConsulte extends PageConsulte {
         setCanUploadFile(false);
     }
 
-    public AtahinaPageConsulte libelle(String champ, String libelle) {
-        AtahinaUtil.libelle(getChampByName(champ), libelle);
+    public AtahinaPageConsulte champs(AtahinaChamp... defs) {
+        Set<String> declares = new HashSet<String>();
+        String[] ordre = new String[defs.length];
+        for (int i = 0; i < defs.length; i++) {
+            Champ c = getChampByName(defs[i].nom);
+            if (c == null) {
+                throw new IllegalArgumentException("Champ '" + defs[i].nom + "' inconnu dans la fiche " + getTitre());
+            }
+            c.setLibelle(defs[i].libelle);
+            c.setVisible(true);
+            declares.add(defs[i].nom.toLowerCase());
+            ordre[i] = defs[i].nom;
+        }
+        if (getListeChamp() != null) {
+            for (Champ c : getListeChamp()) {
+                if (c != null && c.getNom() != null && !declares.contains(c.getNom().toLowerCase())) {
+                    c.setVisible(false);
+                }
+            }
+        }
+        setOrdre(ordre);
         return this;
     }
 
-    public AtahinaPageConsulte cacher(String... champs) {
-        for (String c : champs) AtahinaUtil.cacher(getChampByName(c));
-        return this;
-    }
-
-   
+    // ------------------------------------------------------------------
+    // Boutons
+    // ------------------------------------------------------------------
     public String lienActe(String acte, String id, String pageRetour, String classe) {
         return getLien() + "?but=apresTarif.jsp&acte=" + acte + "&id=" + id
                 + "&bute=" + pageRetour + "&classe=" + classe;
     }
 
-   
     public String getBoutonsWorkflow(String id, int etat, String pageRetour, String classe, String pageModif) {
         if (etat >= 11) return "";
         StringBuilder sb = new StringBuilder();

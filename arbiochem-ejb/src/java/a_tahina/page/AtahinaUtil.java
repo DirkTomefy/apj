@@ -6,11 +6,7 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpSession;
 
-import affichage.Champ;
-import affichage.Liste;
-import bean.TypeObjet;
 import user.UserEJB;
-
 
 public final class AtahinaUtil {
 
@@ -28,7 +24,6 @@ public final class AtahinaUtil {
     public static String getLien(HttpSession session) {
         return (String) session.getValue("lien");
     }
-
 
     public static String quote(String valeur) {
         return "'" + (valeur == null ? "" : valeur.replace("'", "''")) + "'";
@@ -79,16 +74,5 @@ public final class AtahinaUtil {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         return "<pre style='color:red'>" + esc(sw.toString()) + "</pre>";
-    }
-
-   
-    public static void libelle(Champ c, String libelle) { if (c != null) c.setLibelle(libelle); }
-    public static void defaut(Champ c, String valeur)   { if (c != null) c.setDefaut(valeur); }
-    public static void cacher(Champ c)                  { if (c != null) c.setVisible(false); }
-    public static void lectureSeule(Champ c)            { if (c != null) c.setAutre("readonly"); }
-
-    /** Liste deroulante des etats (1 cree, 11 vise, 0 annule, 9 cloture). */
-    public static Liste listeEtat(String nomChamp) throws Exception {
-        return new Liste(nomChamp, new TypeObjet("ETAT"), "desce", "id");
     }
 }

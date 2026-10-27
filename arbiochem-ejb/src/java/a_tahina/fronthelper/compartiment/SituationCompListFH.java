@@ -1,5 +1,7 @@
 package a_tahina.fronthelper.compartiment;
 
+import static a_tahina.page.AtahinaChamp.champ;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -12,16 +14,15 @@ public class SituationCompListFH {
 
     public static AtahinaPageRecherche getPageRechercheForList(HttpServletRequest request,
                                                                HttpSession session) throws Exception {
-        // Criteres de recherche : uniquement la colonne texte
-        String[] listeCrt  = { "compid" };
-        String[] listeInt  = { };
-        String[] libEntete = { "compid", "qtetheorique", "qteactuelle", "pu",
-                               "qtebc", "sommeqteactuelle", "valeurunitaire" };
-
-        AtahinaPageRecherche pr = new AtahinaPageRecherche(new SituationCompartiment(), request, session,
-                PAGE_ACTUEL, "Situation par compartiment", listeCrt, listeInt, libEntete);
-
-        return pr.libelle("compid", "Compartiment")
-                 .construire();
+        return new AtahinaPageRecherche(new SituationCompartiment(), request, session,
+                PAGE_ACTUEL, "Situation par compartiment",
+                champ("compid",           "Compartiment").recherche(),
+                champ("qtetheorique",     "Qt&eacute; th&eacute;orique"),
+                champ("qteactuelle",      "Qt&eacute; actuelle"),
+                champ("pu",               "Prix unitaire"),
+                champ("qtebc",            "Qt&eacute; BC"),
+                champ("sommeqteactuelle", "Somme qt&eacute; actuelle"),
+                champ("valeurunitaire",   "Valeur unitaire"))
+            .construire();
     }
 }

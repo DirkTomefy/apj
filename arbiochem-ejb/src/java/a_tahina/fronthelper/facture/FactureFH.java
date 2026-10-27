@@ -1,5 +1,7 @@
 package a_tahina.fronthelper.facture;
 
+import static a_tahina.page.AtahinaChamp.champ;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -11,7 +13,9 @@ import a_tahina.facture.AthProduit;
 import a_tahina.page.AtahinaPageConsulte;
 import a_tahina.page.AtahinaPageInsertMultiple;
 import a_tahina.page.AtahinaPageRecherche;
-import affichage.Liste;
+import a_tahina.facture.AthFactureFilleLib;
+import a_tahina.facture.AthAvoirLib;
+import a_tahina.facture.AthAvoirUsage;
 
 public class FactureFH {
 
@@ -23,76 +27,94 @@ public class FactureFH {
     public static final String CLASSE_FILLE = "a_tahina.facture.AthFactureFille";
     public static final int    NOMBRE_LIGNE = 10;
 
-    // -------- LISTE --------
     public static AtahinaPageRecherche getPageRechercheForList(HttpServletRequest request,
                                                                HttpSession session) throws Exception {
-        String[] listeCrt  = { "id", "daty", "reference", "idclientlib", "etat" };
-        String[] listeInt  = { "daty" };
-        String[] libEntete = { "id", "daty", "reference", "idclientlib", "montantttc",
-                               "montantavoir", "netapayer", "etatlib" };
-
-        AtahinaPageRecherche pr = new AtahinaPageRecherche(new AthFactureLib(), request, session,
-                PAGE_LISTE, "Liste des factures", listeCrt, listeInt, libEntete);
-
-        pr.libelle("id", "Id")
-          .libelle("reference", "R&eacute;f&eacute;rence")
-          .libelle("idclientlib", "Client")
-          .intervalleDatyAujourdhui()
-          .listeEtat("&Eacute;tat");
-
-        return pr.construire("Id", "Date", "R&eacute;f&eacute;rence", "Client", "Total TTC",
-                             "Avoir d&eacute;duit", "Net &agrave; payer", "&Eacute;tat")
-                 .lienFiche("id", PAGE_FICHE)
-                 .boutonSaisir(PAGE_SAISIE);
+        return new AtahinaPageRecherche(new AthFactureLib(), request, session,
+                PAGE_LISTE, "Liste des factures",
+                champ("id",           "Id").recherche().lien(PAGE_FICHE),
+                champ("daty",         "Date").intervalle().defautAujourdhui(),
+                champ("reference",    "R&eacute;f&eacute;rence").recherche(),
+                champ("idclientlib",  "Client").recherche(),
+                champ("montantttc",   "Total TTC"),
+                champ("montantavoir", "Avoir d&eacute;duit"),
+                champ("netapayer",    "Net &agrave; payer"),
+                champ("etat",         "&Eacute;tat").filtreSeul().listeEtat(),
+                champ("etatlib",      "&Eacute;tat"))
+            .construire()
+            .boutonSaisir(PAGE_SAISIE);
     }
 
-    // -------- FICHE --------
     public static AtahinaPageConsulte getPageConsulte(HttpServletRequest request,
                                                       HttpSession session) throws Exception {
         return new AtahinaPageConsulte(new AthFactureLib(), request, session, "Fiche facture")
-                .libelle("id", "Id")
-                .libelle("daty", "Date")
-                .libelle("reference", "R&eacute;f&eacute;rence")
-                .libelle("idclientlib", "Client")
-                .libelle("etatlib", "&Eacute;tat")
-                .libelle("remarque", "Remarque")
-                .libelle("montantht", "Total HT")
-                .libelle("montanttva", "TVA")
-                .libelle("montantttc", "Total TTC")
-                .libelle("pourcentageavoir", "% maximum payable par avoir")
-                .libelle("plafondavoir", "Plafond d'avoir de cette facture")
-                .libelle("montantavoir", "Avoir d&eacute;duit")
-                .libelle("netapayer", "Net &agrave; payer")
-                .cacher("idclient", "etat");
+            .champs(
+                champ("id",               "Id"),
+                champ("daty",             "Date"),
+                champ("reference",        "R&eacute;f&eacute;rence"),
+                champ("idclientlib",      "Client"),
+                champ("etatlib",          "&Eacute;tat"),
+                champ("montantht",        "Total HT"),
+                champ("montanttva",       "TVA"),
+                champ("montantttc",       "Total TTC"),
+                champ("pourcentageavoir", "% maximum payable par avoir"),
+                champ("plafondavoir",     "Plafond d'avoir de cette facture"),
+                champ("montantavoir",     "Avoir d&eacute;duit"),
+                champ("netapayer",        "Net &agrave; payer"),
+                champ("remarque",         "Remarque"));
     }
 
-    // -------- SAISIE --------
     public static AtahinaPageInsertMultiple getPageInsertMultiple(HttpServletRequest request,
                                                                   HttpSession session,
                                                                   int nombreLigne) throws Exception {
-        AtahinaPageInsertMultiple pi = new AtahinaPageInsertMultiple(
-                new AthFacture(), new AthFactureFille(), request, session, nombreLigne);
+        return new AtahinaPageInsertMultiple(new AthFacture(), new AthFactureFille(), request, session, nombreLigne)
+            .champs(
+                champ("daty",      "Date").defautAujourdhui(),
+                champ("reference", "R&eacute;f&eacute;rence"),
+                champ("idclient",  "Client").liste(new AthClient(), "nom", "id"),
+                champ("remarque",  "Remarque"))
+            .colonnes(
+                champ("idproduit", "Produit").liste(new AthProduit(), "libelle", "id", " and actif = 1"),
+                champ("qte",       "Qt&eacute;").defaut("1"),
+                champ("pu",        "P.U. (0 = prix du produit)").defaut("0"),
+                champ("tva",       "TVA %").defaut("0"))
+            .preparer();
+    }
 
-        pi.listes(new Liste("idclient", new AthClient(), "nom", "id"))
-          .listesFille(new Liste("idproduit", new AthProduit(), "libelle", "id", " and actif = 1"));
+    public static String ongletDetail(HttpServletRequest request, HttpSession session, String idMere) throws Exception {
+        return AtahinaPageRecherche.onglet(new AthFactureFilleLib(), request, session, PAGE_FICHE, idMere, "inc/facture-detail",
+                champ("produitlib", "Produit"),
+                champ("qte", "Qt&eacute;"),
+                champ("pu", "P.U."),
+                champ("tva", "TVA %"),
+                champ("montantht", "Total HT"),
+                champ("montantttc", "Total TTC"),
+                champ("qteretournee", "Qt&eacute; retourn&eacute;e"),
+                champ("qtedisponible", "Encore retournable"))
+            .filtreEgal("idmere", idMere)
+            .construire()
+            .getHtmlOnglet("Aucune ligne");
+    }
 
-        pi.libelle("daty", "Date")
-          .libelle("reference", "R&eacute;f&eacute;rence")
-          .libelle("idclient", "Client")
-          .libelle("remarque", "Remarque")
-          .defaut("daty", utilitaire.Utilitaire.dateDuJour())
-          .cacher("etat", "montantavoir");
+    public static String ongletAvoirs(HttpServletRequest request, HttpSession session, String idMere) throws Exception {
+        return AtahinaPageRecherche.onglet(new AthAvoirLib(), request, session, PAGE_FICHE, idMere, "inc/facture-avoirs",
+                champ("id", "Id").lien(AvoirFH.PAGE_FICHE),
+                champ("daty", "Date"),
+                champ("montantttc", "Montant TTC"),
+                champ("montantutilise", "D&eacute;j&agrave; utilis&eacute;"),
+                champ("reste", "Reste"),
+                champ("etatlib", "&Eacute;tat"))
+            .filtreEgal("idfacture", idMere)
+            .construire()
+            .getHtmlOnglet("Aucun avoir sur cette facture");
+    }
 
-        pi.libelleFille("idproduit", "Produit")
-          .libelleFille("qte", "Qt&eacute;")
-          .libelleFille("pu", "P.U. (0 = prix du produit)")
-          .libelleFille("tva", "TVA %")
-          .cacherFille("id", "idmere");
-
-        pi.charger();
-
-        pi.defautFille("qte", "1").defautFille("pu", "0").defautFille("tva", "0");
-
-        return pi.finaliser("idproduit", "qte", "pu", "tva");
+    public static String ongletUsages(HttpServletRequest request, HttpSession session, String idMere) throws Exception {
+        return AtahinaPageRecherche.onglet(new AthAvoirUsage(), request, session, PAGE_FICHE, idMere, "inc/facture-usages",
+                champ("idavoir", "Avoir").lien(AvoirFH.PAGE_FICHE, "id"),
+                champ("montant", "Montant d&eacute;duit"),
+                champ("daty", "Date"))
+            .filtreEgal("idfacture", idMere)
+            .construire()
+            .getHtmlOnglet("Aucun avoir d&eacute;duit sur cette facture");
     }
 }

@@ -1,5 +1,7 @@
 package a_tahina.fronthelper.ic;
 
+import static a_tahina.page.AtahinaChamp.champ;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -14,23 +16,16 @@ public class ICListeFH {
 
     public static AtahinaPageRecherche getPageRechercheForList(HttpServletRequest request,
                                                                HttpSession session) throws Exception {
-        String[] listeCrt  = { "id", "daty", "reference", "idbonreceptionlib", "etat" };
-        String[] listeInt  = { "daty" };
-        String[] libEntete = { "id", "daty", "reference", "idbonreceptionlib", "etatlib" };
-
-        AtahinaPageRecherche pr = new AtahinaPageRecherche(new InsertionCompartimentLib(), request, session,
-                PAGE_ACTUEL, "Liste des insertions compartiment", listeCrt, listeInt, libEntete);
-
-        pr.libelle("id", "Id")
-          .libelle("reference", "R&eacute;f&eacute;rence")
-          .libelle("idbonreceptionlib", "Bon de r&eacute;ception")
-          .intervalleDatyAujourdhui()
-          .listeEtat("&Eacute;tat");
-
-        // pas de page de modification : « modifier » ouvre la fiche
-        return pr.construire("Id", "Date", "R&eacute;f&eacute;rence", "BR", "&Eacute;tat")
-                 .lienFiche("id", PAGE_FICHE)
-                 .menuClicDroit("modifier", PAGE_FICHE)
-                 .boutonSaisir(PAGE_SAISIE);
+        return new AtahinaPageRecherche(new InsertionCompartimentLib(), request, session,
+                PAGE_ACTUEL, "Liste des insertions compartiment",
+                champ("id",                "Id").recherche().lien(PAGE_FICHE),
+                champ("daty",              "Date").intervalle().defautAujourdhui(),
+                champ("reference",         "R&eacute;f&eacute;rence").recherche(),
+                champ("idbonreceptionlib", "Bon de r&eacute;ception").recherche(),
+                champ("etat",              "&Eacute;tat").filtreSeul().listeEtat(),
+                champ("etatlib",           "&Eacute;tat"))
+            .construire()
+            .menuClicDroit("modifier", PAGE_FICHE)
+            .boutonSaisir(PAGE_SAISIE);
     }
 }

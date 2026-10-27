@@ -1,5 +1,7 @@
 package a_tahina.fronthelper.br;
 
+import static a_tahina.page.AtahinaChamp.champ;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -14,25 +16,17 @@ public class BRListeFH {
 
     public static AtahinaPageRecherche getPageRechercheForList(HttpServletRequest request,
                                                                HttpSession session) throws Exception {
-        String[] listeCrt  = { "id", "daty", "reference", "idboncommandelib",
-                               "idlieureceptionlib", "etat" };
-        String[] listeInt  = { "daty" };
-        String[] libEntete = { "id", "daty", "reference", "idboncommandelib",
-                               "idlieureceptionlib", "etatlib" };
-
-        AtahinaPageRecherche pr = new AtahinaPageRecherche(new BonReceptionPoussinLib(), request, session,
-                PAGE_ACTUEL, "Liste des bons de r&eacute;ception poussin", listeCrt, listeInt, libEntete);
-
-        pr.libelle("id", "Id")
-          .libelle("reference", "R&eacute;f&eacute;rence")
-          .libelle("idboncommandelib", "Bon de commande")
-          .libelle("idlieureceptionlib", "Lieu")
-          .intervalleDatyAujourdhui()
-          .listeEtat("&Eacute;tat");
-
-        return pr.construire("Id", "Date reception", "Reference", "Bon de commande", "Lieu", "Etat")
-                 .lienFiche("id", PAGE_FICHE)
-                 .menuClicDroit("modifier", PAGE_FICHE)
-                 .boutonSaisir(PAGE_SAISIE);
+        return new AtahinaPageRecherche(new BonReceptionPoussinLib(), request, session,
+                PAGE_ACTUEL, "Liste des bons de r&eacute;ception poussin",
+                champ("id",                 "Id").recherche().lien(PAGE_FICHE),
+                champ("daty",               "Date r&eacute;ception").intervalle().defautAujourdhui(),
+                champ("reference",          "R&eacute;f&eacute;rence").recherche(),
+                champ("idboncommandelib",   "Bon de commande").recherche(),
+                champ("idlieureceptionlib", "Lieu").recherche(),
+                champ("etat",               "&Eacute;tat").filtreSeul().listeEtat(),
+                champ("etatlib",            "&Eacute;tat"))
+            .construire()
+            .menuClicDroit("modifier", PAGE_FICHE)
+            .boutonSaisir(PAGE_SAISIE);
     }
 }

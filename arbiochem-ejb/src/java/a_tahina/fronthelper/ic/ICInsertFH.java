@@ -1,5 +1,7 @@
 package a_tahina.fronthelper.ic;
 
+import static a_tahina.page.AtahinaChamp.champ;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -7,16 +9,9 @@ import a_tahina.br.BonReceptionPoussin;
 import a_tahina.ic.Compartiment;
 import a_tahina.ic.InsertionCompartiment;
 import a_tahina.ic.InsertionCompartimentFille;
+import a_tahina.page.AtahinaChamp;
 import a_tahina.page.AtahinaPageInsertMultiple;
-import affichage.Liste;
-import bean.TypeObjet;
 
-/**
- * Saisie d'une Insertion Compartiment.
- *
- * - Le BC parent et les cumuls sont deduits dans InsertionCompartiment.createObject().
- * - Chaque ligne de la fille genere un LOT a l'insertion.
- */
 public class ICInsertFH {
 
     public static final String PAGE_ACTUEL   = "a_tahina/v1/ic/insertioncompartiment-saisie.jsp";
@@ -46,48 +41,25 @@ public class ICInsertFH {
                                                                   int nbLignes) throws Exception {
         String idbr = getIdbr(request);
 
+        AtahinaChamp br = champ("idbonreception", "Bon de r&eacute;ception");
+        if (idbr == null) br.liste(new BonReceptionPoussin(), "reference", "id");
+        else              br.defaut(idbr).lectureSeule();
+
         AtahinaPageInsertMultiple pi = new AtahinaPageInsertMultiple(
                 new InsertionCompartiment(), new InsertionCompartimentFille(), request, session, nbLignes);
 
-        // 1. Listes (avant libelles/defauts : changerEnChamp remplace le champ)
-        if (idbr == null) {
-            pi.listes(new Liste("idbonreception", new BonReceptionPoussin(), "reference", "id"));
-        }
-        pi.listesFille(
-                new Liste("idcompartiment", new Compartiment(), "nom", "id"),
-                new Liste("sexe",           new TypeObjet("SEXE"), "val", "id"),
-                new Liste("idsante",        new TypeObjet("SANTEPOUSSIN"), "val", "id"));
+        pi.champs(
+            champ("daty",      "Date").defautAujourdhui(),
+            champ("reference", "R&eacute;f&eacute;rence"),
+            br,
+            champ("remarque",  "Remarque"));
 
-        // 2. Libelles
-        pi.libelle("daty", "Date")
-          .libelle("reference", "R&eacute;f&eacute;rence")
-          .libelle("idbonreception", "Bon de r&eacute;ception")
-          .libelle("remarque", "Remarque")
-          .cacher("etat")
-          .defaut("daty", utilitaire.Utilitaire.dateDuJour());
+        pi.colonnes(
+            champ("idcompartiment", "Compartiment").liste(new Compartiment(), "nom", "id").defaut(""),
+            champ("qte",            "Qt&eacute;").defaut("0"),
+            champ("sexe",           "Sexe").typeObjet("SEXE").defaut(""),
+            champ("idsante",        "Sant&eacute;").typeObjet("SANTEPOUSSIN").defaut(""));
 
-        pi.libelleFille("idcompartiment", "Compartiment")
-          .libelleFille("qte", "Qt&eacute;")
-          .libelleFille("sexe", "Sexe")
-          .libelleFille("idsante", "Sant&eacute;")
-          // colonnes techniques : pu et valeurCompartiment sont calcules a l'insertion
-          .cacherFille("idmere", "id", "pu", "valeurcompartiment");
-
-        // 3. Contexte BR (fige si on vient d'une fiche BR)
-        if (idbr != null) {
-            pi.defaut("idbonreception", idbr).lectureSeule("idbonreception");
-        }
-
-        // 4. Options des listes puis valeurs par defaut (anti-"null")
-        pi.charger();
-
-        pi.defautFille("qte", "0")
-          .defautFille("pu", "0")
-          .defautFille("valeurcompartiment", "0")
-          .defautFille("idcompartiment", "")
-          .defautFille("sexe", "")
-          .defautFille("idsante", "");
-
-        return pi.finaliser("idcompartiment", "qte", "pu", "valeurCompartiment", "sexe", "idsante");
+        return pi.preparer();
     }
 }

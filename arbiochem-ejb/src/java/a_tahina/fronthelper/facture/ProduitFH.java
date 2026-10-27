@@ -1,5 +1,7 @@
 package a_tahina.fronthelper.facture;
 
+import static a_tahina.page.AtahinaChamp.champ;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -16,27 +18,25 @@ public class ProduitFH {
 
     public static AtahinaPageRecherche getPageRechercheForList(HttpServletRequest request,
                                                                HttpSession session) throws Exception {
-        String[] listeCrt  = { "id", "libelle" };
-        String[] listeInt  = { };
-        String[] libEntete = { "id", "libelle", "unite", "pu", "actif" };
-
-        AtahinaPageRecherche pr = new AtahinaPageRecherche(new AthProduit(), request, session,
-                PAGE_LISTE, "Liste des produits", listeCrt, listeInt, libEntete);
-
-        pr.libelle("id", "Id").libelle("libelle", "Libell&eacute;");
-
-        return pr.construire("Id", "Libell&eacute;", "Unit&eacute;", "Prix unitaire", "Actif (1/0)")
-                 .boutonSaisir(PAGE_SAISIE);
+        return new AtahinaPageRecherche(new AthProduit(), request, session,
+                PAGE_LISTE, "Liste des produits",
+                champ("id",      "Id").recherche(),
+                champ("libelle", "Libell&eacute;").recherche(),
+                champ("unite",   "Unit&eacute;"),
+                champ("pu",      "Prix unitaire"),
+                champ("actif",   "Actif (1/0)"))
+            .construire()
+            .boutonSaisir(PAGE_SAISIE);
     }
 
     public static AtahinaPageInsert getPageInsert(HttpServletRequest request,
                                                   HttpSession session) throws Exception {
-        AtahinaPageInsert pi = new AtahinaPageInsert(new AthProduit(), request, session, "Saisie d'un produit");
-        pi.libelle("libelle", "Libell&eacute;")
-          .libelle("unite", "Unit&eacute;")
-          .libelle("pu", "Prix unitaire par d&eacute;faut")
-          .libelle("actif", "Actif (1 = oui, 0 = non)")
-          .cacher("id");
-        return pi.preparer();
+        return new AtahinaPageInsert(new AthProduit(), request, session, "Saisie d'un produit")
+            .champs(
+                champ("libelle", "Libell&eacute;"),
+                champ("unite",   "Unit&eacute;"),
+                champ("pu",      "Prix unitaire par d&eacute;faut"),
+                champ("actif",   "Actif (1 = oui, 0 = non)"))
+            .preparer();
     }
 }

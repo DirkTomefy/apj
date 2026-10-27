@@ -5,7 +5,6 @@ import javax.servlet.http.HttpSession;
 
 import a_tahina.calendrier.child.CalendrierPoussin;
 
-
 public class PrevisionPoussinFH {
 
     public static final String PAGE_ACTUEL = "a_tahina/v1/prevision/prevision-poussin.jsp";

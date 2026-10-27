@@ -1,5 +1,7 @@
 package a_tahina.fronthelper.bc;
 
+import static a_tahina.page.AtahinaChamp.champ;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -12,22 +14,16 @@ public class BCmdListeFH {
 
     public static AtahinaPageRecherche getPageRechercheForList(HttpServletRequest request,
                                                                HttpSession session) throws Exception {
-        String[] listeCrt  = { "id", "daty", "reference", "idmagasinlib", "etat" };
-        String[] listeInt  = { "daty" };
-        String[] libEntete = { "id", "daty", "reference", "idmagasinlib", "etatlib" };
-
-        AtahinaPageRecherche pr = new AtahinaPageRecherche(new BonCommandePoussinLib(), request, session,
-                PAGE_ACTUEL, "Liste des bons de commande poussin", listeCrt, listeInt, libEntete);
-
-        pr.libelle("id", "Id")
-          .libelle("reference", "Référence")
-          .libelle("idmagasinlib", "Magasin")
-          .intervalleDatyAujourdhui()
-          .listeEtat("État");
-
-        return pr.construire("Id", "Date", "Référence", "Magasin", "État")
-                 .lienFiche("id", BCmdFicheFH.PAGE_ACTUEL)
-                 .menuClicDroit("modifier", BCmdFicheFH.PAGE_MODIF)
-                 .boutonSaisir(BCmdFicheFH.PAGE_SAISIE);
+        return new AtahinaPageRecherche(new BonCommandePoussinLib(), request, session,
+                PAGE_ACTUEL, "Liste des bons de commande poussin",
+                champ("id",           "Id").recherche().lien(BCmdFicheFH.PAGE_ACTUEL),
+                champ("daty",         "Date").intervalle().defautAujourdhui(),
+                champ("reference",    "Référence").recherche(),
+                champ("idmagasinlib", "Magasin").recherche(),
+                champ("etat",         "État").filtreSeul().listeEtat(),
+                champ("etatlib",      "État"))
+            .construire()
+            .menuClicDroit("modifier", BCmdFicheFH.PAGE_MODIF)
+            .boutonSaisir(BCmdFicheFH.PAGE_SAISIE);
     }
 }
