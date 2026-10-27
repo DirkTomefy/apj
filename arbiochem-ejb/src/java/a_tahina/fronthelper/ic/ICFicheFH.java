@@ -2,11 +2,14 @@ package a_tahina.fronthelper.ic;
 
 import static a_tahina.page.AtahinaChamp.champ;
 
-import a_tahina.fronthelper.GeneraticFH;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import a_tahina.calendrier.CalendrierAbstrait;
+import a_tahina.fronthelper.GeneraticFH;
+import a_tahina.page.AtahinaPageInsertMultiple;
+import a_tahina.page.AtahinaPageInsert;
+import a_tahina.fronthelper.br.BRFicheFH;
 import a_tahina.ic.InsertionCompartimentLib;
 import a_tahina.page.AtahinaPageConsulte;
 import a_tahina.ic.InsertionCompFilleLib;
@@ -16,13 +19,16 @@ import a_tahina.page.AtahinaUtil;
 
 public class ICFicheFH extends GeneraticFH {
 
-    public static final String PAGE_ACTUEL   = "a_tahina/v1/ic/insertioncompartiment-fiche.jsp";
-    public static final String PAGE_LISTE    = "a_tahina/v1/ic/insertioncompartiment-liste.jsp";
-    public static final String PAGE_BR_FICHE = "a_tahina/v1/br/bonreception-fiche.jsp";
+    public static final String DOSSIER       = "a_tahina/v1/ic/";
+    public static final String PAGE_SAISIE   = DOSSIER + "insertioncompartiment-saisie.jsp";
+    public static final String PAGE_ACTUEL   = DOSSIER + "insertioncompartiment-fiche.jsp";
+    public static final String PAGE_LISTE    = DOSSIER + "insertioncompartiment-liste.jsp";
+    public static final String PAGE_BR_FICHE = BRFicheFH.PAGE_ACTUEL;
     public static final String CLASSE        = "a_tahina.ic.InsertionCompartiment";
 
-    public static AtahinaPageConsulte getPageConsulte(HttpServletRequest request,
-                                                      HttpSession session) throws Exception {
+    @Override
+    public AtahinaPageConsulte getPageConsulte(HttpServletRequest request,
+                                               HttpSession session) throws Exception {
         return consulte(new InsertionCompartimentLib(), request, session, "Fiche insertion compartiment",
                 champ("id",                "Id"),
                 champ("daty",              "Date"),
@@ -55,5 +61,30 @@ public class ICFicheFH extends GeneraticFH {
             .filtre(AtahinaUtil.dansSelect("idinsertcompfille", "INSERTION_COMPARTIMENT_FILLE", "id", "idmere", idMere)).parPage(20)
             .construire()
             .getHtmlOnglet("Aucun lot cr&eacute;&eacute;");
+    }
+
+    @Override
+    public AtahinaPageInsert getPageInsert(HttpServletRequest request,
+                                           HttpSession session) throws Exception {
+        throw nonSupporte("getPageInsert");
+    }
+
+    @Override
+    public AtahinaPageInsertMultiple getPageInsertMultiple(HttpServletRequest request,
+                                                           HttpSession session,
+                                                           int nombreLigne) throws Exception {
+        throw nonSupporte("getPageInsertMultiple");
+    }
+
+    @Override
+    public CalendrierAbstrait getCalendrier(HttpServletRequest request,
+                                            HttpSession session) throws Exception {
+        throw nonSupporte("getCalendrier");
+    }
+
+    @Override
+    public AtahinaPageRecherche getPageRechercheForList(HttpServletRequest request,
+                                                        HttpSession session) throws Exception {
+        throw nonSupporte("getPageRechercheForList");
     }
 }

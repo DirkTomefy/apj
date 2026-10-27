@@ -3,7 +3,7 @@
 <%@page import="a_tahina.fronthelper.facture.*"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <% try {
-    AtahinaPageConsulte pc = FactureFH.getPageConsulte(request, session);
+    AtahinaPageConsulte pc = new FactureFH().getPageConsulte(request, session);
     String lien = pc.getLien();
     AthFactureLib o = (AthFactureLib) pc.getBase();
     String id = o.getTuppleID();

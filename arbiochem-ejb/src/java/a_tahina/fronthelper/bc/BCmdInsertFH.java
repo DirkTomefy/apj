@@ -2,11 +2,14 @@ package a_tahina.fronthelper.bc;
 
 import static a_tahina.page.AtahinaChamp.champ;
 
-import a_tahina.fronthelper.GeneraticFH;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import a_tahina.calendrier.CalendrierAbstrait;
+import a_tahina.fronthelper.GeneraticFH;
+import a_tahina.page.AtahinaPageRecherche;
+import a_tahina.page.AtahinaPageConsulte;
+import a_tahina.page.AtahinaPageInsert;
 import a_tahina.bc.BonCommandePoussin;
 import a_tahina.bc.BonCommandePoussinFille;
 import a_tahina.page.AtahinaPageInsertMultiple;
@@ -17,9 +20,10 @@ public class BCmdInsertFH extends GeneraticFH {
 
     public static final int NOMBRE_LIGNE = 10;
 
-    public static AtahinaPageInsertMultiple getPageInsertMultiple(HttpServletRequest request,
-                                                                  HttpSession session,
-                                                                  int nombreLigne) throws Exception {
+    @Override
+    public AtahinaPageInsertMultiple getPageInsertMultiple(HttpServletRequest request,
+                                                           HttpSession session,
+                                                           int nombreLigne) throws Exception {
         AtahinaPageInsertMultiple pi = new AtahinaPageInsertMultiple(
                 new BonCommandePoussin(), new BonCommandePoussinFille(), request, session, nombreLigne);
 
@@ -38,5 +42,29 @@ public class BCmdInsertFH extends GeneraticFH {
             champ("pu",          "P.U.").defaut("0"));
 
         return pi.preparer();
+    }
+
+    @Override
+    public AtahinaPageInsert getPageInsert(HttpServletRequest request,
+                                           HttpSession session) throws Exception {
+        throw nonSupporte("getPageInsert");
+    }
+
+    @Override
+    public AtahinaPageConsulte getPageConsulte(HttpServletRequest request,
+                                               HttpSession session) throws Exception {
+        throw nonSupporte("getPageConsulte");
+    }
+
+    @Override
+    public CalendrierAbstrait getCalendrier(HttpServletRequest request,
+                                            HttpSession session) throws Exception {
+        throw nonSupporte("getCalendrier");
+    }
+
+    @Override
+    public AtahinaPageRecherche getPageRechercheForList(HttpServletRequest request,
+                                                        HttpSession session) throws Exception {
+        throw nonSupporte("getPageRechercheForList");
     }
 }

@@ -2,27 +2,33 @@ package a_tahina.fronthelper.br;
 
 import static a_tahina.page.AtahinaChamp.champ;
 
-import a_tahina.fronthelper.GeneraticFH;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import a_tahina.br.BonReceptionPoussinLib;
-import a_tahina.page.AtahinaPageConsulte;
+import a_tahina.calendrier.CalendrierAbstrait;
+import a_tahina.fronthelper.GeneraticFH;
 import a_tahina.page.AtahinaPageRecherche;
+import a_tahina.page.AtahinaPageInsertMultiple;
+import a_tahina.page.AtahinaPageInsert;
+import a_tahina.br.BonReceptionPoussinLib;
+import a_tahina.fronthelper.bc.BCmdFicheFH;
+import a_tahina.fronthelper.ic.ICInsertFH;
+import a_tahina.page.AtahinaPageConsulte;
 
 public class BRFicheFH extends GeneraticFH {
 
-    public static final String PAGE_ACTUEL    = "a_tahina/v1/br/bonreception-fiche.jsp";
-    public static final String PAGE_LISTE     = "a_tahina/v1/br/bonreception-liste.jsp";
-    public static final String PAGE_MODIF     = "a_tahina/v1/br/bonreception-modif.jsp";
-    public static final String PAGE_SAISIE    = "a_tahina/v1/br/bonreception-saisie.jsp";
-    public static final String PAGE_BC_FICHE  = "a_tahina/v1/bc/boncommande-fiche.jsp";
-    public static final String PAGE_IC_SAISIE = "a_tahina/v1/ic/insertioncompartiment-saisie.jsp";
+    public static final String DOSSIER        = "a_tahina/v1/br/";
+    public static final String PAGE_ACTUEL    = DOSSIER + "bonreception-fiche.jsp";
+    public static final String PAGE_LISTE     = DOSSIER + "bonreception-liste.jsp";
+    public static final String PAGE_MODIF     = DOSSIER + "bonreception-modif.jsp";
+    public static final String PAGE_SAISIE    = DOSSIER + "bonreception-saisie.jsp";
+    public static final String PAGE_BC_FICHE  = BCmdFicheFH.PAGE_ACTUEL;
+    public static final String PAGE_IC_SAISIE = ICInsertFH.PAGE_ACTUEL;
     public static final String CLASSE         = "a_tahina.br.BonReceptionPoussin";
 
-    public static AtahinaPageConsulte getPageConsulte(HttpServletRequest request,
-                                                      HttpSession session) throws Exception {
+    @Override
+    public AtahinaPageConsulte getPageConsulte(HttpServletRequest request,
+                                               HttpSession session) throws Exception {
         return consulte(new BonReceptionPoussinLib(), request, session, "Fiche bon de reception poussin",
                 champ("id",                 "Id"),
                 champ("daty",               "Date reception"),
@@ -50,5 +56,30 @@ public class BRFicheFH extends GeneraticFH {
                 champ("qtApresCumule", "Qt&eacute; re&ccedil;ue"),
                 champ("maty", "Morts"),
                 champ("very", "Perdus"));
+    }
+
+    @Override
+    public AtahinaPageInsert getPageInsert(HttpServletRequest request,
+                                           HttpSession session) throws Exception {
+        throw nonSupporte("getPageInsert");
+    }
+
+    @Override
+    public AtahinaPageInsertMultiple getPageInsertMultiple(HttpServletRequest request,
+                                                           HttpSession session,
+                                                           int nombreLigne) throws Exception {
+        throw nonSupporte("getPageInsertMultiple");
+    }
+
+    @Override
+    public CalendrierAbstrait getCalendrier(HttpServletRequest request,
+                                            HttpSession session) throws Exception {
+        throw nonSupporte("getCalendrier");
+    }
+
+    @Override
+    public AtahinaPageRecherche getPageRechercheForList(HttpServletRequest request,
+                                                        HttpSession session) throws Exception {
+        throw nonSupporte("getPageRechercheForList");
     }
 }

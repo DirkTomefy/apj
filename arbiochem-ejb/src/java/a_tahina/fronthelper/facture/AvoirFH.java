@@ -2,11 +2,12 @@ package a_tahina.fronthelper.facture;
 
 import static a_tahina.page.AtahinaChamp.champ;
 
-import a_tahina.fronthelper.GeneraticFH;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import a_tahina.calendrier.CalendrierAbstrait;
+import a_tahina.fronthelper.GeneraticFH;
+import a_tahina.page.AtahinaPageInsert;
 import a_tahina.facture.AthAvoir;
 import a_tahina.facture.AthAvoirFille;
 import a_tahina.facture.AthAvoirLib;
@@ -31,8 +32,9 @@ public class AvoirFH extends GeneraticFH {
 
     public static String getIdfacture(HttpServletRequest req) { return getParam(req, "idfacture"); }
 
-    public static AtahinaPageRecherche getPageRechercheForList(HttpServletRequest request,
-                                                               HttpSession session) throws Exception {
+    @Override
+    public AtahinaPageRecherche getPageRechercheForList(HttpServletRequest request,
+                                                        HttpSession session) throws Exception {
         return liste(new AthAvoirLib(), request, session,
                 PAGE_LISTE, "Liste des avoirs",
                 champ("id",             "Id").recherche().lien(PAGE_FICHE),
@@ -47,8 +49,9 @@ public class AvoirFH extends GeneraticFH {
                 champ("etatlib",        "&Eacute;tat"));
     }
 
-    public static AtahinaPageConsulte getPageConsulte(HttpServletRequest request,
-                                                      HttpSession session) throws Exception {
+    @Override
+    public AtahinaPageConsulte getPageConsulte(HttpServletRequest request,
+                                               HttpSession session) throws Exception {
         return consulte(new AthAvoirLib(), request, session, "Fiche avoir",
                 champ("id",             "Id"),
                 champ("daty",           "Date"),
@@ -91,8 +94,8 @@ public class AvoirFH extends GeneraticFH {
         return sb.toString();
     }
 
-    public static AtahinaPageInsertMultiple getPageInsertMultiple(HttpServletRequest request,
-                                                                  HttpSession session) throws Exception {
+    public AtahinaPageInsertMultiple getPageInsertMultiple(HttpServletRequest request,
+                                                           HttpSession session) throws Exception {
         String idfacture = getIdfacture(request);
         if (idfacture == null) {
             throw new Exception("Choisissez d'abord une facture vis\u00e9e.");
@@ -130,5 +133,24 @@ public class AvoirFH extends GeneraticFH {
                 champ("idfacture", "Facture").lien(FactureFH.PAGE_FICHE, "id"),
                 champ("montant", "Montant d&eacute;duit"),
                 champ("daty", "Date"));
+    }
+
+    @Override
+    public AtahinaPageInsert getPageInsert(HttpServletRequest request,
+                                           HttpSession session) throws Exception {
+        throw nonSupporte("getPageInsert");
+    }
+
+    @Override
+    public AtahinaPageInsertMultiple getPageInsertMultiple(HttpServletRequest request,
+                                                           HttpSession session,
+                                                           int nombreLigne) throws Exception {
+        return getPageInsertMultiple(request, session);
+    }
+
+    @Override
+    public CalendrierAbstrait getCalendrier(HttpServletRequest request,
+                                            HttpSession session) throws Exception {
+        throw nonSupporte("getCalendrier");
     }
 }

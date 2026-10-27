@@ -2,11 +2,12 @@ package a_tahina.fronthelper.facture;
 
 import static a_tahina.page.AtahinaChamp.champ;
 
-import a_tahina.fronthelper.GeneraticFH;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import a_tahina.calendrier.CalendrierAbstrait;
+import a_tahina.fronthelper.GeneraticFH;
+import a_tahina.page.AtahinaPageInsertMultiple;
 import a_tahina.facture.AthClient;
 import a_tahina.facture.AthClientSolde;
 import a_tahina.page.AtahinaPageConsulte;
@@ -23,8 +24,9 @@ public class ClientFH extends GeneraticFH {
     public static final String PAGE_SAISIE = DOSSIER + "client-saisie.jsp";
     public static final String CLASSE      = "a_tahina.facture.AthClient";
 
-    public static AtahinaPageRecherche getPageRechercheForList(HttpServletRequest request,
-                                                               HttpSession session) throws Exception {
+    @Override
+    public AtahinaPageRecherche getPageRechercheForList(HttpServletRequest request,
+                                                        HttpSession session) throws Exception {
         return liste(new AthClientSolde(), request, session,
                 PAGE_LISTE, "Liste des clients",
                 champ("id",               "Id").recherche().lien(PAGE_FICHE),
@@ -36,8 +38,9 @@ public class ClientFH extends GeneraticFH {
             .boutonSaisir(PAGE_SAISIE);
     }
 
-    public static AtahinaPageConsulte getPageConsulte(HttpServletRequest request,
-                                                      HttpSession session) throws Exception {
+    @Override
+    public AtahinaPageConsulte getPageConsulte(HttpServletRequest request,
+                                               HttpSession session) throws Exception {
         return consulte(new AthClientSolde(), request, session, "Fiche client",
                 champ("id",               "Id"),
                 champ("nom",              "Nom"),
@@ -47,8 +50,9 @@ public class ClientFH extends GeneraticFH {
                 champ("solde",            "Solde d'avoir disponible"));
     }
 
-    public static AtahinaPageInsert getPageInsert(HttpServletRequest request,
-                                                  HttpSession session) throws Exception {
+    @Override
+    public AtahinaPageInsert getPageInsert(HttpServletRequest request,
+                                           HttpSession session) throws Exception {
         return new AtahinaPageInsert(new AthClient(), request, session, "Saisie d'un client")
             .champs(
                 champ("nom",              "Nom"),
@@ -79,5 +83,18 @@ public class ClientFH extends GeneraticFH {
                 champ("montantutilise", "D&eacute;j&agrave; utilis&eacute;"),
                 champ("reste", "Reste"),
                 champ("etatlib", "&Eacute;tat"));
+    }
+
+    @Override
+    public AtahinaPageInsertMultiple getPageInsertMultiple(HttpServletRequest request,
+                                                           HttpSession session,
+                                                           int nombreLigne) throws Exception {
+        throw nonSupporte("getPageInsertMultiple");
+    }
+
+    @Override
+    public CalendrierAbstrait getCalendrier(HttpServletRequest request,
+                                            HttpSession session) throws Exception {
+        throw nonSupporte("getCalendrier");
     }
 }

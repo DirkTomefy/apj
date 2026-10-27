@@ -5,7 +5,7 @@
 <%@page import="java.util.Map"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <% try {
-    AtahinaPageConsulte pc = ICFicheFH.getPageConsulte(request, session);
+    AtahinaPageConsulte pc = new ICFicheFH().getPageConsulte(request, session);
     String lien = pc.getLien();
     InsertionCompartimentLib ic = (InsertionCompartimentLib) pc.getBase();
 

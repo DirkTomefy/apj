@@ -3,7 +3,7 @@
 <%@page import="a_tahina.fronthelper.br.BRListeFH"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <% try {
-    AtahinaPageRecherche pr = BRListeFH.getPageRechercheForList(request, session);
+    AtahinaPageRecherche pr = new BRListeFH().getPageRechercheForList(request, session);
     out.println(pr.getHtmlListe());
 } catch (Exception e) {
     out.println(AtahinaUtil.erreurHtml(e));

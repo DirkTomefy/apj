@@ -3,7 +3,7 @@
 <%@page import="a_tahina.fronthelper.facture.AvoirFH"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <% try {
-    AtahinaPageRecherche pr = AvoirFH.getPageRechercheForList(request, session);
+    AtahinaPageRecherche pr = new AvoirFH().getPageRechercheForList(request, session);
     out.println(pr.getHtmlListe());
 } catch (Exception e) {
     out.println(AtahinaUtil.erreurHtml(e));
