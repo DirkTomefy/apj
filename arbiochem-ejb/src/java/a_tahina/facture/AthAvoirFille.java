@@ -4,7 +4,6 @@ import java.sql.Connection;
 
 import bean.ClassFille;
 
-/** Ligne d'avoir : retour de `qte` sur une ligne de facture (pu et tva repris de cette ligne). */
 public class AthAvoirFille extends ClassFille {
 
     private String id;

@@ -3,7 +3,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <% try {
     int nombreLigne = FactureFH.NOMBRE_LIGNE;
-    AtahinaPageInsertMultiple pi = FactureFH.getPageInsertMultiple(request, session, nombreLigne);
+    AtahinaPageInsertMultiple pi = new FactureFH().getPageInsertMultiple(request, session, nombreLigne);
 %>
 <div class="content-wrapper">
   <h1>Saisie d'une facture</h1>

@@ -3,7 +3,7 @@
 <%@page import="a_tahina.fronthelper.br.BRFicheFH"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <% try {
-    AtahinaPageInsert pi = BRInsertFH.getPageInsert(request, session);
+    AtahinaPageInsert pi = new BRInsertFH().getPageInsert(request, session);
 
     String idbc   = BRInsertFH.getIdbc(request);
     String bute   = BRInsertFH.getButeRetour(request);

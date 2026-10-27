@@ -12,18 +12,11 @@ import affichage.Liste;
 import affichage.PageInsertMultiple;
 import bean.ClassMAPTable;
 
-/**
- * PageInsertMultiple (SAISIE maitre/detail).
- *
- * - Mere : libelle/defaut/cacher/lectureSeule/listes (par nom de champ).
- * - Fille : meme chose mais *Fille(...), applique a toutes les lignes (xxx_0, xxx_1, ...).
- *
- * Les champs sont retrouves a chaque appel : changerEnChamp les remplace, donc
- * l'ordre conseille est : listes, libelles, {@link #charger()}, defauts, {@link #finaliser(String...)}.
- */
 public class AtahinaPageInsertMultiple extends PageInsertMultiple {
 
     private final int nbLignes;
+    private final List<AtahinaChamp> champsMere = new ArrayList<AtahinaChamp>();
+    private final List<AtahinaChamp> colonnesFille = new ArrayList<AtahinaChamp>();
 
     public AtahinaPageInsertMultiple(ClassMAPTable mere, ClassMAPTable fille, HttpServletRequest request,
                                      HttpSession session, int nbLignes) throws Exception {
@@ -34,39 +27,52 @@ public class AtahinaPageInsertMultiple extends PageInsertMultiple {
 
     public int getNbLignes() { return nbLignes; }
 
-    // ------------------------------------------------------------------
-    // Mere
-    // ------------------------------------------------------------------
-    public AtahinaPageInsertMultiple libelle(String champ, String libelle) {
-        AtahinaUtil.libelle(getFormu().getChamp(champ), libelle);
+    public AtahinaPageInsertMultiple champs(AtahinaChamp... defs) {
+        champsMere.addAll(AtahinaFormulaire.liste(defs));
         return this;
     }
 
-    public AtahinaPageInsertMultiple defaut(String champ, String valeur) {
-        AtahinaUtil.defaut(getFormu().getChamp(champ), valeur);
+    public AtahinaPageInsertMultiple colonnes(AtahinaChamp... defs) {
+        colonnesFille.addAll(AtahinaFormulaire.liste(defs));
         return this;
     }
 
-    public AtahinaPageInsertMultiple cacher(String... champs) {
-        for (String c : champs) AtahinaUtil.cacher(getFormu().getChamp(c));
+    public AtahinaPageInsertMultiple preparer() throws Exception {
+        AtahinaFormulaire.creerListes(getFormu(), champsMere);
+        List<Liste> listesFille = new ArrayList<Liste>();
+        for (AtahinaChamp d : colonnesFille) {
+            if (d.aUneListe()) listesFille.add(d.creerListe());
+        }
+        if (!listesFille.isEmpty()) getFormufle().changerEnChamp(listesFille.toArray(new Liste[0]));
+
+        preparerDataFormu();
+
+        AtahinaFormulaire.appliquer(getFormu(), champsMere, getBase().getClass().getSimpleName());
+
+        String[] ordre = new String[colonnesFille.size()];
+        int i = 0;
+        for (AtahinaChamp d : colonnesFille) {
+            List<Champ> lignes = champsFille(d.nom);
+            if (lignes.isEmpty()) {
+                throw new IllegalArgumentException("Colonne '" + d.nom + "' inconnue dans "
+                        + getFille().getClass().getSimpleName());
+            }
+            for (Champ c : lignes) {
+                c.setLibelle(d.libelle);
+                if (d.defaut != null) { c.setDefaut(d.defaut); c.setValeur(d.defaut); }
+                if (d.lectureSeule)   c.setAutre("readonly");
+                c.setVisible(!d.cache);
+            }
+            ordre[i++] = d.nom;
+        }
+        getFormufle().setColOrdre(ordre);
+
+        getFormu().makeHtmlInsertTabIndex();
+        getFormufle().makeHtmlInsertTableauIndex();
         return this;
     }
 
-    public AtahinaPageInsertMultiple lectureSeule(String champ) {
-        AtahinaUtil.lectureSeule(getFormu().getChamp(champ));
-        return this;
-    }
-
-    public AtahinaPageInsertMultiple listes(Liste... listes) throws Exception {
-        getFormu().changerEnChamp(listes);
-        return this;
-    }
-
-    // ------------------------------------------------------------------
-    // Fille (toutes les lignes)
-    // ------------------------------------------------------------------
-    /** Champs « nom_0 », « nom_1 », ... (insensible a la casse). */
-    public List<Champ> champsFille(String nom) {
+    private List<Champ> champsFille(String nom) {
         List<Champ> res = new ArrayList<Champ>();
         Champ[] tous = getFormufle().getListeChamp();
         if (tous == null) return res;
@@ -75,47 +81,5 @@ public class AtahinaPageInsertMultiple extends PageInsertMultiple {
             if (c != null && c.getNom() != null && p.matcher(c.getNom()).matches()) res.add(c);
         }
         return res;
-    }
-
-    public AtahinaPageInsertMultiple libelleFille(String champ, String libelle) {
-        for (Champ c : champsFille(champ)) c.setLibelle(libelle);
-        return this;
-    }
-
-    public AtahinaPageInsertMultiple defautFille(String champ, String valeur) {
-        for (Champ c : champsFille(champ)) {
-            c.setDefaut(valeur);
-            c.setValeur(valeur);   // evite l'affichage de "null" apres preparerDataFormu
-        }
-        return this;
-    }
-
-    public AtahinaPageInsertMultiple cacherFille(String... champs) {
-        for (String nom : champs)
-            for (Champ c : champsFille(nom)) c.setVisible(false);
-        return this;
-    }
-
-    public AtahinaPageInsertMultiple listesFille(Liste... listes) throws Exception {
-        getFormufle().changerEnChamp(listes);
-        return this;
-    }
-
-    // ------------------------------------------------------------------
-    // Finalisation
-    // ------------------------------------------------------------------
-    /** Charge les options des listes (a appeler apres listes()/listesFille(), avant les defauts). */
-    public AtahinaPageInsertMultiple charger() throws Exception {
-        preparerDataFormu();
-        return this;
-    }
-
-    /** Fixe l'ordre des colonnes de la fille et genere le HTML (a appeler en dernier). */
-    public AtahinaPageInsertMultiple finaliser(String... ordreColonnesFille) throws Exception {
-        if (ordreColonnesFille != null && ordreColonnesFille.length > 0)
-            getFormufle().setColOrdre(ordreColonnesFille);
-        getFormu().makeHtmlInsertTabIndex();
-        getFormufle().makeHtmlInsertTableauIndex();
-        return this;
     }
 }

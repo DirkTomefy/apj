@@ -3,7 +3,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <% try {
     int nombreLigne = BCmdInsertFH.NOMBRE_LIGNE;
-    AtahinaPageInsertMultiple pi = BCmdInsertFH.getPageInsertMultiple(request, session, nombreLigne);
+    AtahinaPageInsertMultiple pi = new BCmdInsertFH().getPageInsertMultiple(request, session, nombreLigne);
 %>
 <div class="content-wrapper">
   <h1>Saisie de bon de commande poussin</h1>

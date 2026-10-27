@@ -16,7 +16,7 @@
 <%
     } else {
         // Etape 2 : lignes de la facture a retourner
-        AtahinaPageInsertMultiple pi = AvoirFH.getPageInsertMultiple(request, session);
+        AtahinaPageInsertMultiple pi = new AvoirFH().getPageInsertMultiple(request, session);
 %>
 <div class="content-wrapper">
   <h1>

@@ -5,7 +5,7 @@
 <%@page import="java.util.Map"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <% try {
-    AtahinaPageConsulte pc = BRFicheFH.getPageConsulte(request, session);
+    AtahinaPageConsulte pc = new BRFicheFH().getPageConsulte(request, session);
     String lien = pc.getLien();
     BonReceptionPoussinLib br = (BonReceptionPoussinLib) pc.getBase();
 

@@ -7,7 +7,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%
   try {
-    AtahinaPageConsulte pc = BCmdFicheFH.getPageConsulte(request, session);
+    AtahinaPageConsulte pc = new BCmdFicheFH().getPageConsulte(request, session);
     String lien = pc.getLien();
     BonCommandePoussinLib bc = (BonCommandePoussinLib) pc.getBase();
     String id = bc.getTuppleID();

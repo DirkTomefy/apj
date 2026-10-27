@@ -2,7 +2,6 @@ package a_tahina.facture;
 
 import bean.ClassMAPTable;
 
-/** Vue ATH_CLIENT_SOLDE : credit d'avoir de chaque client. */
 public class AthClientSolde extends ClassMAPTable {
 
     private String id;

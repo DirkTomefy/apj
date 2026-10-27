@@ -28,7 +28,7 @@ DateTimeFormatter iso = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 String flash = request.getParameter("msg");
 boolean flashErr = "1".equals(request.getParameter("err"));
 
-CalendrierPoussin cal = PrevisionPoussinFH.getCalendrier(request, session);
+CalendrierPoussin cal = new PrevisionPoussinFH().getCalendrier(request, session);
 %>
 
 <div class="content-wrapper">
@@ -64,7 +64,7 @@ CalendrierPoussin cal = PrevisionPoussinFH.getCalendrier(request, session);
   <div class="box">
     <h4>D&eacute;clarer une perte (morts / perdus)</h4>
     <%
-        PageInsert dplPi = DeclPerteLotFH.getPageInsert(request, session);
+        PageInsert dplPi = new DeclPerteLotFH().getPageInsert(request, session);
     %>
     <form action="<%= lien %>?but=apresTarif.jsp" method="post" class="row-f">
       <% out.println(dplPi.getFormu().getHtmlInsert()); %>

@@ -1,6 +1,5 @@
 package a_tahina.facture;
 
-/** Vue ATH_FACTURE_LIB : libelle client, totaux, plafond d'avoir, net a payer. */
 public class AthFactureLib extends AthFacture {
 
     private String idclientlib;

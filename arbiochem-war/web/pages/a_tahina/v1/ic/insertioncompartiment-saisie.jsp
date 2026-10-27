@@ -3,7 +3,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <% try {
     int NB_LIGNES = 10;
-    AtahinaPageInsertMultiple pi = ICInsertFH.getPageInsertMultiple(request, session, NB_LIGNES);
+    AtahinaPageInsertMultiple pi = new ICInsertFH().getPageInsertMultiple(request, session, NB_LIGNES);
     String idbr = ICInsertFH.getIdbr(request);
     String lien = pi.getLien();
 

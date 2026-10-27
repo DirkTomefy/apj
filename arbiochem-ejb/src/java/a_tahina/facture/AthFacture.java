@@ -11,13 +11,7 @@ import constante.ConstanteEtat;
 
 import a_tahina.page.AtahinaUtil;
 
-/**
- * Facture client.
- *
- * - Visa : le credit d'avoir du client est deduit automatiquement, plafonne a
- *   pourcentageavoir % du TTC (cf. AthAvoirService).
- * - Annulation du visa : le credit est restitue.
- */
+
 public class AthFacture extends ClassMere {
 
     private String id;

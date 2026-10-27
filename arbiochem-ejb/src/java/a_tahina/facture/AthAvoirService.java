@@ -8,36 +8,22 @@ import a_tahina.page.AtahinaUtil;
 import bean.CGenUtil;
 import constante.ConstanteEtat;
 
-/**
- * Regle de remboursement par avoir.
- *
- *   montant deduit = MIN( plafond , solde du client )
- *   plafond        = TTC de la facture x pourcentageavoir du client / 100
- *
- * Une facture ne peut donc jamais etre reglee entierement par avoir (tant que
- * pourcentageavoir < 100). Le solde est consomme avoir par avoir, du plus
- * ancien au plus recent ; chaque consommation est tracee dans ATH_AVOIR_USAGE.
- */
+
 public final class AthAvoirService {
 
     private static final double EPS = 0.005;
 
     private AthAvoirService() {}
 
-    /** Plafond d'avoir applicable a une facture. */
     public static double plafond(double montantTtc, double pourcentageAvoir) {
         return arrondi(montantTtc * pourcentageAvoir / 100);
     }
 
-    /** Montant deduit : le plus petit du plafond et du solde disponible. */
     public static double montantDeduit(double plafond, double solde) {
         return arrondi(Math.max(0, Math.min(plafond, solde)));
     }
 
-    /**
-     * Deduit le credit du client sur la facture : ecrit les ATH_AVOIR_USAGE
-     * et renvoie le montant total deduit (a ranger dans ATH_FACTURE.montantavoir).
-     */
+    
     public static double appliquer(AthFacture facture, String user, Connection c) throws Exception {
         AthFactureLib f = (AthFactureLib) new AthFactureLib().getById(facture.getId(), null, c);
         if (f == null) {
@@ -47,7 +33,7 @@ public final class AthAvoirService {
             throw new Exception("Impossible de viser une facture sans montant.");
         }
 
-        verrouillerClient(f.getIdclient(), c);   // evite que deux visas consomment le meme credit
+        verrouillerClient(f.getIdclient(), c);  
 
         AthAvoirLib[] avoirs = (AthAvoirLib[]) CGenUtil.rechercher(new AthAvoirLib(), null, null, c,
                 AtahinaUtil.egal("idclient", f.getIdclient())

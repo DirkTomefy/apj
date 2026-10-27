@@ -2,7 +2,7 @@
 <%@page import="a_tahina.fronthelper.facture.ClientFH"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <% try {
-    AtahinaPageInsert pi = ClientFH.getPageInsert(request, session);
+    AtahinaPageInsert pi = new ClientFH().getPageInsert(request, session);
 %>
 <div class="content-wrapper">
   <h1><%= pi.getTitre() %></h1>

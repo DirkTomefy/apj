@@ -1,51 +1,70 @@
 package a_tahina.fronthelper.bc;
 
+import static a_tahina.page.AtahinaChamp.champ;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import a_tahina.calendrier.CalendrierAbstrait;
+import a_tahina.fronthelper.GeneraticFH;
+import a_tahina.page.AtahinaPageRecherche;
+import a_tahina.page.AtahinaPageConsulte;
+import a_tahina.page.AtahinaPageInsert;
 import a_tahina.bc.BonCommandePoussin;
 import a_tahina.bc.BonCommandePoussinFille;
 import a_tahina.page.AtahinaPageInsertMultiple;
 import a_tahina.prevision.Fournisseur;
-import affichage.Liste;
 import ferme.configuration.Souche;
 
-public class BCmdInsertFH {
+public class BCmdInsertFH extends GeneraticFH {
 
     public static final int NOMBRE_LIGNE = 10;
 
-    public static AtahinaPageInsertMultiple getPageInsertMultiple(HttpServletRequest request,
-                                                                  HttpSession session,
-                                                                  int nombreLigne) throws Exception {
+    @Override
+    public AtahinaPageInsertMultiple getPageInsertMultiple(HttpServletRequest request,
+                                                           HttpSession session,
+                                                           int nombreLigne) throws Exception {
         AtahinaPageInsertMultiple pi = new AtahinaPageInsertMultiple(
                 new BonCommandePoussin(), new BonCommandePoussinFille(), request, session, nombreLigne);
 
-        // Les listes d'abord : changerEnChamp remplace le champ (libelle/defaut perdus sinon)
-        pi.listes(new Liste("idmagasin", new magasin.Magasin(), "val", "id"))
-          .listesFille(
-                new Liste("idproduit",   new produits.Ingredients(), "libelle", "id"),
-                new Liste("idsouche",    new Souche(),               "val",     "id"),
-                new Liste("fournisseur", new Fournisseur(),          "nom",     "id"));
+        pi.champs(
+            champ("daty",      "Date").defautAujourdhui(),
+            champ("reference", "Référence"),
+            champ("descri",    "Description"),
+            champ("idmagasin", "Magasin").liste(new magasin.Magasin(), "val", "id"),
+            champ("remarque",  "Remarque"));
 
-        pi.libelle("daty", "Date")
-          .libelle("reference", "Référence")
-          .libelle("descri", "Description")
-          .libelle("idmagasin", "Magasin")
-          .libelle("remarque", "Remarque")
-          .defaut("daty", utilitaire.Utilitaire.dateDuJour())
-          .cacher("etat");
+        pi.colonnes(
+            champ("idproduit",   "Produit").liste(new produits.Ingredients(), "libelle", "id"),
+            champ("idsouche",    "Souche").liste(new Souche(), "val", "id"),
+            champ("fournisseur", "Fournisseur").liste(new Fournisseur(), "nom", "id"),
+            champ("qte",         "Qté").defaut("0"),
+            champ("pu",          "P.U.").defaut("0"));
 
-        pi.libelleFille("idproduit", "Produit")
-          .libelleFille("idsouche", "Souche")
-          .libelleFille("fournisseur", "Fournisseur")
-          .libelleFille("qte", "Qté")
-          .libelleFille("pu", "P.U.")
-          .cacherFille("id", "idmere");
+        return pi.preparer();
+    }
 
-        pi.charger();
+    @Override
+    public AtahinaPageInsert getPageInsert(HttpServletRequest request,
+                                           HttpSession session) throws Exception {
+        throw nonSupporte("getPageInsert");
+    }
 
-        pi.defautFille("qte", "0").defautFille("pu", "0");
+    @Override
+    public AtahinaPageConsulte getPageConsulte(HttpServletRequest request,
+                                               HttpSession session) throws Exception {
+        throw nonSupporte("getPageConsulte");
+    }
 
-        return pi.finaliser("idproduit", "idsouche", "fournisseur", "qte", "pu");
+    @Override
+    public CalendrierAbstrait getCalendrier(HttpServletRequest request,
+                                            HttpSession session) throws Exception {
+        throw nonSupporte("getCalendrier");
+    }
+
+    @Override
+    public AtahinaPageRecherche getPageRechercheForList(HttpServletRequest request,
+                                                        HttpSession session) throws Exception {
+        throw nonSupporte("getPageRechercheForList");
     }
 }

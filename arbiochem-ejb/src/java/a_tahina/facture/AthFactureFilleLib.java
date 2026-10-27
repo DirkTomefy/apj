@@ -1,6 +1,5 @@
 package a_tahina.facture;
 
-/** Vue ATH_FACTURE_FILLE_LIB : montants + quantites retournees / retournables. */
 public class AthFactureFilleLib extends AthFactureFille {
 
     private String produitlib;

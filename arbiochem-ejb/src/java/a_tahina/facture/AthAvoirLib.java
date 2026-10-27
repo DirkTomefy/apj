@@ -1,6 +1,5 @@
 package a_tahina.facture;
 
-/** Vue ATH_AVOIR_LIB : totaux, montant deja utilise et reste a appliquer. */
 public class AthAvoirLib extends AthAvoir {
 
     private String idfacturelib;

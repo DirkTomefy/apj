@@ -1,93 +1,88 @@
 package a_tahina.fronthelper.ic;
 
+import static a_tahina.page.AtahinaChamp.champ;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import a_tahina.calendrier.CalendrierAbstrait;
+import a_tahina.fronthelper.GeneraticFH;
+import a_tahina.page.AtahinaPageRecherche;
+import a_tahina.page.AtahinaPageConsulte;
+import a_tahina.page.AtahinaPageInsert;
 import a_tahina.br.BonReceptionPoussin;
+import a_tahina.fronthelper.br.BRFicheFH;
 import a_tahina.ic.Compartiment;
 import a_tahina.ic.InsertionCompartiment;
 import a_tahina.ic.InsertionCompartimentFille;
+import a_tahina.page.AtahinaChamp;
 import a_tahina.page.AtahinaPageInsertMultiple;
-import affichage.Liste;
-import bean.TypeObjet;
 
-/**
- * Saisie d'une Insertion Compartiment.
- *
- * - Le BC parent et les cumuls sont deduits dans InsertionCompartiment.createObject().
- * - Chaque ligne de la fille genere un LOT a l'insertion.
- */
-public class ICInsertFH {
+public class ICInsertFH extends GeneraticFH {
 
-    public static final String PAGE_ACTUEL   = "a_tahina/v1/ic/insertioncompartiment-saisie.jsp";
-    public static final String PAGE_LISTE    = "a_tahina/v1/ic/insertioncompartiment-liste.jsp";
-    public static final String PAGE_IC_FICHE = "a_tahina/v1/ic/insertioncompartiment-fiche.jsp";
-    public static final String PAGE_BR_FICHE = "a_tahina/v1/br/bonreception-fiche.jsp";
+    public static final String PAGE_ACTUEL   = ICFicheFH.PAGE_SAISIE;
+    public static final String PAGE_LISTE    = ICFicheFH.PAGE_LISTE;
+    public static final String PAGE_IC_FICHE = ICFicheFH.PAGE_ACTUEL;
+    public static final String PAGE_BR_FICHE = BRFicheFH.PAGE_ACTUEL;
 
     public static final String CLASSE        = "a_tahina.ic.InsertionCompartiment";
     public static final String CLASSE_FILLE  = "a_tahina.ic.InsertionCompartimentFille";
 
-    public static String getParam(HttpServletRequest req, String name) {
-        String v = req.getParameter(name);
-        if (v == null || v.trim().isEmpty() || "null".equalsIgnoreCase(v)) return null;
-        return v.trim();
-    }
-
     public static String getIdbr(HttpServletRequest req) { return getParam(req, "idbr"); }
 
     public static String getButeRetour(HttpServletRequest req) {
-        String idbr = getIdbr(req);
-        if (idbr != null) return PAGE_BR_FICHE + "&id=" + idbr;
-        return PAGE_LISTE;
+        return retour(getIdbr(req), PAGE_BR_FICHE, PAGE_LISTE);
     }
 
-    public static AtahinaPageInsertMultiple getPageInsertMultiple(HttpServletRequest request,
-                                                                  HttpSession session,
-                                                                  int nbLignes) throws Exception {
+    @Override
+    public AtahinaPageInsertMultiple getPageInsertMultiple(HttpServletRequest request,
+                                                           HttpSession session,
+                                                           int nbLignes) throws Exception {
         String idbr = getIdbr(request);
+
+        AtahinaChamp br = champ("idbonreception", "Bon de r&eacute;ception");
+        if (idbr == null) br.liste(new BonReceptionPoussin(), "reference", "id");
+        else              br.defaut(idbr).lectureSeule();
 
         AtahinaPageInsertMultiple pi = new AtahinaPageInsertMultiple(
                 new InsertionCompartiment(), new InsertionCompartimentFille(), request, session, nbLignes);
 
-        // 1. Listes (avant libelles/defauts : changerEnChamp remplace le champ)
-        if (idbr == null) {
-            pi.listes(new Liste("idbonreception", new BonReceptionPoussin(), "reference", "id"));
-        }
-        pi.listesFille(
-                new Liste("idcompartiment", new Compartiment(), "nom", "id"),
-                new Liste("sexe",           new TypeObjet("SEXE"), "val", "id"),
-                new Liste("idsante",        new TypeObjet("SANTEPOUSSIN"), "val", "id"));
+        pi.champs(
+            champ("daty",      "Date").defautAujourdhui(),
+            champ("reference", "R&eacute;f&eacute;rence"),
+            br,
+            champ("remarque",  "Remarque"));
 
-        // 2. Libelles
-        pi.libelle("daty", "Date")
-          .libelle("reference", "R&eacute;f&eacute;rence")
-          .libelle("idbonreception", "Bon de r&eacute;ception")
-          .libelle("remarque", "Remarque")
-          .cacher("etat")
-          .defaut("daty", utilitaire.Utilitaire.dateDuJour());
+        pi.colonnes(
+            champ("idcompartiment", "Compartiment").liste(new Compartiment(), "nom", "id").defaut(""),
+            champ("qte",            "Qt&eacute;").defaut("0"),
+            champ("sexe",           "Sexe").typeObjet("SEXE").defaut(""),
+            champ("idsante",        "Sant&eacute;").typeObjet("SANTEPOUSSIN").defaut(""));
 
-        pi.libelleFille("idcompartiment", "Compartiment")
-          .libelleFille("qte", "Qt&eacute;")
-          .libelleFille("sexe", "Sexe")
-          .libelleFille("idsante", "Sant&eacute;")
-          // colonnes techniques : pu et valeurCompartiment sont calcules a l'insertion
-          .cacherFille("idmere", "id", "pu", "valeurcompartiment");
+        return pi.preparer();
+    }
 
-        // 3. Contexte BR (fige si on vient d'une fiche BR)
-        if (idbr != null) {
-            pi.defaut("idbonreception", idbr).lectureSeule("idbonreception");
-        }
+    @Override
+    public AtahinaPageInsert getPageInsert(HttpServletRequest request,
+                                           HttpSession session) throws Exception {
+        throw nonSupporte("getPageInsert");
+    }
 
-        // 4. Options des listes puis valeurs par defaut (anti-"null")
-        pi.charger();
+    @Override
+    public AtahinaPageConsulte getPageConsulte(HttpServletRequest request,
+                                               HttpSession session) throws Exception {
+        throw nonSupporte("getPageConsulte");
+    }
 
-        pi.defautFille("qte", "0")
-          .defautFille("pu", "0")
-          .defautFille("valeurcompartiment", "0")
-          .defautFille("idcompartiment", "")
-          .defautFille("sexe", "")
-          .defautFille("idsante", "");
+    @Override
+    public CalendrierAbstrait getCalendrier(HttpServletRequest request,
+                                            HttpSession session) throws Exception {
+        throw nonSupporte("getCalendrier");
+    }
 
-        return pi.finaliser("idcompartiment", "qte", "pu", "valeurCompartiment", "sexe", "idsante");
+    @Override
+    public AtahinaPageRecherche getPageRechercheForList(HttpServletRequest request,
+                                                        HttpSession session) throws Exception {
+        throw nonSupporte("getPageRechercheForList");
     }
 }
