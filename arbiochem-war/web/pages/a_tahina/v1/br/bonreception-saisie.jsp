@@ -1,12 +1,11 @@
 <%@page import="a_tahina.core.page.AtahinaPageInsert"%>
-<%@page import="a_tahina.br.fh.BRInsertFH"%>
-<%@page import="a_tahina.br.fh.BRFicheFH"%>
+<%@page import="a_tahina.br.fh.BRFH"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <% try {
-    AtahinaPageInsert pi = new BRInsertFH().getPageInsert(request, session);
+    AtahinaPageInsert pi = new BRFH().getPageInsert(request, session);
 
-    String idbc   = BRInsertFH.getIdbc(request);
-    String bute   = BRInsertFH.getButeRetour(request);
+    String idbc   = BRFH.getIdbc(request);
+    String bute   = BRFH.getButeRetour(request);
     String lien   = pi.getLien();
 
     String titre = (idbc != null) ? "R&eacute;ception du BC " + a_tahina.core.page.AtahinaUtil.esc(idbc)
@@ -20,7 +19,7 @@
 
     <input type="hidden" name="acte"   value="insert" />
     <input type="hidden" name="bute"   value="<%= bute %>" />
-    <input type="hidden" name="classe" value="<%= BRFicheFH.CLASSE %>" />
+    <input type="hidden" name="classe" value="<%= BRFH.CLASSE %>" />
     <% if (idbc != null) { %>
       <input type="hidden" name="idbc" value="<%= idbc %>" />
     <% } %>
