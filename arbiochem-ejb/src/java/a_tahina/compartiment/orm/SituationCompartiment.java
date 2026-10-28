@@ -29,7 +29,6 @@ public class SituationCompartiment extends ClassMAPTable {
         return id;
     }
 
-    // -------- id --------
     public String getId() {
         return id;
     }
@@ -37,7 +36,6 @@ public class SituationCompartiment extends ClassMAPTable {
         this.id = v;
     }
 
-    // -------- idboncommandefille --------
     public String getIdboncommandefille() {
         return idboncommandefille;
     }
@@ -45,7 +43,6 @@ public class SituationCompartiment extends ClassMAPTable {
         this.idboncommandefille = v;
     }
 
-    // -------- compid --------
     public String getCompid() {
         return compid;
     }
@@ -53,7 +50,6 @@ public class SituationCompartiment extends ClassMAPTable {
         this.compid = v;
     }
 
-    // -------- qtetheorique --------
     public double getQtetheorique() {
         return qtetheorique;
     }
@@ -61,7 +57,6 @@ public class SituationCompartiment extends ClassMAPTable {
         this.qtetheorique = v;
     }
 
-    // -------- qteactuelle --------
     public double getQteactuelle() {
         return qteactuelle;
     }
@@ -70,7 +65,6 @@ public class SituationCompartiment extends ClassMAPTable {
     }
 
     
-    // -------- pu --------
     public double getPu() {
         return pu;
     }
@@ -78,7 +72,6 @@ public class SituationCompartiment extends ClassMAPTable {
         this.pu = v;
     }
 
-    // -------- qtebc (ex QTE_BC) --------
     public double getQtebc() {
         return qtebc;
     }
@@ -86,7 +79,6 @@ public class SituationCompartiment extends ClassMAPTable {
         this.qtebc = v;
     }
 
-    // -------- sommeqteactuelle (ex SOMME_QTEACTUELLE) --------
     public double getSommeqteactuelle() {
         return sommeqteactuelle;
     }
@@ -94,7 +86,6 @@ public class SituationCompartiment extends ClassMAPTable {
         this.sommeqteactuelle = v;
     }
 
-    // -------- valeurunitaire --------
     public double getValeurunitaire() {
         return valeurunitaire;
     }
