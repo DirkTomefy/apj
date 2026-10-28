@@ -30,7 +30,7 @@ table.cal tr.cal-total td { font-weight: bold; background: var(--cal-total-fond)
 .cal-perte     { background: var(--cal-perte-fond);     color: var(--cal-perte-texte); font-weight: bold; }
 .cal-naissance { background: var(--cal-naissance-fond); color: var(--cal-naissance-texte); }
 .cal-vide      { background: var(--cal-vide-fond);      color: var(--cal-vide-texte); }
-.cal-dimanche  { background: var(--cal-dimanche-fond); }
+/* .cal-dimanche  { background: var(--cal-dimanche-fond); } */
 .cal-hors-mois { background: var(--cal-hors-mois-fond); color: var(--cal-hors-mois-texte); }
 
 /* Indicateurs signes (benefice...) */

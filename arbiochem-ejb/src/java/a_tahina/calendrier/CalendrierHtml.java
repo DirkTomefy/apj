@@ -7,7 +7,6 @@ import java.util.Locale;
 
 import bean.ClassMAPTable;
 
-/** Rendu HTML d'un Calendrier : uniquement des classes CSS, aucune couleur ici. */
 final class CalendrierHtml<T extends ClassMAPTable> {
 
     static final String FICHIER_CSS = "/assets/css/a_tahina/calendrier.css";
