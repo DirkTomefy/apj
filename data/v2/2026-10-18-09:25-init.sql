@@ -9,7 +9,7 @@ PROMPT ============================================================
 -- ============================================================================
 -- 1. Enrichir SOUCHE (sans TYPE - non utilise)
 -- ============================================================================
-PROMPT --- Enrichissement de SOUCHE ---
+PROMPT >> Enrichissement de SOUCHE
 
 BEGIN EXECUTE IMMEDIATE 'ALTER TABLE SOUCHE ADD (NB_JOURS_ECLOSION NUMBER(5) DEFAULT 21)';
 EXCEPTION WHEN OTHERS THEN IF SQLCODE = -1430 THEN NULL; ELSE RAISE; END IF; END;
@@ -28,7 +28,7 @@ PROMPT SOUCHE enrichie : OK
 -- ============================================================================
 -- 2. DATE_ECLOSION dans BONRECEPTION_POUSSIN (saisie utilisateur)
 -- ============================================================================
-PROMPT --- Enrichissement de BONRECEPTION_POUSSIN ---
+PROMPT >> Enrichissement de BONRECEPTION_POUSSIN
 
 BEGIN EXECUTE IMMEDIATE 'ALTER TABLE BONRECEPTION_POUSSIN ADD (DATE_ECLOSION DATE)';
 EXCEPTION WHEN OTHERS THEN IF SQLCODE = -1430 THEN NULL; ELSE RAISE; END IF; END;
@@ -38,7 +38,7 @@ PROMPT BONRECEPTION_POUSSIN.DATE_ECLOSION : OK
 -- ============================================================================
 -- 3. DATE_ECLOSION dans LOT (copiee depuis BR par le code Java)
 -- ============================================================================
-PROMPT --- Enrichissement de LOT ---
+PROMPT >> Enrichissement de LOT
 
 BEGIN EXECUTE IMMEDIATE 'ALTER TABLE LOT ADD (DATE_ECLOSION DATE)';
 EXCEPTION WHEN OTHERS THEN IF SQLCODE = -1430 THEN NULL; ELSE RAISE; END IF; END;
@@ -48,7 +48,7 @@ PROMPT LOT.DATE_ECLOSION : OK
 -- ============================================================================
 -- 4. CONFIG_PREVISION
 -- ============================================================================
-PROMPT --- Creation de CONFIG_PREVISION ---
+PROMPT >> Creation de CONFIG_PREVISION
 
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE CONFIG_PREVISION CASCADE CONSTRAINTS';
 EXCEPTION WHEN OTHERS THEN NULL; END;
@@ -80,7 +80,7 @@ PROMPT CONFIG_PREVISION : OK
 -- ============================================================================
 -- 5. DECL_PERTE_LOT (avec SEXE)
 -- ============================================================================
-PROMPT --- Creation de DECL_PERTE_LOT ---
+PROMPT >> Creation de DECL_PERTE_LOT
 
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE DECL_PERTE_LOT CASCADE CONSTRAINTS';
 EXCEPTION WHEN OTHERS THEN NULL; END;
@@ -120,7 +120,7 @@ PROMPT DECL_PERTE_LOT : OK
 -- ============================================================================
 -- 6. Vue BONRECEPTION_POUSSIN_LIB (avec DATE_ECLOSION exposee)
 -- ============================================================================
-PROMPT --- Recreation de la vue BONRECEPTION_POUSSIN_LIB ---
+PROMPT >> Recreation de la vue BONRECEPTION_POUSSIN_LIB
 
 CREATE OR REPLACE VIEW BONRECEPTION_POUSSIN_LIB AS
 SELECT brp.ID,
@@ -132,8 +132,8 @@ SELECT brp.ID,
        brp.IDLIEURECEPTION,
        brp.IDMAGASIN,
        brp.ETAT,
-       brp.QT_AVANT_CUMULE,
-       brp.QT_APRES_CUMULE,
+       brp.QTAVANTCUMULE,
+       brp.QTAPRESCUMULE,
        brp.MATY,
        brp.VERY,
        brp.REMARQUE,
@@ -166,7 +166,7 @@ PROMPT Vue BONRECEPTION_POUSSIN_LIB : OK
 -- ============================================================================
 -- 7. Vue LOT_LIB (si elle existe, on l'enrichit aussi)
 -- ============================================================================
-PROMPT --- Recreation de la vue LOT_LIB (avec DATE_ECLOSION) ---
+PROMPT >> Recreation de la vue LOT_LIB (avec DATE_ECLOSION)
 
 BEGIN
     EXECUTE IMMEDIATE 'DROP VIEW LOT_LIB';
@@ -214,7 +214,7 @@ PROMPT Vue LOT_LIB : OK
 -- ============================================================================
 -- 8. Vue CALENDRIER_POUSSIN_RAW
 -- ============================================================================
-PROMPT --- Creation de la vue CALENDRIER_POUSSIN_RAW ---
+PROMPT >> Creation de la vue CALENDRIER_POUSSIN_RAW
 
 CREATE OR REPLACE VIEW CALENDRIER_POUSSIN_RAW AS
 WITH date_bounds AS (
@@ -288,7 +288,7 @@ PROMPT Vue CALENDRIER_POUSSIN_RAW : OK
 -- ============================================================================
 -- 9. Backfill : recopier DATE_ECLOSION depuis BR vers LOT existants
 -- ============================================================================
-PROMPT --- Backfill des donnees existantes ---
+PROMPT >> Backfill des donnees existantes
 
 UPDATE LOT l
 SET l.date_eclosion = (
@@ -309,31 +309,31 @@ PROMPT ============================================================
 PROMPT VERIFICATION
 PROMPT ============================================================
 
-PROMPT --- Structure SOUCHE (sans TYPE) ---
+PROMPT >> Structure SOUCHE (sans TYPE)
 SELECT column_name, data_type
 FROM   user_tab_columns
 WHERE  table_name = 'SOUCHE'
 ORDER BY column_id;
 
-PROMPT --- Structure BONRECEPTION_POUSSIN (avec DATE_ECLOSION) ---
+PROMPT >> Structure BONRECEPTION_POUSSIN (avec DATE_ECLOSION)
 SELECT column_name, data_type
 FROM   user_tab_columns
 WHERE  table_name = 'BONRECEPTION_POUSSIN'
 ORDER BY column_id;
 
-PROMPT --- Structure LOT (avec DATE_ECLOSION) ---
+PROMPT >> Structure LOT (avec DATE_ECLOSION)
 SELECT column_name, data_type
 FROM   user_tab_columns
 WHERE  table_name = 'LOT'
 ORDER BY column_id;
 
-PROMPT --- Structure DECL_PERTE_LOT (avec SEXE) ---
+PROMPT >> Structure DECL_PERTE_LOT (avec SEXE)
 SELECT column_name, data_type
 FROM   user_tab_columns
 WHERE  table_name = 'DECL_PERTE_LOT'
 ORDER BY column_id;
 
-PROMPT --- Objets crees (doivent tous etre VALID) ---
+PROMPT >> Objets crees (doivent tous etre VALID)
 SELECT object_name, object_type, status
 FROM   user_objects
 WHERE  object_name IN (
@@ -343,15 +343,15 @@ WHERE  object_name IN (
 )
 ORDER BY object_type, object_name;
 
-PROMPT --- Pas de trigger (doit etre vide) ---
+PROMPT >> Pas de trigger (doit etre vide)
 SELECT trigger_name FROM user_triggers WHERE table_name = 'LOT';
 
-PROMPT --- Erreurs de compilation des vues ? (doit etre vide) ---
+PROMPT >> Erreurs de compilation des vues ? (doit etre vide)
 SELECT name, type, line, position, text
 FROM   user_errors
 WHERE  name IN ('BONRECEPTION_POUSSIN_LIB', 'LOT_LIB', 'CALENDRIER_POUSSIN_RAW');
 
-PROMPT --- Exemple : BR avec date_eclosion ---
+PROMPT >> Exemple : BR avec date_eclosion
 SELECT id, TO_CHAR(daty,'DD/MM/YYYY') daty,
        TO_CHAR(date_eclosion,'DD/MM/YYYY') date_eclosion
 FROM   BONRECEPTION_POUSSIN

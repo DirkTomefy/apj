@@ -108,7 +108,9 @@ CREATE TABLE ATH_CLIENT (
     contact   VARCHAR2(100),
     adresse   VARCHAR2(300),
     mail      VARCHAR2(150),
-    pourcentageavoir NUMBER(5,2) DEFAULT 40   -- % du TTC d'une facture payable par avoir
+    -- pourcentageavoir : % du TTC d'une facture payable par avoir.
+    -- (pas de commentaire apres DEFAULT : Oracle le garde dans la valeur par defaut)
+    pourcentageavoir NUMBER(5,2) DEFAULT 40
 );
 
 -- Produit

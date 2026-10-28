@@ -21,7 +21,7 @@ SHOW ERRORS VIEW CALENDRIER_POUSSIN_CUMUL
 -- Pour un lot femelle eclos le 13/01/2026 (souche 21 j d'eclosion, ponte des la
 -- semaine 21) les premiers poussins issus de la ponte arrivent le 23/06/2026.
 -- ============================================================
-PROMPT --- Poussins autour du debut de ponte (23/06/2026) ---
+PROMPT >> Poussins autour du debut de ponte (23/06/2026)
 SELECT TO_CHAR(daty,'DD/MM/YYYY') AS jour,
        ROUND(poussins) AS poussins,
        ROUND(poussinscumules) AS cumul
@@ -33,12 +33,12 @@ ORDER  BY daty;
 -- ============================================================
 -- DIAGNOSTIC 2 : si tout reste a 0, verifier le lien lot -> souche -> config
 -- ============================================================
-PROMPT --- Lots et leur souche (IDSOUCHE doit valoir SOUCHE001 pour avoir de la ponte) ---
+PROMPT >> Lots et leur souche (IDSOUCHE doit valoir SOUCHE001 pour avoir de la ponte)
 SELECT l.id, l.idsouche, l.sexe, l.qteinit, l.dateeclosion
 FROM   LOT l
 ORDER  BY l.dateeclosion;
 
-PROMPT --- Parametres de la souche ---
+PROMPT >> Parametres de la souche
 SELECT id, nb_jours_eclosion, semaine_debut_ponte, taux_eclosion, ratio_femelle,
        duree_vie_semaines
 FROM   SOUCHE;

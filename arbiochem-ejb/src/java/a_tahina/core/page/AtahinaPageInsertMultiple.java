@@ -15,8 +15,8 @@ import bean.ClassMAPTable;
 public class AtahinaPageInsertMultiple extends PageInsertMultiple {
 
     private final int nbLignes;
-    private final List<AtahinaChamp> champsMere = new ArrayList<AtahinaChamp>();
-    private final List<AtahinaChamp> colonnesFille = new ArrayList<AtahinaChamp>();
+    private final List<AtahinaChampHelper> champsMere = new ArrayList<AtahinaChampHelper>();
+    private final List<AtahinaChampHelper> colonnesFille = new ArrayList<AtahinaChampHelper>();
 
     public AtahinaPageInsertMultiple(ClassMAPTable mere, ClassMAPTable fille, HttpServletRequest request,
                                      HttpSession session, int nbLignes) throws Exception {
@@ -27,12 +27,12 @@ public class AtahinaPageInsertMultiple extends PageInsertMultiple {
 
     public int getNbLignes() { return nbLignes; }
 
-    public AtahinaPageInsertMultiple champs(AtahinaChamp... defs) {
+    public AtahinaPageInsertMultiple champs(AtahinaChampHelper... defs) {
         champsMere.addAll(AtahinaFormulaire.liste(defs));
         return this;
     }
 
-    public AtahinaPageInsertMultiple colonnes(AtahinaChamp... defs) {
+    public AtahinaPageInsertMultiple colonnes(AtahinaChampHelper... defs) {
         colonnesFille.addAll(AtahinaFormulaire.liste(defs));
         return this;
     }
@@ -40,7 +40,7 @@ public class AtahinaPageInsertMultiple extends PageInsertMultiple {
     public AtahinaPageInsertMultiple preparer() throws Exception {
         AtahinaFormulaire.creerListes(getFormu(), champsMere);
         List<Liste> listesFille = new ArrayList<Liste>();
-        for (AtahinaChamp d : colonnesFille) {
+        for (AtahinaChampHelper d : colonnesFille) {
             if (d.aUneListe()) listesFille.add(d.creerListe());
         }
         if (!listesFille.isEmpty()) getFormufle().changerEnChamp(listesFille.toArray(new Liste[0]));
@@ -51,7 +51,7 @@ public class AtahinaPageInsertMultiple extends PageInsertMultiple {
 
         String[] ordre = new String[colonnesFille.size()];
         int i = 0;
-        for (AtahinaChamp d : colonnesFille) {
+        for (AtahinaChampHelper d : colonnesFille) {
             List<Champ> lignes = champsFille(d.nom);
             if (lignes.isEmpty()) {
                 throw new IllegalArgumentException("Colonne '" + d.nom + "' inconnue dans "

@@ -1,0 +1,38 @@
+/* Calendrier a_tahina : changer une couleur = changer une variable ci-dessous. */
+:root {
+    --cal-bordure:          #999;
+    --cal-entete-fond:      #f2f2f2;
+    --cal-total-fond:       #eef;
+
+    --cal-perte-fond:       #fbb;   --cal-perte-texte:      #800;
+    --cal-naissance-fond:   #fff;   --cal-naissance-texte:  #000;
+    --cal-vide-fond:        #eee;   --cal-vide-texte:       #333;
+    --cal-dimanche-fond:    #fdd;
+    --cal-hors-mois-fond:   #fafafa; --cal-hors-mois-texte: #bbb;
+
+    --cal-positif-fond:     #cfc;   --cal-positif-texte:    #060;
+    --cal-negatif-fond:     #fbb;   --cal-negatif-texte:    #800;
+}
+
+/* Mise en page */
+.cal-conteneur { max-width: 100%; max-height: 80vh; overflow: auto; border: 1px solid #ccc; margin-top: 10px; }
+table.cal { border-collapse: collapse; width: 100%; table-layout: auto; min-width: fit-content; }
+table.cal th, table.cal td { border: 1px solid var(--cal-bordure); padding: 5px; font-size: 12px; text-align: center; }
+table.cal th { background: var(--cal-entete-fond); position: sticky; top: 0; z-index: 2; }
+table.cal .cal-numero { text-align: left; position: sticky; left: 0; background: #fff; z-index: 3; min-width: 80px; white-space: nowrap; }
+table.cal tr.cal-total td { font-weight: bold; background: var(--cal-total-fond); text-align: right; }
+
+/* Legende */
+.cal-legende { display: flex; gap: 14px; margin: 8px 0; font-size: 12px; }
+.cal-legende span { display: inline-block; padding: 2px 8px; border: 1px solid var(--cal-bordure); }
+
+/* Etats d'un jour (classes declarees par style(...) dans le calendrier Java) */
+.cal-perte     { background: var(--cal-perte-fond);     color: var(--cal-perte-texte); font-weight: bold; }
+.cal-naissance { background: var(--cal-naissance-fond); color: var(--cal-naissance-texte); }
+.cal-vide      { background: var(--cal-vide-fond);      color: var(--cal-vide-texte); }
+/* .cal-dimanche  { background: var(--cal-dimanche-fond); } */
+.cal-hors-mois { background: var(--cal-hors-mois-fond); color: var(--cal-hors-mois-texte); }
+
+/* Indicateurs signes (benefice...) */
+table.cal tr.cal-total td.cal-positif { background: var(--cal-positif-fond); color: var(--cal-positif-texte); }
+table.cal tr.cal-total td.cal-negatif { background: var(--cal-negatif-fond); color: var(--cal-negatif-texte); }

@@ -12,15 +12,10 @@
 .row-f { display:flex; gap:10px; align-items:end; flex-wrap:wrap; }
 .msg-ok { color:#080; font-weight:bold; padding:8px; background:#efe; border-left:4px solid #080; }
 .msg-err { color:#c00; font-weight:bold; padding:8px; background:#fee; border-left:4px solid #c00; }
-.legend { display:flex; gap:14px; margin:8px 0; font-size:12px; }
-.legend span { display:inline-block; padding:2px 8px; border:1px solid #999; }
-.legend .dimanche { background:#fdd; }
-.legend .rouge { background:#fbb; color:#800; font-weight:bold; }
-.legend .gris { background:#eee; color:#333; }
-.legend .normal { background:#fff; }
 </style>
 
 <%
+try {
 String lien = (String) session.getValue("lien");
 String bute = "a_tahina/v1/prevision/prevision-poussin.jsp";
 DateTimeFormatter iso = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -84,3 +79,8 @@ CalendrierPoussin cal = new PrevisionPoussinFH().getCalendrier(request, session)
   <%= cal.generateHtml() %>
 
 </div>
+<%
+} catch (Exception e) {
+    out.println(AtahinaUtil.erreurHtml(e));
+}
+%>

@@ -1,6 +1,6 @@
 package a_tahina.br.fh;
 
-import static a_tahina.core.page.AtahinaChamp.champ;
+import static a_tahina.core.page.AtahinaChampHelper.champ;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -9,9 +9,9 @@ import a_tahina.bc.fh.BCmdFH;
 import a_tahina.bc.orm.BonCommandePoussinFilleLib;
 import a_tahina.br.orm.BonReceptionPoussin;
 import a_tahina.br.orm.BonReceptionPoussinLib;
-import a_tahina.calendrier.CalendrierAbstrait;
+import a_tahina.calendrier.Calendrier;
 import a_tahina.core.GeneraticFH;
-import a_tahina.core.page.AtahinaChamp;
+import a_tahina.core.page.AtahinaChampHelper;
 import a_tahina.core.page.AtahinaPageConsulte;
 import a_tahina.core.page.AtahinaPageInsert;
 import a_tahina.core.page.AtahinaPageInsertMultiple;
@@ -82,7 +82,7 @@ public class BRFH extends GeneraticFH {
         String idbc  = getIdbc(request);
         String idbcf = getIdbcf(request);
 
-        AtahinaChamp ligneBc = champ("idboncommandefille", "Ligne BC")
+        AtahinaChampHelper ligneBc = champ("idboncommandefille", "Ligne BC")
                 .liste(new BonCommandePoussinFilleLib(), "idproduitlib", "id",
                        idbc != null ? AtahinaUtil.egal("idmere", idbc) : null);
         if (idbcf != null) ligneBc.defaut(idbcf).lectureSeule();
@@ -119,7 +119,7 @@ public class BRFH extends GeneraticFH {
     }
 
     @Override
-    public CalendrierAbstrait getCalendrier(HttpServletRequest request,
+    public Calendrier<?> getCalendrier(HttpServletRequest request,
                                             HttpSession session) throws Exception {
         throw nonSupporte("getCalendrier");
     }

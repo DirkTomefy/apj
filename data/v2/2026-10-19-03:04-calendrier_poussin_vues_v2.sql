@@ -330,21 +330,21 @@ SHOW ERRORS VIEW CALENDRIER_POUSSIN_CUMUL
 -- ============================================================
 PROMPT === VERIFICATION ===
 
-PROMPT --- Premier jour de ponte, par generation ---
+PROMPT >> Premier jour de ponte, par generation
 SELECT 'Gen 0' gen, TO_CHAR(MIN(daty),'DD/MM/YYYY') premier_jour FROM V_CAL_PONTE_JOUR
 UNION ALL
 SELECT 'Gen 1', TO_CHAR(MIN(daty),'DD/MM/YYYY') FROM V_CAL_GEN1_PONTE
 UNION ALL
 SELECT 'Gen 2', TO_CHAR(MIN(daty),'DD/MM/YYYY') FROM V_CAL_GEN2_PONTE;
 
-PROMPT --- Totaux par generation ---
+PROMPT >> Totaux par generation
 SELECT 'Gen 0' gen, ROUND(SUM(total)) total, ROUND(SUM(femelles)) femelles FROM V_CAL_PONTE_JOUR
 UNION ALL
 SELECT 'Gen 1', ROUND(SUM(total)), ROUND(SUM(femelles)) FROM V_CAL_GEN1_PONTE
 UNION ALL
 SELECT 'Gen 2', ROUND(SUM(total)), ROUND(SUM(femelles)) FROM V_CAL_GEN2_PONTE;
 
-PROMPT --- Resume par mois ---
+PROMPT >> Resume par mois
 SELECT TO_CHAR(daty,'YYYY-MM') mois,
        ROUND(SUM(poussins)) naissances,
        ROUND(SUM(ca)) ca, ROUND(SUM(cout)) cout, ROUND(SUM(benefice)) benefice,

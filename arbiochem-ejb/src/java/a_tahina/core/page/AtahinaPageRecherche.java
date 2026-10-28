@@ -19,11 +19,11 @@ public class AtahinaPageRecherche extends PageRecherche {
             "<a class='btn btn-primary pull-right btn-small' href='%s?but=%s'>"
           + "<i class='material-symbols-rounded'>add</i> Saisir</a>";
 
-    private final AtahinaChamp[] champs;
+    private final AtahinaChampHelper[] champs;
     private final String[] libEntete;
 
     public AtahinaPageRecherche(ClassMAPTable objet, HttpServletRequest request, HttpSession session,
-                                String pageActuelle, String titre, AtahinaChamp... champs) throws Exception {
+                                String pageActuelle, String titre, AtahinaChampHelper... champs) throws Exception {
         super(objet, request, criteres(champs), intervalles(champs), 3, entete(champs), entete(champs).length);
         this.champs = champs;
         this.libEntete = entete(champs);
@@ -37,7 +37,7 @@ public class AtahinaPageRecherche extends PageRecherche {
 
     public static AtahinaPageRecherche onglet(ClassMAPTable objet, HttpServletRequest request, HttpSession session,
                                               String pageFiche, String idMere, String tab,
-                                              AtahinaChamp... colonnes) throws Exception {
+                                              AtahinaChampHelper... colonnes) throws Exception {
         AtahinaPageRecherche pr = new AtahinaPageRecherche(objet, request, session,
                 pageFiche + "&id=" + AtahinaUtil.url(idMere) + "&tab=" + tab, "", colonnes);
         pr.setNpp(10);
@@ -47,32 +47,32 @@ public class AtahinaPageRecherche extends PageRecherche {
     // ------------------------------------------------------------------
     // Calcul des tableaux attendus par PageRecherche
     // ------------------------------------------------------------------
-    private static String[] criteres(AtahinaChamp[] champs) {
+    private static String[] criteres(AtahinaChampHelper[] champs) {
         List<String> l = new ArrayList<String>();
-        for (AtahinaChamp c : champs) if (c.recherche || c.intervalle) l.add(c.nom);
+        for (AtahinaChampHelper c : champs) if (c.recherche || c.intervalle) l.add(c.nom);
         return l.toArray(new String[0]);
     }
 
-    private static String[] intervalles(AtahinaChamp[] champs) {
+    private static String[] intervalles(AtahinaChampHelper[] champs) {
         List<String> l = new ArrayList<String>();
-        for (AtahinaChamp c : champs) if (c.intervalle) l.add(c.nom);
+        for (AtahinaChampHelper c : champs) if (c.intervalle) l.add(c.nom);
         return l.toArray(new String[0]);
     }
 
-    private static String[] entete(AtahinaChamp[] champs) {
+    private static String[] entete(AtahinaChampHelper[] champs) {
         List<String> l = new ArrayList<String>();
-        for (AtahinaChamp c : champs) if (c.colonne) l.add(c.nom);
+        for (AtahinaChampHelper c : champs) if (c.colonne) l.add(c.nom);
         return l.toArray(new String[0]);
     }
 
     private void configurerCriteres() throws Exception {
         List<Liste> listes = new ArrayList<Liste>();
-        for (AtahinaChamp c : champs) {
+        for (AtahinaChampHelper c : champs) {
             if ((c.recherche || c.intervalle) && c.aUneListe()) listes.add(c.creerListe());
         }
         if (!listes.isEmpty()) getFormu().changerEnChamp(listes.toArray(new Liste[0]));
 
-        for (AtahinaChamp c : champs) {
+        for (AtahinaChampHelper c : champs) {
             if (c.intervalle) {
                 critere(c.nom + "1", c.libelle + " min", c.defaut);
                 critere(c.nom + "2", c.libelle + " max", c.defaut);
@@ -96,10 +96,10 @@ public class AtahinaPageRecherche extends PageRecherche {
         creerObjetPage(libEntete, null);
 
         List<String> libelles = new ArrayList<String>();
-        for (AtahinaChamp c : champs) if (c.colonne) libelles.add(c.libelle);
+        for (AtahinaChampHelper c : champs) if (c.colonne) libelles.add(c.libelle);
         getTableau().setLibelleAffiche(libelles.toArray(new String[0]));
 
-        for (AtahinaChamp c : champs) {
+        for (AtahinaChampHelper c : champs) {
             if (c.lienPage != null) {
                 lienFiche(c.nom, c.lienPage, c.lienParametre);
                 break;

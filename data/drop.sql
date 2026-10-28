@@ -1,3 +1,5 @@
+-- OBSOLETE : ce script ne connait pas les tables recentes (facture / avoir, calendrier).
+--            Utiliser data/final/drop.sql (voir data/README.md).
 -- ============================================================================
 --  SCRIPT DE DROP - MODULE POUSSIN
 --  Supprime les vues, tables, séquences et fonctions APJ

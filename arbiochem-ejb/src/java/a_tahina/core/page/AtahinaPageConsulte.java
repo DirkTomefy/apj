@@ -20,7 +20,7 @@ public class AtahinaPageConsulte extends PageConsulte {
         setCanUploadFile(false);
     }
 
-    public AtahinaPageConsulte champs(AtahinaChamp... defs) {
+    public AtahinaPageConsulte champs(AtahinaChampHelper... defs) {
         Set<String> declares = new HashSet<String>();
         String[] ordre = new String[defs.length];
         for (int i = 0; i < defs.length; i++) {

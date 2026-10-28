@@ -4,7 +4,7 @@ import affichage.Liste;
 import bean.ClassMAPTable;
 import bean.TypeObjet;
 
-public final class AtahinaChamp {
+public final class AtahinaChampHelper   {
 
     final String nom;
     final String libelle;
@@ -24,28 +24,28 @@ public final class AtahinaChamp {
     String  lienPage;
     String  lienParametre;
 
-    private AtahinaChamp(String nom, String libelle) {
+    private AtahinaChampHelper(String nom, String libelle) {
         this.nom = nom;
         this.libelle = libelle;
     }
 
-    public static AtahinaChamp champ(String nom, String libelle) {
-        return new AtahinaChamp(nom, libelle);
+    public static AtahinaChampHelper champ(String nom, String libelle) {
+        return new AtahinaChampHelper(nom, libelle);
     }
 
     // ------------------------------------------------------------------
     // Saisie / fiche
     // ------------------------------------------------------------------
-    public AtahinaChamp defaut(String valeur)  { this.defaut = valeur; return this; }
-    public AtahinaChamp defautAujourdhui()     { return defaut(utilitaire.Utilitaire.dateDuJour()); }
-    public AtahinaChamp lectureSeule()         { this.lectureSeule = true; return this; }
-    public AtahinaChamp cache()                { this.cache = true; return this; }
+    public AtahinaChampHelper defaut(String valeur)  { this.defaut = valeur; return this; }
+    public AtahinaChampHelper defautAujourdhui()     { return defaut(utilitaire.Utilitaire.dateDuJour()); }
+    public AtahinaChampHelper lectureSeule()         { this.lectureSeule = true; return this; }
+    public AtahinaChampHelper cache()                { this.cache = true; return this; }
 
-    public AtahinaChamp liste(ClassMAPTable objet, String colAffiche, String colValeur) {
+    public AtahinaChampHelper liste(ClassMAPTable objet, String colAffiche, String colValeur) {
         return liste(objet, colAffiche, colValeur, null);
     }
 
-    public AtahinaChamp liste(ClassMAPTable objet, String colAffiche, String colValeur, String aWhere) {
+    public AtahinaChampHelper liste(ClassMAPTable objet, String colAffiche, String colValeur, String aWhere) {
         this.listeObjet = objet;
         this.listeAffiche = colAffiche;
         this.listeValeur = colValeur;
@@ -53,22 +53,22 @@ public final class AtahinaChamp {
         return this;
     }
 
-    public AtahinaChamp typeObjet(String table) throws Exception {
+    public AtahinaChampHelper typeObjet(String table) throws Exception {
         return liste(new TypeObjet(table), "val", "id");
     }
 
-    public AtahinaChamp listeEtat() throws Exception {
+    public AtahinaChampHelper listeEtat() throws Exception {
         return liste(new TypeObjet("ETAT"), "desce", "id");
     }
 
     // ------------------------------------------------------------------
     // Ecran LISTE
     // ------------------------------------------------------------------
-    public AtahinaChamp recherche()            { this.recherche = true; return this; }
-    public AtahinaChamp intervalle()           { this.intervalle = true; return this; }
-    public AtahinaChamp filtreSeul()           { this.recherche = true; this.colonne = false; return this; }
-    public AtahinaChamp lien(String pageFiche) { return lien(pageFiche, nom); }
-    public AtahinaChamp lien(String pageFiche, String parametre) {
+    public AtahinaChampHelper recherche()            { this.recherche = true; return this; }
+    public AtahinaChampHelper intervalle()           { this.intervalle = true; return this; }
+    public AtahinaChampHelper filtreSeul()           { this.recherche = true; this.colonne = false; return this; }
+    public AtahinaChampHelper lien(String pageFiche) { return lien(pageFiche, nom); }
+    public AtahinaChampHelper lien(String pageFiche, String parametre) {
         this.lienPage = pageFiche;
         this.lienParametre = parametre;
         return this;

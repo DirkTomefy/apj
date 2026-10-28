@@ -6,7 +6,7 @@ PROMPT RENAME - DATE_ECLOSION -> DATEECLOSION (sans underscore)
 PROMPT ============================================================
 
 -- 1. Vérifier l'état actuel
-PROMPT --- Avant ---
+PROMPT >> Avant
 SELECT table_name, column_name
 FROM   user_tab_columns
 WHERE  column_name IN ('DATE_ECLOSION', 'DATEECLOSION')
@@ -39,7 +39,7 @@ END;
 COMMIT;
 
 -- 4. Vérification
-PROMPT --- Apres ---
+PROMPT >> Apres
 SELECT table_name, column_name
 FROM   user_tab_columns
 WHERE  table_name IN ('BONRECEPTION_POUSSIN', 'LOT')

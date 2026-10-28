@@ -9,7 +9,7 @@ PROMPT ============================================================
 -- ============================================================================
 -- 1. Drop des vues invalides
 -- ============================================================================
-PROMPT --- Drop des vues ---
+PROMPT >> Drop des vues
 
 BEGIN EXECUTE IMMEDIATE 'DROP VIEW BONRECEPTION_POUSSIN_LIB';
 EXCEPTION WHEN OTHERS THEN NULL; END;
@@ -29,7 +29,7 @@ PROMPT CALENDRIER_POUSSIN_RAW : drop OK
 -- ============================================================================
 -- 2. Recreation BONRECEPTION_POUSSIN_LIB
 -- ============================================================================
-PROMPT --- Recreation BONRECEPTION_POUSSIN_LIB ---
+PROMPT >> Recreation BONRECEPTION_POUSSIN_LIB
 
 CREATE OR REPLACE VIEW BONRECEPTION_POUSSIN_LIB AS
 SELECT brp.ID,
@@ -41,8 +41,8 @@ SELECT brp.ID,
        brp.IDLIEURECEPTION,
        brp.IDMAGASIN,
        brp.ETAT,
-       brp.QT_AVANT_CUMULE,
-       brp.QT_APRES_CUMULE,
+       brp.QTAVANTCUMULE,
+       brp.QTAPRESCUMULE,
        brp.MATY,
        brp.VERY,
        brp.REMARQUE,
@@ -75,7 +75,7 @@ PROMPT BONRECEPTION_POUSSIN_LIB : OK
 -- ============================================================================
 -- 3. Recreation LOT_LIB
 -- ============================================================================
-PROMPT --- Recreation LOT_LIB ---
+PROMPT >> Recreation LOT_LIB
 
 CREATE OR REPLACE VIEW LOT_LIB AS
 SELECT l.ID,
@@ -118,7 +118,7 @@ PROMPT LOT_LIB : OK
 -- ============================================================================
 -- 4. Recreation CALENDRIER_POUSSIN_RAW
 -- ============================================================================
-PROMPT --- Recreation CALENDRIER_POUSSIN_RAW ---
+PROMPT >> Recreation CALENDRIER_POUSSIN_RAW
 
 CREATE OR REPLACE VIEW CALENDRIER_POUSSIN_RAW AS
 WITH date_bounds AS (
@@ -196,13 +196,13 @@ PROMPT ============================================================
 PROMPT VERIFICATION
 PROMPT ============================================================
 
-PROMPT --- Statut des vues ---
+PROMPT >> Statut des vues
 SELECT object_name, object_type, status
 FROM   user_objects
 WHERE  object_name IN ('BONRECEPTION_POUSSIN_LIB', 'LOT_LIB', 'CALENDRIER_POUSSIN_RAW')
 ORDER BY object_name;
 
-PROMPT --- Colonnes DATEECLOSION dans les vues ---
+PROMPT >> Colonnes DATEECLOSION dans les vues
 SELECT table_name, column_name
 FROM   user_tab_columns
 WHERE  table_name IN ('BONRECEPTION_POUSSIN', 'BONRECEPTION_POUSSIN_LIB',
@@ -210,12 +210,12 @@ WHERE  table_name IN ('BONRECEPTION_POUSSIN', 'BONRECEPTION_POUSSIN_LIB',
   AND  column_name LIKE 'DATEECL%'
 ORDER BY table_name, column_name;
 
-PROMPT --- Erreurs de compilation (doit etre vide) ---
+PROMPT >> Erreurs de compilation (doit etre vide)
 SELECT name, line, position, text
 FROM   user_errors
 WHERE  name IN ('BONRECEPTION_POUSSIN_LIB', 'LOT_LIB', 'CALENDRIER_POUSSIN_RAW');
 
-PROMPT --- Test DESC ---
+PROMPT >> Test DESC
 PROMPT LOT_LIB
 DESC LOT_LIB
 

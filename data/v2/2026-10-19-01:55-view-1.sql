@@ -9,9 +9,8 @@ SET LINESIZE 200
 -- ============================================================
 
 PROMPT === 0. Index (accelere les sous-requetes de pertes et la config) ===
--- Si un index existe deja, Oracle renvoie ORA-00955 / ORA-01408 : ignorer.
+-- (IDSOUCHE, SEMAINE) est deja indexe par la contrainte UNIQUE UQ_CFGPREV_SOUCHE_SEM : pas d'index en plus.
 CREATE INDEX IDX_DPL_LOT_SEXE_DATY ON DECL_PERTE_LOT (IDLOT, SEXE, DATY);
-CREATE INDEX IDX_CFGPREV_SOUCHE_SEM ON CONFIG_PREVISION (IDSOUCHE, SEMAINE);
 
 PROMPT === 1. V_CAL_JOURS : calendrier des jours ===
 CREATE OR REPLACE VIEW V_CAL_JOURS AS
@@ -112,22 +111,22 @@ FROM   V_CAL_JOURS d
 SHOW ERRORS VIEW CALENDRIER_POUSSIN_RAW
 
 PROMPT === 6. VERIFICATION (une etape a la fois pour localiser un probleme) ===
-PROMPT --- Nb de jours ---
+PROMPT >> Nb de jours
 SELECT COUNT(*) AS nb_jours, MIN(daty) AS premier, MAX(daty) AS dernier FROM V_CAL_JOURS;
 
-PROMPT --- Nb de lots femelles ---
+PROMPT >> Nb de lots femelles
 SELECT COUNT(*) AS nb_lots_femelles FROM V_CAL_LOT_INFO;
 
-PROMPT --- Doublons dans CONFIG_PREVISION (doit etre vide) ---
+PROMPT >> Doublons dans CONFIG_PREVISION (doit etre vide)
 SELECT idsouche, semaine, COUNT(*) FROM CONFIG_PREVISION
 GROUP BY idsouche, semaine HAVING COUNT(*) > 1;
 
-PROMPT --- Test 13/01/2026 : attendu 465 total (460 F + 5 M) ---
+PROMPT >> Test 13/01/2026 : attendu 465 total (460 F + 5 M)
 SELECT TO_CHAR(daty,'DD/MM/YYYY') AS jour, poussins, poussinsmales, poussinsfemelles
 FROM   CALENDRIER_POUSSIN_RAW
 WHERE  daty = TO_DATE('2026-01-13','YYYY-MM-DD');
 
-PROMPT --- 10 premiers jours avec poussins > 0 ---
+PROMPT >> 10 premiers jours avec poussins > 0
 SELECT TO_CHAR(daty,'DD/MM/YYYY') AS jour, total, males, femelles, pertes
 FROM (
     SELECT daty,

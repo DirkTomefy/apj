@@ -1,9 +1,8 @@
 package a_tahina.prevision.orm;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 
+import a_tahina.compartiment.orm.Compartiment;
 import bean.ClassMAPTable;
 
 public class DeclPerteLot extends ClassMAPTable {
@@ -14,6 +13,8 @@ public class DeclPerteLot extends ClassMAPTable {
     private double qteMort;
     private double qteVery;
     private java.sql.Date daty;
+    private String reference;
+    private String remarque;
 
     public DeclPerteLot() throws Exception {
         super();
@@ -47,15 +48,7 @@ public class DeclPerteLot extends ClassMAPTable {
             this.daty = new java.sql.Date(System.currentTimeMillis());
 
         // Le compartiment doit exister
-        boolean existe = false;
-        try (PreparedStatement ps = c.prepareStatement(
-                "SELECT 1 FROM COMPARTIMENT WHERE ID = ?")) {
-            ps.setString(1, this.idcompartiment);
-            try (ResultSet rs = ps.executeQuery()) {
-                existe = rs.next();
-            }
-        }
-        if (!existe)
+        if (new Compartiment().getById(this.idcompartiment, null, c) == null)
             throw new Exception("Compartiment introuvable : " + this.idcompartiment);
     }
 
@@ -72,4 +65,8 @@ public class DeclPerteLot extends ClassMAPTable {
     public void   setQteVery(double v)       { this.qteVery = v; }
     public java.sql.Date getDaty()           { return daty; }
     public void   setDaty(java.sql.Date v)   { this.daty = v; }
+    public String getReference()             { return reference; }
+    public void   setReference(String v)     { this.reference = v; }
+    public String getRemarque()              { return remarque; }
+    public void   setRemarque(String v)      { this.remarque = v; }
 }
