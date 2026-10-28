@@ -100,7 +100,6 @@ public class InsertionCompartimentFille extends ClassFille {
         this.valeurCompartiment = this.qte * this.pu;
     }
 
-    // Getters / Setters (inchanges)
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
     public String getIdmere() { return idmere; }
