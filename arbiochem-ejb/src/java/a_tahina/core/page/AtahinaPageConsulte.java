@@ -44,9 +44,7 @@ public class AtahinaPageConsulte extends PageConsulte {
         return this;
     }
 
-    // ------------------------------------------------------------------
-    // Boutons
-    // ------------------------------------------------------------------
+   
     public String lienActe(String acte, String id, String pageRetour, String classe) {
         return getLien() + "?but=apresTarif.jsp&acte=" + acte + "&id=" + id
                 + "&bute=" + pageRetour + "&classe=" + classe;

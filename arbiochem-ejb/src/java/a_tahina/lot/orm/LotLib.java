@@ -1,9 +1,6 @@
 package a_tahina.lot.orm;
 
-/**
- * Lot avec libelles : vue LOT_LIB.
- * (Ne pas confondre avec ferme.lot.LotLib, qui est un autre modele.)
- */
+
 public class LotLib extends Lot {
 
     private String idbonreceptionlib;

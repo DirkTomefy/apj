@@ -37,14 +37,11 @@ public class InsertionCompartiment extends ClassMere {
     @Override
     public ClassMAPTable createObject(String u, Connection c) throws Exception {
 
-        // 1. Insertion standard (mère + filles par lot)
         super.createObject(u, c);
 
-        // 2. Les filles sont maintenant en base → créer un LOT par fille
         ClassFille[] filles = this.getFille();
         if (filles != null && filles.length > 0) {
 
-            // Charger le BR source pour déduire produit / souche / BC
             BonReceptionPoussinLib br = new BonReceptionPoussinLib();
             br = (BonReceptionPoussinLib) br.getById(this.idbonreception, null, c);
             if (br == null) {
@@ -73,7 +70,6 @@ public class InsertionCompartiment extends ClassMere {
         return this;
     }
 
-    // ---- Getters / Setters ----
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 

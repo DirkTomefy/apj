@@ -2,10 +2,7 @@ package a_tahina.prevision.orm;
 
 import bean.ClassMAPTable;
 
-/**
- * Bean mappe sur la vue CALENDRIER_POUSSIN_RAW.
- * Une ligne = un jour, avec le nombre de poussins nes et de pertes.
- */
+
 public class CalendrierPoussinJour extends ClassMAPTable {
 
     private java.sql.Date daty;

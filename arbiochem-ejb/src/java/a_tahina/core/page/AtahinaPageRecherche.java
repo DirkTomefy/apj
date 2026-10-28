@@ -44,9 +44,6 @@ public class AtahinaPageRecherche extends PageRecherche {
         return pr;
     }
 
-    // ------------------------------------------------------------------
-    // Calcul des tableaux attendus par PageRecherche
-    // ------------------------------------------------------------------
     private static String[] criteres(AtahinaChampHelper[] champs) {
         List<String> l = new ArrayList<String>();
         for (AtahinaChampHelper c : champs) if (c.recherche || c.intervalle) l.add(c.nom);
@@ -89,9 +86,6 @@ public class AtahinaPageRecherche extends PageRecherche {
         if (defaut != null) ch.setDefaut(defaut);
     }
 
-    // ------------------------------------------------------------------
-    // Execution
-    // ------------------------------------------------------------------
     public AtahinaPageRecherche construire() throws Exception {
         creerObjetPage(libEntete, null);
 
@@ -118,9 +112,6 @@ public class AtahinaPageRecherche extends PageRecherche {
         menuClicDroit("fiche", pageFiche);
     }
 
-    // ------------------------------------------------------------------
-    // Options
-    // ------------------------------------------------------------------
     public AtahinaPageRecherche filtreEgal(String colonne, String valeur) {
         setAWhere(AtahinaUtil.egal(colonne, valeur));
         return this;
@@ -150,9 +141,6 @@ public class AtahinaPageRecherche extends PageRecherche {
         return this;
     }
 
-    // ------------------------------------------------------------------
-    // Rendu
-    // ------------------------------------------------------------------
     public String getHtmlListe() throws Exception {
         StringBuilder sb = new StringBuilder();
         sb.append("<div class=\"content-wrapper\">\n")

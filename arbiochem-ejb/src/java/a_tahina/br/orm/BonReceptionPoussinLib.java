@@ -43,7 +43,6 @@ public class BonReceptionPoussinLib extends BonReceptionPoussin {
     public String getEtatlib() { return etatlib; }
     public void setEtatlib(String v) { this.etatlib = v; }
 
-    // ----- NOUVEAUX -----
     public String getIdsouche() { return idsouche; }
     public void   setIdsouche(String v) { this.idsouche = v; }
 

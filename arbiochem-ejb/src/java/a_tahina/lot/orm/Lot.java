@@ -40,12 +40,10 @@ public class Lot extends ClassMAPTable {
     @Override
     public void controler(Connection c) throws Exception {
 
-        // 1. Si QTEACTUELLE n'est pas definie, l'initialiser a QTEINIT
         if (this.qteActuelle == 0 && this.qteinit > 0) {
             this.qteActuelle = this.qteinit;
         }
 
-        // 2. Si DATEECLOSION absente ET qu'on a un BR -> copier
         if (this.dateEclosion == null && this.idbonreception != null) {
             BonReceptionPoussin[] arr = (BonReceptionPoussin[]) CGenUtil.rechercher(
                     new BonReceptionPoussin(), null, null, c,
@@ -58,7 +56,6 @@ public class Lot extends ClassMAPTable {
             }
         }
 
-        // 3. Verifications
         if (this.qteinit < 0) {
             throw new Exception("QTEINIT ne peut pas etre negatif");
         }
@@ -71,9 +68,6 @@ public class Lot extends ClassMAPTable {
         }
     }
 
-    // =========================================================
-    // Getters / Setters
-    // =========================================================
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 

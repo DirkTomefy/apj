@@ -33,9 +33,6 @@ public final class AtahinaChampHelper   {
         return new AtahinaChampHelper(nom, libelle);
     }
 
-    // ------------------------------------------------------------------
-    // Saisie / fiche
-    // ------------------------------------------------------------------
     public AtahinaChampHelper defaut(String valeur)  { this.defaut = valeur; return this; }
     public AtahinaChampHelper defautAujourdhui()     { return defaut(utilitaire.Utilitaire.dateDuJour()); }
     public AtahinaChampHelper lectureSeule()         { this.lectureSeule = true; return this; }
@@ -61,9 +58,6 @@ public final class AtahinaChampHelper   {
         return liste(new TypeObjet("ETAT"), "desce", "id");
     }
 
-    // ------------------------------------------------------------------
-    // Ecran LISTE
-    // ------------------------------------------------------------------
     public AtahinaChampHelper recherche()            { this.recherche = true; return this; }
     public AtahinaChampHelper intervalle()           { this.intervalle = true; return this; }
     public AtahinaChampHelper filtreSeul()           { this.recherche = true; this.colonne = false; return this; }
@@ -74,9 +68,6 @@ public final class AtahinaChampHelper   {
         return this;
     }
 
-    // ------------------------------------------------------------------
-    // Interne
-    // ------------------------------------------------------------------
     boolean aUneListe() { return listeObjet != null; }
 
     Liste creerListe() throws Exception {
