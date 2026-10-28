@@ -21,6 +21,7 @@ avec le framework APJ, sans entrer dans la logique métier.
 | 12 | [12-exemples-complets.md](12-exemples-complets.md) | **Exemple complet** de A à Z |
 | 13 | [13-terme-complique.md](13-terme-complique.md) | **Glossaire** |
 | 14 | [14-autocomplete.md](14-autocomplete.md) | **Autocomplete** |
+| 15 | [15-generateur.md](15-generateur.md) | **Générateur** `apj_gen.py` (SQL, ORM, FH, JSP depuis un `spec.json`) |
 
 ## Parcours conseillé
 
@@ -69,7 +70,7 @@ ClassMAPTable                     Champ                      apresTarif.jsp
 | `12-` | Exemple complet |
 | `13-` | Glossaire |
 | `14-` | Autocomplete |
-| `15-` | (réservé) |
+| `15-` | Générateur de code |
 | `16-` | (réservé) |
 
 ### Classes racines (hiérarchie)
