@@ -4,7 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import a_tahina.calendrier.Calendrier;
-import a_tahina.core.page.AtahinaChamp;
+import a_tahina.core.page.AtahinaChampHelper;
 import a_tahina.core.page.AtahinaPageConsulte;
 import a_tahina.core.page.AtahinaPageInsert;
 import a_tahina.core.page.AtahinaPageInsertMultiple;
@@ -51,19 +51,19 @@ public abstract class GeneraticFH {
 
     protected static AtahinaPageRecherche liste(ClassMAPTable objet, HttpServletRequest request, HttpSession session,
                                                 String pageActuelle, String titre,
-                                                AtahinaChamp... champs) throws Exception {
+                                                AtahinaChampHelper... champs) throws Exception {
         return new AtahinaPageRecherche(objet, request, session, pageActuelle, titre, champs).construire();
     }
 
     protected static AtahinaPageConsulte consulte(ClassMAPTable objet, HttpServletRequest request, HttpSession session,
-                                                  String titre, AtahinaChamp... champs) throws Exception {
+                                                  String titre, AtahinaChampHelper... champs) throws Exception {
         return new AtahinaPageConsulte(objet, request, session, titre).champs(champs);
     }
 
     protected static String onglet(ClassMAPTable objet, HttpServletRequest request, HttpSession session,
                                    String pageFiche, String idMere, String tab,
                                    String colonneMere, String messageVide,
-                                   AtahinaChamp... colonnes) throws Exception {
+                                   AtahinaChampHelper... colonnes) throws Exception {
         return AtahinaPageRecherche.onglet(objet, request, session, pageFiche, idMere, tab, colonnes)
             .filtreEgal(colonneMere, idMere)
             .construire()

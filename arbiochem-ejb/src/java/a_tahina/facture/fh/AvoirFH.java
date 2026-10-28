@@ -1,6 +1,6 @@
 package a_tahina.facture.fh;
 
-import static a_tahina.core.page.AtahinaChamp.champ;
+import static a_tahina.core.page.AtahinaChampHelper.champ;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;

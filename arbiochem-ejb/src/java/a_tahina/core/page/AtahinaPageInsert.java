@@ -11,7 +11,7 @@ import bean.ClassMAPTable;
 
 public class AtahinaPageInsert extends PageInsert {
 
-    private final List<AtahinaChamp> champs = new ArrayList<AtahinaChamp>();
+    private final List<AtahinaChampHelper> champs = new ArrayList<AtahinaChampHelper>();
 
     public AtahinaPageInsert(ClassMAPTable objet, HttpServletRequest request, HttpSession session,
                              String titre) throws Exception {
@@ -20,7 +20,7 @@ public class AtahinaPageInsert extends PageInsert {
         if (titre != null) setTitre(titre);
     }
 
-    public AtahinaPageInsert champs(AtahinaChamp... defs) {
+    public AtahinaPageInsert champs(AtahinaChampHelper... defs) {
         champs.addAll(AtahinaFormulaire.liste(defs));
         return this;
     }

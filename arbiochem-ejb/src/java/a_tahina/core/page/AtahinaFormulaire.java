@@ -13,19 +13,19 @@ final class AtahinaFormulaire {
 
     private AtahinaFormulaire() {}
 
-    static void creerListes(Formulaire f, List<AtahinaChamp> defs) throws Exception {
+    static void creerListes(Formulaire f, List<AtahinaChampHelper> defs) throws Exception {
         List<Liste> listes = new ArrayList<Liste>();
-        for (AtahinaChamp d : defs) {
+        for (AtahinaChampHelper d : defs) {
             if (d.aUneListe()) listes.add(d.creerListe());
         }
         if (!listes.isEmpty()) f.changerEnChamp(listes.toArray(new Liste[0]));
     }
 
-    static void appliquer(Formulaire f, List<AtahinaChamp> defs, String ecran) {
+    static void appliquer(Formulaire f, List<AtahinaChampHelper> defs, String ecran) {
         Set<String> declares = new HashSet<String>();
         String[] ordre = new String[defs.size()];
         int i = 0;
-        for (AtahinaChamp d : defs) {
+        for (AtahinaChampHelper d : defs) {
             Champ c = f.getChamp(d.nom);
             if (c == null) {
                 throw new IllegalArgumentException("Champ '" + d.nom + "' inconnu dans " + ecran);
@@ -48,9 +48,9 @@ final class AtahinaFormulaire {
         f.setOrdre(ordre);
     }
 
-    static List<AtahinaChamp> liste(AtahinaChamp... defs) {
-        List<AtahinaChamp> l = new ArrayList<AtahinaChamp>();
-        for (AtahinaChamp d : defs) l.add(d);
+    static List<AtahinaChampHelper> liste(AtahinaChampHelper... defs) {
+        List<AtahinaChampHelper> l = new ArrayList<AtahinaChampHelper>();
+        for (AtahinaChampHelper d : defs) l.add(d);
         return l;
     }
 }
