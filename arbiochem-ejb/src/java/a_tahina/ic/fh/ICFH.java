@@ -7,7 +7,7 @@ import javax.servlet.http.HttpSession;
 
 import a_tahina.br.fh.BRFH;
 import a_tahina.br.orm.BonReceptionPoussin;
-import a_tahina.calendrier.CalendrierAbstrait;
+import a_tahina.calendrier.Calendrier;
 import a_tahina.compartiment.orm.Compartiment;
 import a_tahina.core.GeneraticFH;
 import a_tahina.core.page.AtahinaChamp;
@@ -125,7 +125,7 @@ public class ICFH extends GeneraticFH {
     }
 
     @Override
-    public CalendrierAbstrait getCalendrier(HttpServletRequest request,
+    public Calendrier<?> getCalendrier(HttpServletRequest request,
                                             HttpSession session) throws Exception {
         throw nonSupporte("getCalendrier");
     }

@@ -9,7 +9,7 @@ import a_tahina.bc.fh.BCmdFH;
 import a_tahina.bc.orm.BonCommandePoussinFilleLib;
 import a_tahina.br.orm.BonReceptionPoussin;
 import a_tahina.br.orm.BonReceptionPoussinLib;
-import a_tahina.calendrier.CalendrierAbstrait;
+import a_tahina.calendrier.Calendrier;
 import a_tahina.core.GeneraticFH;
 import a_tahina.core.page.AtahinaChamp;
 import a_tahina.core.page.AtahinaPageConsulte;
@@ -119,7 +119,7 @@ public class BRFH extends GeneraticFH {
     }
 
     @Override
-    public CalendrierAbstrait getCalendrier(HttpServletRequest request,
+    public Calendrier<?> getCalendrier(HttpServletRequest request,
                                             HttpSession session) throws Exception {
         throw nonSupporte("getCalendrier");
     }

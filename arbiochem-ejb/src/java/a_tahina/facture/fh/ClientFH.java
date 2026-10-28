@@ -5,7 +5,7 @@ import static a_tahina.core.page.AtahinaChamp.champ;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import a_tahina.calendrier.CalendrierAbstrait;
+import a_tahina.calendrier.Calendrier;
 import a_tahina.core.GeneraticFH;
 import a_tahina.core.page.AtahinaPageInsertMultiple;
 import a_tahina.facture.orm.AthClient;
@@ -93,7 +93,7 @@ public class ClientFH extends GeneraticFH {
     }
 
     @Override
-    public CalendrierAbstrait getCalendrier(HttpServletRequest request,
+    public Calendrier<?> getCalendrier(HttpServletRequest request,
                                             HttpSession session) throws Exception {
         throw nonSupporte("getCalendrier");
     }

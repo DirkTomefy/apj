@@ -3,7 +3,7 @@ package a_tahina.core;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import a_tahina.calendrier.CalendrierAbstrait;
+import a_tahina.calendrier.Calendrier;
 import a_tahina.core.page.AtahinaChamp;
 import a_tahina.core.page.AtahinaPageConsulte;
 import a_tahina.core.page.AtahinaPageInsert;
@@ -25,7 +25,7 @@ public abstract class GeneraticFH {
     public abstract AtahinaPageConsulte getPageConsulte(HttpServletRequest request,
                                                         HttpSession session) throws Exception;
 
-    public abstract CalendrierAbstrait getCalendrier(HttpServletRequest request,
+    public abstract Calendrier<?> getCalendrier(HttpServletRequest request,
                                                      HttpSession session) throws Exception;
 
     public abstract AtahinaPageRecherche getPageRechercheForList(HttpServletRequest request,
