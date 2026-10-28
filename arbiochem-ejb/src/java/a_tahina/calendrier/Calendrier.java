@@ -15,20 +15,6 @@ import javax.servlet.http.HttpServletRequest;
 import bean.CGenUtil;
 import bean.ClassMAPTable;
 
-/**
- * Calendrier annuel (31 lignes x 12 mois) alimente par une table ou une vue, une ligne par jour.
- *
- * Une sous-classe ne fait que declarer :
- * <pre>
- *   titre("Prevision");
- *   valeur(Jour::getCumul);                         // nombre affiche dans la case
- *   total("NAISSANCES", Jour::getPoussins);         // ligne de total du mois
- *   indicateur("CA", Jour::getCa);                  // ligne de pied supplementaire
- *   indicateurSigne("BENEFICE", Jour::getBenefice); // idem, colore positif / negatif
- *   style("cal-perte", "Perte declaree", j -> j.getPertes() > 0);   // 1re regle vraie = classe CSS
- * </pre>
- * Les couleurs sont dans assets/css/a_tahina/calendrier.css.
- */
 public abstract class Calendrier<T extends ClassMAPTable> {
 
     private static final DateTimeFormatter FORMAT_APJ = DateTimeFormatter.ofPattern("dd/MM/yyyy");
