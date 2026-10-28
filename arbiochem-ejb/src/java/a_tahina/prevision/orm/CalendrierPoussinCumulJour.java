@@ -11,6 +11,16 @@ public class CalendrierPoussinCumulJour extends ClassMAPTable {
     private double cout;
     private double benefice;
     private double poussinscumules;
+    private double poussinsmales;
+    private double poussinsfemelles;
+    private double naissancescumulees;
+    private double malesnescumules;
+    private double femellesneescumulees;
+    private double pertescumulees;
+    private double pertesmalescumulees;
+    private double pertesfemellescumulees;
+    private double malescumules;
+    private double femellescumulees;
 
     public CalendrierPoussinCumulJour() throws Exception {
         super();
@@ -40,4 +50,34 @@ public class CalendrierPoussinCumulJour extends ClassMAPTable {
 
     public double getPoussinscumules()           { return poussinscumules; }
     public void   setPoussinscumules(double v)   { this.poussinscumules = v; }
+
+    public double getPoussinsmales() { return poussinsmales; }
+    public void   setPoussinsmales(double v) { this.poussinsmales = v; }
+
+    public double getPoussinsfemelles() { return poussinsfemelles; }
+    public void   setPoussinsfemelles(double v) { this.poussinsfemelles = v; }
+
+    public double getNaissancescumulees() { return naissancescumulees; }
+    public void   setNaissancescumulees(double v) { this.naissancescumulees = v; }
+
+    public double getMalesnescumules() { return malesnescumules; }
+    public void   setMalesnescumules(double v) { this.malesnescumules = v; }
+
+    public double getFemellesneescumulees() { return femellesneescumulees; }
+    public void   setFemellesneescumulees(double v) { this.femellesneescumulees = v; }
+
+    public double getPertescumulees() { return pertescumulees; }
+    public void   setPertescumulees(double v) { this.pertescumulees = v; }
+
+    public double getPertesmalescumulees() { return pertesmalescumulees; }
+    public void   setPertesmalescumulees(double v) { this.pertesmalescumulees = v; }
+
+    public double getPertesfemellescumulees() { return pertesfemellescumulees; }
+    public void   setPertesfemellescumulees(double v) { this.pertesfemellescumulees = v; }
+
+    public double getMalescumules() { return malescumules; }
+    public void   setMalescumules(double v) { this.malescumules = v; }
+
+    public double getFemellescumulees() { return femellescumulees; }
+    public void   setFemellescumulees(double v) { this.femellescumulees = v; }
 }

@@ -8,10 +8,15 @@ SET DEFINE OFF
 -- Pour les recreer : decommenter le DDL en bas de ce fichier (copie de la base).
 -- ============================================================
 
-DROP VIEW V_CAL_GEN2_HENS;
-DROP VIEW V_CAL_GEN1_PONTE_DETAIL;
-DROP VIEW V_CAL_GEN1_HENS;
-DROP VIEW V_CAL_PONTE_JOUR_DETAIL;
+-- chaque DROP ignore la vue absente (ORA-00942) : le script passe sur n'importe quelle base
+BEGIN EXECUTE IMMEDIATE 'DROP VIEW V_CAL_GEN2_HENS';          EXCEPTION WHEN OTHERS THEN IF SQLCODE <> -942 THEN RAISE; END IF; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP VIEW V_CAL_GEN1_PONTE_DETAIL';  EXCEPTION WHEN OTHERS THEN IF SQLCODE <> -942 THEN RAISE; END IF; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP VIEW V_CAL_GEN1_HENS';          EXCEPTION WHEN OTHERS THEN IF SQLCODE <> -942 THEN RAISE; END IF; END;
+/
+BEGIN EXECUTE IMMEDIATE 'DROP VIEW V_CAL_PONTE_JOUR_DETAIL';  EXCEPTION WHEN OTHERS THEN IF SQLCODE <> -942 THEN RAISE; END IF; END;
+/
 
 -- ============================================================
 -- RECREATION (DDL copie de la base le 28/10/2026, dans l'ordre de creation)

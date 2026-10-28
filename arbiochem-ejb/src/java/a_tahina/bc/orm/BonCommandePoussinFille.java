@@ -13,13 +13,6 @@ public class BonCommandePoussinFille extends ClassFille {
     private double pu;
     private String fournisseur;
 
-    // Champs joints (lecture seule)
-    private String produitlib;
-    private String souchelibr;
-    private double montant;
-    private String idproduitlib;
-    private String fournisseurlib;
-
     public BonCommandePoussinFille() throws Exception {
         this.setNomTable("BONCOMMANDE_POUSSIN_FILLE");
         this.setNomClasseMere("a_tahina.bc.orm.BonCommandePoussin");
@@ -56,19 +49,4 @@ public class BonCommandePoussinFille extends ClassFille {
 
     public String getFournisseur() { return fournisseur; }
     public void setFournisseur(String fournisseur) { this.fournisseur = fournisseur; }
-
-    public String getProduitlib() { return produitlib; }
-    public void setProduitlib(String produitlib) { this.produitlib = produitlib; }
-
-    public String getSouchelibr() { return souchelibr; }
-    public void setSouchelibr(String souchelibr) { this.souchelibr = souchelibr; }
-
-    public double getMontant() { return montant; }
-    public void setMontant(double montant) { this.montant = montant; }
-
-    public String getIdproduitlib() { return idproduitlib; }
-    public void setIdproduitlib(String idproduitlib) { this.idproduitlib = idproduitlib; }
-
-    public String getFournisseurlib() { return fournisseurlib; }
-    public void setFournisseurlib(String fournisseurlib) { this.fournisseurlib = fournisseurlib; }
 }

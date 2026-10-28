@@ -9,7 +9,7 @@ PROMPT ============================================================
 -- ============================================================================
 -- 1. Renommage des colonnes
 -- ============================================================================
-PROMPT --- Renommage des colonnes ---
+PROMPT >> Renommage des colonnes
 
 -- BONRECEPTION_POUSSIN.QT_AVANT_CUMULE -> QTAVANTCUMULE
 BEGIN
@@ -17,7 +17,7 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('QT_AVANT_CUMULE -> QTAVANTCUMULE : OK');
 EXCEPTION
     WHEN OTHERS THEN
-        IF SQLCODE = -904 OR SQLCODE = -1430 THEN DBMS_OUTPUT.PUT_LINE('QT_AVANT_CUMULE : skip');
+        IF SQLCODE IN (-904, -957, -1430) THEN DBMS_OUTPUT.PUT_LINE('QT_AVANT_CUMULE : skip');
         ELSE RAISE;
         END IF;
 END;
@@ -29,7 +29,7 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('QT_APRES_CUMULE -> QTAPRESCUMULE : OK');
 EXCEPTION
     WHEN OTHERS THEN
-        IF SQLCODE = -904 OR SQLCODE = -1430 THEN DBMS_OUTPUT.PUT_LINE('QT_APRES_CUMULE : skip');
+        IF SQLCODE IN (-904, -957, -1430) THEN DBMS_OUTPUT.PUT_LINE('QT_APRES_CUMULE : skip');
         ELSE RAISE;
         END IF;
 END;
@@ -41,7 +41,7 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('QTE_MATY -> QTEMATY : OK');
 EXCEPTION
     WHEN OTHERS THEN
-        IF SQLCODE = -904 OR SQLCODE = -1430 THEN DBMS_OUTPUT.PUT_LINE('QTE_MATY : skip');
+        IF SQLCODE IN (-904, -957, -1430) THEN DBMS_OUTPUT.PUT_LINE('QTE_MATY : skip');
         ELSE RAISE;
         END IF;
 END;
@@ -53,7 +53,7 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('QTE_VERY -> QTEVERY : OK');
 EXCEPTION
     WHEN OTHERS THEN
-        IF SQLCODE = -904 OR SQLCODE = -1430 THEN DBMS_OUTPUT.PUT_LINE('QTE_VERY : skip');
+        IF SQLCODE IN (-904, -957, -1430) THEN DBMS_OUTPUT.PUT_LINE('QTE_VERY : skip');
         ELSE RAISE;
         END IF;
 END;
@@ -65,7 +65,7 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('NB_JOUR -> NBJOUR : OK');
 EXCEPTION
     WHEN OTHERS THEN
-        IF SQLCODE = -904 OR SQLCODE = -1430 THEN DBMS_OUTPUT.PUT_LINE('NB_JOUR : skip');
+        IF SQLCODE IN (-904, -957, -1430) THEN DBMS_OUTPUT.PUT_LINE('NB_JOUR : skip');
         ELSE RAISE;
         END IF;
 END;
@@ -76,7 +76,7 @@ COMMIT;
 -- ============================================================================
 -- 2. Drop des vues (elles sont INVALID apres renommage)
 -- ============================================================================
-PROMPT --- Drop des vues ---
+PROMPT >> Drop des vues
 
 BEGIN EXECUTE IMMEDIATE 'DROP VIEW BONRECEPTION_POUSSIN_LIB'; EXCEPTION WHEN OTHERS THEN NULL; END;
 /
@@ -91,7 +91,7 @@ PROMPT Vues droppees.
 -- ============================================================================
 -- 3. Recreation BONRECEPTION_POUSSIN_LIB
 -- ============================================================================
-PROMPT --- Recreation BONRECEPTION_POUSSIN_LIB ---
+PROMPT >> Recreation BONRECEPTION_POUSSIN_LIB
 
 CREATE OR REPLACE VIEW BONRECEPTION_POUSSIN_LIB AS
 SELECT brp.ID,
@@ -137,7 +137,7 @@ PROMPT BONRECEPTION_POUSSIN_LIB : OK
 -- ============================================================================
 -- 4. Recreation LOT_LIB
 -- ============================================================================
-PROMPT --- Recreation LOT_LIB ---
+PROMPT >> Recreation LOT_LIB
 
 CREATE OR REPLACE VIEW LOT_LIB AS
 SELECT l.ID,
@@ -180,7 +180,7 @@ PROMPT LOT_LIB : OK
 -- ============================================================================
 -- 5. Recreation CONFIG_PREVISION_LIB (si elle existait)
 -- ============================================================================
-PROMPT --- Recreation CONFIG_PREVISION_LIB ---
+PROMPT >> Recreation CONFIG_PREVISION_LIB
 
 CREATE OR REPLACE VIEW CONFIG_PREVISION_LIB AS
 SELECT cp.ID,
@@ -196,7 +196,7 @@ PROMPT CONFIG_PREVISION_LIB : OK
 -- ============================================================================
 -- 6. Recreation CALENDRIER_POUSSIN_RAW
 -- ============================================================================
-PROMPT --- Recreation CALENDRIER_POUSSIN_RAW ---
+PROMPT >> Recreation CALENDRIER_POUSSIN_RAW
 
 CREATE OR REPLACE VIEW CALENDRIER_POUSSIN_RAW AS
 WITH date_bounds AS (
@@ -274,27 +274,27 @@ PROMPT ============================================================
 PROMPT VERIFICATION
 PROMPT ============================================================
 
-PROMPT --- Colonnes avec underscore restantes (doit etre vide) ---
+PROMPT >> Colonnes avec underscore restantes (doit etre vide)
 SELECT table_name, column_name
 FROM   user_tab_columns
 WHERE  table_name IN ('BONRECEPTION_POUSSIN', 'LOT', 'DECL_PERTE_LOT', 'CONFIG_PREVISION')
   AND  column_name LIKE '%\_%' ESCAPE '\'
 ORDER  BY table_name, column_name;
 
-PROMPT --- Statut des vues ---
+PROMPT >> Statut des vues
 SELECT object_name, object_type, status
 FROM   user_objects
 WHERE  object_name IN ('BONRECEPTION_POUSSIN_LIB', 'LOT_LIB',
                        'CONFIG_PREVISION_LIB', 'CALENDRIER_POUSSIN_RAW')
 ORDER  BY object_name;
 
-PROMPT --- Erreurs de compilation (doit etre vide) ---
+PROMPT >> Erreurs de compilation (doit etre vide)
 SELECT name, line, position, text
 FROM   user_errors
 WHERE  name IN ('BONRECEPTION_POUSSIN_LIB', 'LOT_LIB',
                 'CONFIG_PREVISION_LIB', 'CALENDRIER_POUSSIN_RAW');
 
-PROMPT --- Verification finale : les colonnes critiques ---
+PROMPT >> Verification finale : les colonnes critiques
 PROMPT BONRECEPTION_POUSSIN
 SELECT column_name
 FROM   user_tab_columns

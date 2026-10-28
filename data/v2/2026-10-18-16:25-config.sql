@@ -100,17 +100,17 @@ PROMPT ============================================================
 PROMPT VERIFICATION
 PROMPT ============================================================
 
-PROMPT --- Comptage total ---
+PROMPT >> Comptage total
 SELECT COUNT(*) AS nb_lignes FROM CONFIG_PREVISION WHERE IDSOUCHE = 'SOUCHE001';
 
-PROMPT --- Semaines cles (1, 19, 20, 21, 22, 72) ---
+PROMPT >> Semaines cles (1, 19, 20, 21, 22, 72)
 SELECT semaine, nb_jour
 FROM   CONFIG_PREVISION
 WHERE  idsouche = 'SOUCHE001'
   AND  semaine IN (1, 19, 20, 21, 22, 72)
 ORDER  BY semaine;
 
-PROMPT --- Somme totale de NB_JOUR (doit etre = 52) ---
+PROMPT >> Somme totale de NB_JOUR (doit etre = 52)
 SELECT SUM(nb_jour) AS total_oeufs_jour_cumules
 FROM   CONFIG_PREVISION
 WHERE  idsouche = 'SOUCHE001';

@@ -21,10 +21,6 @@ public class InsertionCompartimentFille extends ClassFille {
     private String sexe;
     private String idsante;
 
-    private String compartimentlib;
-    private String sexelib;
-    private String santelib;
-
     public InsertionCompartimentFille() throws Exception {
         this.setNomTable("INSERTION_COMPARTIMENT_FILLE");
         this.setNomClasseMere("a_tahina.ic.orm.InsertionCompartiment");
@@ -121,10 +117,4 @@ public class InsertionCompartimentFille extends ClassFille {
     public void setSexe(String sexe) { this.sexe = sexe; }
     public String getIdsante() { return idsante; }
     public void setIdsante(String v) { this.idsante = v; }
-    public String getCompartimentlib() { return compartimentlib; }
-    public void setCompartimentlib(String v) { this.compartimentlib = v; }
-    public String getSexelib() { return sexelib; }
-    public void setSexelib(String v) { this.sexelib = v; }
-    public String getSantelib() { return santelib; }
-    public void setSantelib(String v) { this.santelib = v; }
 }

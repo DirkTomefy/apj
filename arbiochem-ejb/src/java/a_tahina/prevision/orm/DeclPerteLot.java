@@ -13,6 +13,8 @@ public class DeclPerteLot extends ClassMAPTable {
     private double qteMort;
     private double qteVery;
     private java.sql.Date daty;
+    private String reference;
+    private String remarque;
 
     public DeclPerteLot() throws Exception {
         super();
@@ -63,4 +65,8 @@ public class DeclPerteLot extends ClassMAPTable {
     public void   setQteVery(double v)       { this.qteVery = v; }
     public java.sql.Date getDaty()           { return daty; }
     public void   setDaty(java.sql.Date v)   { this.daty = v; }
+    public String getReference()             { return reference; }
+    public void   setReference(String v)     { this.reference = v; }
+    public String getRemarque()              { return remarque; }
+    public void   setRemarque(String v)      { this.remarque = v; }
 }

@@ -4,6 +4,8 @@
 --  Date : 2026-10-10
 -- ============================================================================
 
+SET DEFINE OFF
+SET SQLBLANKLINES ON
 SET SERVEROUTPUT ON;
 
 -- ============================================================================
@@ -168,8 +170,8 @@ CREATE TABLE BONRECEPTION_POUSSIN (
     idlieureception    VARCHAR2(30),
     idmagasin          VARCHAR2(30),
     etat               NUMBER(2) DEFAULT 1,
-    qt_avant_cumule    NUMBER(15,2),
-    qt_apres_cumule    NUMBER(15,2),
+    qtavantcumule      NUMBER(15,2),
+    qtaprescumule      NUMBER(15,2),
     maty               NUMBER(15,2) DEFAULT 0,
     very               NUMBER(15,2) DEFAULT 0,
     remarque           VARCHAR2(500)
@@ -203,13 +205,13 @@ CREATE TABLE LOT (
     idbonreception        VARCHAR2(30),
     idproduit             VARCHAR2(30),
     idsouche              VARCHAR2(50),
-    qte                   NUMBER(15,2),
+    qteinit               NUMBER(15,2),
     pu                    NUMBER(15,2),
     sexe                  VARCHAR2(10),
     idsante               VARCHAR2(30),
     idinsertcompfille     VARCHAR2(30),
     idboncommande         VARCHAR2(30),
-    qte_actuelle          NUMBER(15,2)
+    qteactuelle           NUMBER(15,2)
 );
 
 -- ============================================================================
@@ -241,10 +243,10 @@ ALTER TABLE INSERTION_COMPARTIMENT_FILLE
     ADD CONSTRAINT ck_icf_sexe CHECK (sexe IN ('0','1'));
 
 ALTER TABLE LOT
-    ADD CONSTRAINT ck_lot_qte CHECK (qte >= 0 AND pu >= 0);
+    ADD CONSTRAINT ck_lot_qteinit CHECK (qteinit >= 0 AND pu >= 0);
 
 ALTER TABLE LOT
-    ADD CONSTRAINT ck_lot_qte_actuelle CHECK (qte_actuelle >= 0);
+    ADD CONSTRAINT ck_lot_qteactuelle CHECK (qteactuelle >= 0);
 
 -- ============================================================================
 -- 6. CLÉS ÉTRANGÈRES
@@ -400,7 +402,7 @@ CREATE OR REPLACE VIEW BONRECEPTION_POUSSIN_LIB AS
 SELECT brp.id, brp.daty, brp.reference,
        brp.idboncommande, brp.idboncommandefille, brp.idbrprecedent,
        brp.idlieureception, brp.idmagasin, brp.etat,
-       brp.qt_avant_cumule, brp.qt_apres_cumule,
+       brp.qtavantcumule, brp.qtaprescumule,
        brp.maty, brp.very, brp.remarque,
        bc.reference     AS idboncommandelib,
        bcf.idproduit    AS idboncommandefilleproduit,
@@ -458,8 +460,8 @@ LEFT JOIN SANTEPOUSSIN sp ON sp.id = icf.idsante;
 -- Vue LOT
 CREATE OR REPLACE VIEW LOT_LIB AS
 SELECT l.id, l.idbonreception, l.idproduit, l.idsouche,
-       l.qte, l.pu, l.sexe, l.idsante,
-       l.idinsertcompfille, l.idboncommande, l.qte_actuelle,
+       l.qteinit, l.pu, l.sexe, l.idsante,
+       l.idinsertcompfille, l.idboncommande, l.qteactuelle,
        brp.reference  AS idbonreceptionlib,
        bc.reference   AS idboncommandelib,
        i.libelle      AS produitlib,
@@ -467,10 +469,10 @@ SELECT l.id, l.idbonreception, l.idproduit, l.idsouche,
        sp.val         AS santelib,
        sx.val         AS sexelib,
        c.nom          AS compartimentlib,
-       (l.qte * l.pu) AS valeurTotale,
+       (l.qteinit * l.pu) AS valeurTotale,
        CASE
-            WHEN l.qte > 0
-            THEN l.pu * (l.qte / l.qte_actuelle)
+            WHEN l.qteinit > 0 AND l.qteactuelle > 0
+            THEN l.pu * (l.qteinit / l.qteactuelle)
             ELSE 0
        END AS valeurUnitaire
 FROM LOT l
