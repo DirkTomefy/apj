@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>APJ — Documentation du framework</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="top">
+  <button id="burger" aria-label="Menu">☰</button>
+  <div class="logo">APJ Framework<small>Documentation API &amp; guide</small></div>
+  <nav class="tabs">
+    <a href="#/home" data-t="home">Aperçu</a>
+    <a href="#/guide/architecture" data-t="guide">Guide</a>
+    <a href="#/api" data-t="api">API</a>
+    <a href="#/guide/flux-carton" data-t="flux">Exemple Carton</a>
+    <a href="#/tree" data-t="tree">Arborescence</a>
+    <a href="#/index" data-t="index">Index A–Z</a>
+  </nav>
+  <div class="search"><input id="q" type="search" placeholder="Rechercher classe / méthode ( / )" autocomplete="off"><div id="sres"></div></div>
+  <button id="theme" title="Thème clair/sombre">◐</button>
+</header>
+<div class="wrap">
+  <aside id="side"></aside>
+  <main id="main"></main>
+</div>
+<script src="js/data-api.js"></script>
+<script src="js/data-guide.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
