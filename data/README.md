@@ -10,11 +10,11 @@
 ## Ordre de l'historique (base deja installee ou installation pas a pas)
 
 ```
-v1/            init, addfournisseur, menu, etat, situationcomp
+v1/            init, addfournisseur, role-et-utilisateur, menu, etat, situationcomp
 v2/            init, config, rename_date_eclosion, fix_view_eclosion, fix_all_columns,
                ratio_femmelle, view-1, view-2, fix_bon_reception_souche,
                migration_decl_perte_lot, calendrier_poussin_vues_v2
-v2-fix/        01-parametres, 02-vues-calendrier, 03-nettoyage-optionnel, 05-index-et-cle-etrangere
+v2-fix/        01-parametres, 02-vues-calendrier, 03-nettoyage-optionnel, 05-index-et-cle-etrangere, 06-menu-prevision
                (04-verification : controle seulement)
 v3/            facture_avoir, menu_facture_avoir, menu_avoir_saisie
 ```

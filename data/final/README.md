@@ -19,7 +19,7 @@ Ensuite : **redemarrer WildFly** (menus et roles sont mis en cache).
 | Fichier | Role |
 |---|---|
 | `final.sql` | installation complete (s'arrete a la premiere erreur) |
-| `drop.sql` | desinstalle le module **et ses donnees** (garde `ETAT` et les colonnes de `SOUCHE`) |
+| `drop.sql` | desinstalle le module **et ses donnees** (garde `ETAT`, les colonnes de `SOUCHE`, le role `resp` et les utilisateurs) |
 | `exemple-facture.sql` | facultatif : un client a 40 %, deux produits |
 | `correctifs-base-existante.sql` | seulement pour une base deja installee par les anciens scripts |
 
@@ -29,10 +29,25 @@ message clair (`Deja installe`).
 ## Prerequis (controles au debut de `final.sql`)
 
 Tables de l'application de base : `SEXE`, `MAGASIN2`, `AS_INGREDIENTS`, `FOURNISSEUR`, `SOUCHE`,
-`MENUDYNAMIQUE`, `USERMENU` et la sequence `SEQUSERMENU`. Il manque un objet : le script le dit et
+`MENUDYNAMIQUE`, `USERMENU`, `ROLES`, `UTILISATEUR`, `UTILISATEURVALIDE`, `PARAMCRYPT`, les sequences
+`SEQUSERMENU`, `SEQ_UTILISATEUR` et la fonction `GETSEQPARAMCRYPT`. Il manque un objet : le script le dit et
 s'arrete avant de creer quoi que ce soit.
 
-Le role `resp` doit exister pour voir les menus (`docs/10-menu.md`).
+## Connexion apres l'installation
+
+`final.sql` cree, s'ils n'existent pas, le role **`resp`** (rang 6), l'utilisateur et sa ligne de
+chiffrement :
+
+| Login | Mot de passe a saisir | Role |
+|---|---|---|
+| `resp` | `Resp2026` | `resp` |
+
+**Changer le mot de passe** apres la premiere connexion. L'application ne stocke pas le mot de passe
+saisi : elle le chiffre avec la ligne `PARAMCRYPT` de l'utilisateur (niveau 4, sens 1) et compare
+avec `UTILISATEUR.PWDUSER` (`naol2022` ici). Sans ligne `PARAMCRYPT`, la connexion echoue
+(« Pas de cryptage associe »). Pour un autre login ou mot de passe, modifier la section 7 de
+`final.sql` avant l'import, ou le changer depuis l'application. Le role `resp` voit les menus
+Poussins, Prevision poussin et Facturation.
 
 ## Ce que le script fait de particulier
 
@@ -45,7 +60,7 @@ Le role `resp` doit exister pour voir les menus (`docs/10-menu.md`).
 - Compartiments PARQUET1 a PARQUET4 : a adapter a la ferme.
 - Les constantes du calendrier (horizon, valeurs par defaut d'une souche) sont dans la vue
   `V_CAL_PARAM` ; les regles de calcul sont decrites en tete de la section des vues.
-- Le menu est insere sans doublon (`WHERE NOT EXISTS`), avec `SET DEFINE OFF` pour que `&eacute;`
+- Le menu (Poussins, Prevision poussin, Facturation) est insere sans doublon (`WHERE NOT EXISTS`), avec `SET DEFINE OFF` pour que `&eacute;`
   reste intact.
 
 ## Verification faite

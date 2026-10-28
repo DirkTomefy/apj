@@ -21,9 +21,12 @@
 --  CONTENU
 --    0. controle des prerequis      5. vues (libelles, calendrier, facture)
 --    1. colonnes ajoutees a SOUCHE  6. donnees de reference
---    2. sequences + fonctions       7. menu + droits
---    3. tables et contraintes       8. verification
---    4. index
+--    2. sequences + fonctions       7. role et utilisateur "resp"
+--    3. tables et contraintes       8. menu + droits
+--    4. index                       9. verification
+--
+--  CONNEXION APRES INSTALLATION : login  resp  /  mot de passe  Resp2026
+--  (mot de passe initial a changer apres la premiere connexion).
 -- ============================================================================
 SET DEFINE OFF
 SET SQLBLANKLINES ON
@@ -52,10 +55,22 @@ BEGIN
     exiger('SOUCHE',         'id, val');
     exiger('MENUDYNAMIQUE',  'id, libelle, icone, href, rang, niveau, id_pere');
     exiger('USERMENU',       'id, idmenu, idrole, interdit');
+    exiger('ROLES',          'idrole, descrole, rang');
+    exiger('UTILISATEUR',    'refuser, loginuser, pwduser, nomuser, adruser, teluser, idrole');
+    exiger('UTILISATEURVALIDE', 'refuser, loginuser, pwduser, idrole');
+    exiger('PARAMCRYPT',     'id, niveau, croissante, idutilisateur');
 
     SELECT COUNT(*) INTO n FROM user_sequences WHERE sequence_name = 'SEQUSERMENU';
     IF n = 0 THEN
         RAISE_APPLICATION_ERROR(-20001, 'Prerequis manquant : sequence SEQUSERMENU');
+    END IF;
+    SELECT COUNT(*) INTO n FROM user_sequences WHERE sequence_name = 'SEQ_UTILISATEUR';
+    IF n = 0 THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Prerequis manquant : sequence SEQ_UTILISATEUR');
+    END IF;
+    SELECT COUNT(*) INTO n FROM user_objects WHERE object_name = 'GETSEQPARAMCRYPT' AND object_type = 'FUNCTION';
+    IF n = 0 THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Prerequis manquant : fonction GETSEQPARAMCRYPT');
     END IF;
 
     -- l'installation ne doit pas etre lancee deux fois
@@ -1222,10 +1237,41 @@ WHERE  s.id = 'SOUCHE001';
 COMMIT;
 
 -- ============================================================================
--- 7. MENU (Poussins et Facturation) + droits du role "resp"
+-- 7. ROLE ET UTILISATEUR "resp" (crees seulement s'ils n'existent pas)
+-- ============================================================================
+-- Le role "resp" donne acces aux menus Poussins, Prevision et Facturation (section 8).
+--
+-- Compte de connexion : login  resp  /  mot de passe a saisir  Resp2026
+-- A CHANGER apres la premiere connexion (administration des utilisateurs de l'application).
+--
+-- L'application ne stocke pas le mot de passe saisi : elle le chiffre avec les parametres de
+-- PARAMCRYPT (une ligne par utilisateur : niveau, sens) et compare avec UTILISATEUR.PWDUSER.
+-- Ici niveau = 4, sens = 1 (comme les autres utilisateurs) : "Resp2026" est stocke "naol2022".
+-- Pour un autre mot de passe : le changer depuis l'application (elle chiffre toute seule), ou
+-- calculer la valeur avec Utilitaire.cryptWord(mot, 4, 1) puis remplacer 'naol2022' ci-dessous.
+
+INSERT INTO ROLES (IDROLE, DESCROLE, RANG)
+SELECT 'resp', 'MR TAHINA', 6
+FROM dual WHERE NOT EXISTS (SELECT 1 FROM ROLES WHERE IDROLE = 'resp');
+
+INSERT INTO UTILISATEUR (REFUSER, LOGINUSER, PWDUSER, NOMUSER, ADRUSER, TELUSER, IDROLE)
+SELECT SEQ_UTILISATEUR.NEXTVAL, 'resp', 'naol2022', 'Responsable poussin et facturation', NULL, NULL, 'resp'
+FROM dual WHERE NOT EXISTS (SELECT 1 FROM UTILISATEUR WHERE LOGINUSER = 'resp');
+
+-- sans cette ligne la connexion echoue ("Pas de cryptage associe")
+INSERT INTO PARAMCRYPT (ID, NIVEAU, CROISSANTE, IDUTILISATEUR)
+SELECT 'CRY' || LPAD(GETSEQPARAMCRYPT, 6, '0'), 4, 1, TO_CHAR(u.REFUSER)
+FROM   UTILISATEUR u
+WHERE  u.LOGINUSER = 'resp'
+  AND  NOT EXISTS (SELECT 1 FROM PARAMCRYPT p WHERE p.IDUTILISATEUR = TO_CHAR(u.REFUSER));
+
+COMMIT;
+
+-- ============================================================================
+-- 8. MENU (Poussins, Prevision, Facturation) + droits du role "resp"
 -- ============================================================================
 -- Les roles et menus sont mis en cache : redemarrer WildFly apres l'import.
--- Si le role "resp" n'existe pas : voir docs/10-menu.md (INSERT INTO roles ...).
+-- Le role "resp" est cree a la section 7.
 
 INSERT INTO MENUDYNAMIQUE (ID, LIBELLE, ICONE, HREF, RANG, NIVEAU, ID_PERE)
 SELECT 'MENUATHFACT', 'Facturation', 'receipt_long',
@@ -1371,6 +1417,12 @@ SELECT 'MENUPOUSSON_IC_LIST', 'Liste des IC', 'list',
        2, 3, 'MENUPOUSSON_IC'
 FROM dual WHERE NOT EXISTS (SELECT 1 FROM MENUDYNAMIQUE WHERE ID = 'MENUPOUSSON_IC_LIST');
 
+INSERT INTO MENUDYNAMIQUE (ID, LIBELLE, ICONE, HREF, RANG, NIVEAU, ID_PERE)
+SELECT 'MENU_PREVISION_POUSSIN', 'Prevision poussin', 'egg_alt',
+       'module.jsp?but=a_tahina/v1/prevision/prevision-poussin.jsp',
+       1, 1, NULL
+FROM dual WHERE NOT EXISTS (SELECT 1 FROM MENUDYNAMIQUE WHERE ID = 'MENU_PREVISION_POUSSIN');
+
 INSERT INTO USERMENU (ID, IDMENU, IDROLE, INTERDIT)
 SELECT sequsermenu.NEXTVAL, 'MENUATHFACT', 'resp', 0
 FROM dual WHERE NOT EXISTS (SELECT 1 FROM USERMENU WHERE IDMENU = 'MENUATHFACT' AND IDROLE = 'resp');
@@ -1467,10 +1519,14 @@ INSERT INTO USERMENU (ID, IDMENU, IDROLE, INTERDIT)
 SELECT sequsermenu.NEXTVAL, 'MENUPOUSSON_SITUCOMP', 'resp', 0
 FROM dual WHERE NOT EXISTS (SELECT 1 FROM USERMENU WHERE IDMENU = 'MENUPOUSSON_SITUCOMP' AND IDROLE = 'resp');
 
+INSERT INTO USERMENU (ID, IDMENU, IDROLE, INTERDIT)
+SELECT sequsermenu.NEXTVAL, 'MENU_PREVISION_POUSSIN', 'resp', 0
+FROM dual WHERE NOT EXISTS (SELECT 1 FROM USERMENU WHERE IDMENU = 'MENU_PREVISION_POUSSIN' AND IDROLE = 'resp');
+
 COMMIT;
 
 -- ============================================================================
--- 8. VERIFICATION
+-- 9. VERIFICATION
 -- ============================================================================
 PROMPT >> Objets du module invalides (doit etre vide)
 SELECT object_type, object_name
@@ -1497,7 +1553,10 @@ GROUP  BY object_type
 ORDER  BY object_type;
 
 PROMPT >> Menus installes
-SELECT COUNT(*) AS nb_menus FROM MENUDYNAMIQUE WHERE id LIKE 'MENUPOUSSON%' OR id LIKE 'MENUATHFACT%';
+SELECT COUNT(*) AS nb_menus FROM MENUDYNAMIQUE WHERE id LIKE 'MENUPOUSSON%' OR id LIKE 'MENUATHFACT%' OR id = 'MENU_PREVISION_POUSSIN';
 
-PROMPT Installation terminee. Redemarrer WildFly.
+PROMPT >> Compte de connexion
+SELECT loginuser, idrole FROM UTILISATEUR WHERE loginuser = 'resp';
+
+PROMPT Installation terminee. Redemarrer WildFly, puis se connecter avec resp / Resp2026.
 

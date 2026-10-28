@@ -5,7 +5,7 @@
 --  (bons de commande / reception, lots, pertes, clients, factures, avoirs...).
 --
 --  Ne touche PAS aux objets de l'application de base, ni a la table ETAT (partagee),
---  ni aux colonnes ajoutees a SOUCHE.
+--  ni aux colonnes ajoutees a SOUCHE, ni au role "resp" et a ses utilisateurs.
 --
 --  Usage : ./import_sql.sh data/final/drop.sql      puis, pour reinstaller :
 --          ./import_sql.sh data/final/final.sql
@@ -15,10 +15,10 @@ SET SERVEROUTPUT ON
 SET FEEDBACK OFF
 
 -- 1. Menu et droits
-DELETE FROM USERMENU WHERE IDMENU LIKE 'MENUPOUSSON%' OR IDMENU LIKE 'MENUATHFACT%';
+DELETE FROM USERMENU WHERE IDMENU LIKE 'MENUPOUSSON%' OR IDMENU LIKE 'MENUATHFACT%' OR IDMENU = 'MENU_PREVISION_POUSSIN';
 DELETE FROM MENUDYNAMIQUE WHERE (ID LIKE 'MENUPOUSSON%' OR ID LIKE 'MENUATHFACT%') AND NIVEAU = 3;
 DELETE FROM MENUDYNAMIQUE WHERE (ID LIKE 'MENUPOUSSON%' OR ID LIKE 'MENUATHFACT%') AND NIVEAU = 2;
-DELETE FROM MENUDYNAMIQUE WHERE (ID LIKE 'MENUPOUSSON%' OR ID LIKE 'MENUATHFACT%') AND NIVEAU = 1;
+DELETE FROM MENUDYNAMIQUE WHERE (ID LIKE 'MENUPOUSSON%' OR ID LIKE 'MENUATHFACT%' OR ID = 'MENU_PREVISION_POUSSIN') AND NIVEAU = 1;
 COMMIT;
 
 -- 2. Objets : chaque suppression ignore l'objet absent
@@ -76,4 +76,4 @@ BEGIN
 END;
 /
 
-PROMPT Module desinstalle (la table ETAT et les colonnes de SOUCHE sont conservees).
+PROMPT Module desinstalle (ETAT, colonnes de SOUCHE, role resp et utilisateurs conserves).
