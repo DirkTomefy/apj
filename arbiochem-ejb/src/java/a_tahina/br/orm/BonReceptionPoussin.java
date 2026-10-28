@@ -39,14 +39,11 @@ public class BonReceptionPoussin extends ClassEtat {
     @Override public String getAttributIDName() { return "id"; }
     @Override public String getTuppleID()       { return this.getId(); }
 
-    // ==================================================================
-    // CONTROLER
-    // ==================================================================
+
     @Override
     public void controler(Connection c) throws Exception {
         super.controler(c);
 
-        // 1. Verifier la ligne BC
         if (this.idboncommandefille == null || this.idboncommandefille.trim().isEmpty()) {
             throw new Exception("La ligne BC est obligatoire.");
         }
@@ -58,7 +55,6 @@ public class BonReceptionPoussin extends ClassEtat {
         }
         this.idboncommande = bcf.getIdmere();
 
-        // 2. Chercher le dernier BR sur cette ligne BC (hors lui-meme en cas de modification)
         BonReceptionPoussin crit = new BonReceptionPoussin();
         String where = AtahinaUtil.egal("idboncommandefille", this.idboncommandefille);
         if (this.id != null && !this.id.isEmpty()) {
@@ -67,25 +63,20 @@ public class BonReceptionPoussin extends ClassEtat {
         BonReceptionPoussin[] precedents = (BonReceptionPoussin[]) CGenUtil.rechercher(
                 crit, null, null, c, where + " ORDER BY daty DESC, id DESC");
 
-        // 3. Calcul des cumuls (gere le premier BR)
         double quantiteDisponible;
         if (precedents != null && precedents.length > 0) {
-            // --- BR SUIVANT ---
             BonReceptionPoussin dernier = precedents[0];
             this.idbrprecedent = dernier.getId();
             this.qtAvantCumule = dernier.getQtApresCumule();
             quantiteDisponible = this.qtAvantCumule;
         } else {
-            // --- PREMIER BR : pas de precedent ---
             this.idbrprecedent = null;
             this.qtAvantCumule = bcf.getQte();
-            quantiteDisponible = bcf.getQte();   // on part de la qte commandee
+            quantiteDisponible = bcf.getQte();   
         }
 
-        // 4. Calculer automatiquement qtApresCumule
         this.qtApresCumule = quantiteDisponible - this.maty - this.very;
 
-        // 5. Validations
         if (this.maty < 0 || this.very < 0) {
             throw new Exception("Les pertes ne peuvent pas etre negatives.");
         }
@@ -94,7 +85,6 @@ public class BonReceptionPoussin extends ClassEtat {
                     + ") depassent la quantite disponible (" + quantiteDisponible + ").");
         }
 
-        // 6. Validation DATEECLOSION
         if (this.dateEclosion == null) {
             throw new Exception("La date d'eclosion est obligatoire.");
         }
@@ -105,7 +95,6 @@ public class BonReceptionPoussin extends ClassEtat {
         }
     }
 
-    // Getters / Setters (inchanges)
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
     public Date getDaty() { return daty; }
