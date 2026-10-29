@@ -2,6 +2,8 @@ package a_tahina.facture.orm;
 
 import java.sql.Connection;
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 import bean.CGenUtil;
 import bean.ClassFille;
@@ -10,6 +12,7 @@ import bean.ClassMere;
 import constante.ConstanteEtat;
 
 import a_tahina.core.page.AtahinaUtil;
+import a_tahina.prevision.simulation.Elevage;
 
 
 public class AthFacture extends ClassMere {
@@ -61,30 +64,43 @@ public class AthFacture extends ClassMere {
         }
         this.montantavoir = 0;   // fixe uniquement au visa
 
+        if (this.daty == null) {
+            throw new Exception("La date est obligatoire.");
+        }
+
         ClassFille[] filles = this.getFille();
         if (filles == null) return;
+        List<AthFactureFille> lignes = new ArrayList<AthFactureFille>();
+        boolean estimer = false;
         for (ClassFille f : filles) {
             AthFactureFille l = (AthFactureFille) f;
-            if (l.getIdproduit() == null || l.getIdproduit().trim().isEmpty()) {
-                throw new Exception("Le produit est obligatoire sur chaque ligne.");
+            String type = l.getTypevente() == null ? "" : l.getTypevente().trim().toUpperCase();
+            if (!Elevage.OEUF.equals(type) && !Elevage.POULET.equals(type)) {
+                throw new Exception("Le type de vente (oeuf ou poulet) est obligatoire sur chaque ligne.");
             }
-            AthProduit p = (AthProduit) new AthProduit().getById(l.getIdproduit(), null, c);
-            if (p == null) {
-                throw new Exception("Produit introuvable : " + l.getIdproduit());
+            l.setTypevente(type);
+            l.setIdproduit(null);
+            if (Elevage.OEUF.equals(type)) {
+                l.setSexe(null);
+                if (l.getPu() <= 0) {
+                    throw new Exception("Le prix unitaire des oeufs est obligatoire.");
+                }
+            } else if (!Elevage.FEMELLE.equals(l.getSexe()) && !Elevage.MALE.equals(l.getSexe())) {
+                throw new Exception("Le sexe est obligatoire pour une vente de poulets.");
             }
             if (l.getQte() <= 0) {
-                throw new Exception("La quantite doit etre superieure a 0 (" + p.getLibelle() + ").");
+                throw new Exception("La quantite doit etre superieure a 0.");
             }
             if (l.getPu() < 0) {
-                throw new Exception("Le prix unitaire ne peut pas etre negatif (" + p.getLibelle() + ").");
-            }
-            if (l.getPu() == 0) {
-                l.setPu(p.getPu());    // prix du produit par defaut
+                throw new Exception("Le prix unitaire ne peut pas etre negatif.");
             }
             if (l.getTva() < 0 || l.getTva() > 100) {
-                throw new Exception("La TVA doit etre comprise entre 0 et 100 (" + p.getLibelle() + ").");
+                throw new Exception("La TVA doit etre comprise entre 0 et 100.");
             }
+            if (Elevage.POULET.equals(type) && l.getPu() == 0) estimer = true;
+            lignes.add(l);
         }
+        if (estimer) AthVenteService.estimerPuPoulets(this, lignes, c);
     }
 
     // ------------------------------------------------------------------
@@ -93,6 +109,7 @@ public class AthFacture extends ClassMere {
     @Override
     public Object validerObject(String u, Connection c) throws Exception {
         if (this.etat > ConstanteEtat.getEtatAnnuler() && this.etat < ConstanteEtat.getEtatValider()) {
+            AthVenteService.controlerStock(this.id, c);
             this.montantavoir = AthAvoirService.appliquer(this, u, c);
         }
         return super.validerObject(u, c);

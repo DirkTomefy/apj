@@ -2,6 +2,8 @@ package a_tahina.facture.orm;
 
 public class AthFactureFilleLib extends AthFactureFille {
 
+    private java.sql.Date daty;
+    private int etatfacture;
     private String produitlib;
     private double montantht;
     private double montanttva;
@@ -14,6 +16,10 @@ public class AthFactureFilleLib extends AthFactureFille {
         this.setNomTable("ATH_FACTURE_FILLE_LIB");
     }
 
+    public java.sql.Date getDaty() { return daty; }
+    public void setDaty(java.sql.Date v) { this.daty = v; }
+    public int getEtatfacture() { return etatfacture; }
+    public void setEtatfacture(int v) { this.etatfacture = v; }
     public String getProduitlib() { return produitlib; }
     public void setProduitlib(String v) { this.produitlib = v; }
     public double getMontantht() { return montantht; }
