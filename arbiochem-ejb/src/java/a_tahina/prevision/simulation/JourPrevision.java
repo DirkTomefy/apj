@@ -13,9 +13,12 @@ public class JourPrevision {
     double pertesMales;
     double oeufsPondus;
     double oeufsVendus;
+    double oeufsEclos;
     double stockOeufs;
     double femellesVendues;
     double malesVendus;
+    double reformesFemelles;
+    double reformesMales;
     double femellesVivantes;
     double malesVivants;
     double ca;
@@ -33,6 +36,10 @@ public class JourPrevision {
         if (sexe == Sexe.FEMELLE) pertesFemelles += q; else pertesMales += q;
     }
 
+    void reforme(Sexe sexe, double q) {
+        if (sexe == Sexe.FEMELLE) reformesFemelles += q; else reformesMales += q;
+    }
+
     void vente(Sexe sexe, double q) {
         if (sexe == Sexe.FEMELLE) femellesVendues += q; else malesVendus += q;
     }
@@ -46,6 +53,10 @@ public class JourPrevision {
     public double getPertesMales()        { return pertesMales; }
     public double getOeufsPondus()        { return oeufsPondus; }
     public double getOeufsVendus()        { return oeufsVendus; }
+    public double getOeufsEclos()         { return oeufsEclos; }
+    public double getReformes()           { return reformesFemelles + reformesMales; }
+    public double getReformesFemelles()   { return reformesFemelles; }
+    public double getReformesMales()      { return reformesMales; }
     public double getStockOeufs()         { return stockOeufs; }
     public double getPouletsVendus()      { return femellesVendues + malesVendus; }
     public double getFemellesVendues()    { return femellesVendues; }

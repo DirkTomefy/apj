@@ -35,7 +35,7 @@ public class CalendrierPoussin extends Calendrier<JourPrevision> {
     @Override
     protected Map<LocalDate, JourPrevision> charger(LocalDate d1, LocalDate d2) throws Exception {
         Map<LocalDate, JourPrevision> res = new HashMap<LocalDate, JourPrevision>();
-        for (Map.Entry<LocalDate, JourPrevision> e : new ChargeurElevage().charger(null).simuler().entrySet()) {
+        for (Map.Entry<LocalDate, JourPrevision> e : new ChargeurElevage().charger(null).simuler(d2).getJours().entrySet()) {
             if (!e.getKey().isBefore(d1) && !e.getKey().isAfter(d2)) res.put(e.getKey(), e.getValue());
         }
         return res;

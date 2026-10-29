@@ -14,6 +14,8 @@ import a_tahina.core.erreur.AtahinaException;
 import a_tahina.core.page.AtahinaUtil;
 import a_tahina.prevision.simulation.ChargeurElevage;
 import a_tahina.prevision.simulation.Elevage;
+import a_tahina.prevision.simulation.ResultatElevage;
+import a_tahina.prevision.simulation.ServiceVente;
 import a_tahina.prevision.simulation.StockException;
 import a_tahina.prevision.simulation.Vente;
 import bean.CGenUtil;
@@ -32,11 +34,11 @@ public final class AthVenteService {
             AthFactureFille l = lignes.get(i);
             ventes.add(e.vente("~", String.valueOf(i), date, TypeVente.depuis(l.getTypevente()), Sexe.depuis(l.getSexe()), l.getQte(), 0));
         }
-        e.simuler();
+        ResultatElevage resultat = e.simuler(date);
         for (int i = 0; i < lignes.size(); i++) {
             AthFactureFille l = lignes.get(i);
             if (TypeVente.depuis(l.getTypevente()) != TypeVente.POULET || l.getPu() > 0) continue;
-            double pu = ventes.get(i).getPuStock();
+            double pu = resultat.service(ventes.get(i)).getPuStock();
             if (pu <= 0) {
                 throw new AtahinaException("Aucun poulet " + Sexe.obligatoire(l.getSexe()).pluriel() + " disponible le " + date.format(FORMAT)
                         + " pour calculer le prix : saisissez le P.U.");
@@ -51,27 +53,30 @@ public final class AthVenteService {
         if (lignes == null || lignes.length == 0) return;
 
         Elevage e = new ChargeurElevage().charger(c);
-        e.simuler();
         Set<String> dejaManquantes = new HashSet<String>();
-        for (Vente v : e.nonServies()) dejaManquantes.add(v.getIdfacture() + "|" + v.getId());
+        for (ServiceVente s : e.simuler(e.derniereVente()).nonServies()) dejaManquantes.add(cle(s.getVente()));
 
         for (AthFactureFilleLib l : lignes) ChargeurElevage.vente(e, l);
-        e.simuler();
 
         StringBuilder erreurs = new StringBuilder();
-        List<Vente> manques = new ArrayList<Vente>();
-        for (Vente v : e.nonServies()) {
-            if (dejaManquantes.contains(v.getIdfacture() + "|" + v.getId())) continue;
-            manques.add(v);
+        List<ServiceVente> manques = new ArrayList<ServiceVente>();
+        for (ServiceVente s : e.simuler(e.derniereVente()).nonServies()) {
+            Vente v = s.getVente();
+            if (dejaManquantes.contains(cle(v))) continue;
+            manques.add(s);
             erreurs.append(idfacture.equals(v.getIdfacture()) ? "\n - " : "\n - vente deja visee " + v.getIdfacture() + " : ")
                    .append(v.getType() == TypeVente.OEUF ? "oeufs" : "poulets " + v.getSexe().pluriel())
                    .append(" le ").append(v.getDate().format(FORMAT))
                    .append(" : demande ").append(arrondi(v.getQte()))
-                   .append(", disponible ").append(arrondi(v.getServi()));
+                   .append(", disponible ").append(arrondi(s.getServi()));
         }
         if (!manques.isEmpty()) {
             throw new StockException("Stock insuffisant pour viser la facture " + idfacture + " :" + erreurs, manques);
         }
+    }
+
+    private static String cle(Vente v) {
+        return v.getIdfacture() + "|" + v.getId();
     }
 
     private static String arrondi(double v) {

@@ -8,7 +8,7 @@ import java.util.List;
 import bean.CGenUtil;
 import bean.ClassMAPTable;
 
-public abstract class Chargeur<S extends Simulation<?>> {
+public abstract class Chargeur<S extends Simulation<?, ?>> {
 
     public S charger(Connection c) throws Exception {
         S simulation = nouvelleSimulation();
