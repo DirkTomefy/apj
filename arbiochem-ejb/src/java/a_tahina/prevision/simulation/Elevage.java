@@ -20,6 +20,9 @@ public class Elevage {
     public static final double DEF_TAUX_ECLOSION      = 85;
     public static final double DEF_RATIO_FEMELLE      = 50;
 
+    public static final Gestion GESTION_OEUF    = Gestion.FIFO;
+    public static final Gestion GESTION_POUSSIN = Gestion.LIFO;
+
     public static final String FEMELLE = "0";
     public static final String MALE    = "1";
     public static final String OEUF    = "OEUF";
@@ -69,9 +72,6 @@ public class Elevage {
         return v;
     }
 
-    // ------------------------------------------------------------------
-    // Simulation jour par jour : eclosions, pertes, ponte, ventes
-    // ------------------------------------------------------------------
     public Map<LocalDate, JourPrevision> simuler() {
         Map<LocalDate, JourPrevision> jours = new TreeMap<LocalDate, JourPrevision>();
         for (Vente v : ventes) v.reinitialiser();
@@ -193,8 +193,8 @@ public class Elevage {
     private static void vendre(Vente v, List<Cohorte> cohortes, List<Couvee> couvees, JourPrevision j) {
         double reste = v.qte;
         if (OEUF.equals(v.type)) {
-            for (int i = couvees.size() - 1; i >= 0 && reste > EPS; i--) {
-                Couvee c = couvees.get(i);
+            for (int i = 0; i < couvees.size() && reste > EPS; i++) {
+                Couvee c = couvees.get(GESTION_OEUF.indice(i, couvees.size()));
                 double q = Math.min(reste, c.qte);
                 c.qte -= q;
                 reste -= q;
@@ -202,7 +202,7 @@ public class Elevage {
             j.oeufsVendus += v.qte - reste;
         } else {
             for (int i = 0; i < cohortes.size() && reste > EPS; i++) {
-                Cohorte c = cohortes.get(i);
+                Cohorte c = cohortes.get(GESTION_POUSSIN.indice(i, cohortes.size()));
                 if (!c.sexe.equals(v.sexe)) continue;
                 double q = Math.min(reste, c.qte);
                 c.qte -= q;
