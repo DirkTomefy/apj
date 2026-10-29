@@ -5,9 +5,7 @@ import static a_tahina.core.page.AtahinaChampHelper.champ;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import a_tahina.calendrier.Calendrier;
 import a_tahina.core.GeneraticFH;
-import a_tahina.core.page.AtahinaPageInsert;
 import a_tahina.facture.orm.AthClient;
 import a_tahina.facture.orm.AthFacture;
 import a_tahina.facture.orm.AthFactureFille;
@@ -111,17 +109,5 @@ public class FactureFH extends GeneraticFH {
                 champ("idavoir", "Avoir").lien(AvoirFH.PAGE_FICHE, "id"),
                 champ("montant", "Montant d&eacute;duit"),
                 champ("daty", "Date"));
-    }
-
-    @Override
-    public AtahinaPageInsert getPageInsert(HttpServletRequest request,
-                                           HttpSession session) throws Exception {
-        throw nonSupporte("getPageInsert");
-    }
-
-    @Override
-    public Calendrier<?> getCalendrier(HttpServletRequest request,
-                                            HttpSession session) throws Exception {
-        throw nonSupporte("getCalendrier");
     }
 }

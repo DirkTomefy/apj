@@ -1,13 +1,6 @@
 SET DEFINE OFF
 SET SQLBLANKLINES ON
 
--- ============================================================================
---  VENTE D'OEUFS ET DE POULETS (facture)
---  Une ligne de facture vend des oeufs (LIFO : les plus frais d'abord) ou des
---  poulets d'un sexe donne (FIFO : les plus vieux d'abord). Le stock et la
---  prevision sont calcules en Java (a_tahina.prevision.simulation.Elevage).
---  idproduit devient facultatif (anciennes lignes conservees).
--- ============================================================================
 
 CREATE TABLE ATH_TYPEVENTE (
     id                 VARCHAR2(30) PRIMARY KEY,

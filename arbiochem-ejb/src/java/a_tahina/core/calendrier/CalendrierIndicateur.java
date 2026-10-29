@@ -1,4 +1,4 @@
-package a_tahina.calendrier;
+package a_tahina.core.calendrier;
 
 import java.util.function.ToDoubleFunction;
 

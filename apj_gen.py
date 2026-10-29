@@ -40,13 +40,15 @@ SQL_DIR       = "data/gen"
 
 MARQUE = "@generated apj_gen.py"
 
-TYPES = {  # nom francais -> (type java, type sql)
-    "texte":  ("String",        "VARCHAR2({taille})"),
-    "entier": ("int",           "NUMBER(10)"),
-    "nombre": ("double",        "NUMBER(15,2)"),
-    "date":   ("java.sql.Date", "DATE"),
+TYPES = {  # type du spec (nom Java) -> (type java genere, type sql)
+    "String": ("String",        "VARCHAR2({taille})"),
+    "int":    ("int",           "NUMBER(10)"),
+    "double": ("double",        "NUMBER(15,2)"),
+    "Date":   ("java.sql.Date", "DATE"),
 }
-ALIAS_TYPES = {"string": "texte", "int": "entier", "number": "nombre"}
+TYPES_NUMERIQUES = ("int", "double")
+ALIAS_TYPES = {"java.sql.date": "Date", "integer": "int"}
+ANCIENS_TYPES = {"texte": "String", "entier": "int", "nombre": "double", "date": "Date"}
 
 TYPES_ENTITE = {  # type -> (classe de base, a un etat, description)
     "simple":    ("ClassMAPTable", False, "table simple"),
@@ -151,8 +153,10 @@ class Champ:
         if self.nom in ("id", "etat", "idmere"):
             die("%s : '%s' est ajoute automatiquement, ne le declare pas." % (ctx, self.nom))
 
-        t = lire(d, "type", defaut="texte")
-        t = ALIAS_TYPES.get(t, t)
+        t = str(lire(d, "type", defaut="String")).strip()
+        if t in ANCIENS_TYPES:
+            die("%s : type '%s' remplace par le nom Java : \"type\": \"%s\"." % (ctx, t, ANCIENS_TYPES[t]))
+        t = {k.lower(): k for k in TYPES}.get(t.lower(), ALIAS_TYPES.get(t.lower(), t))
         if t not in TYPES:
             die("%s : type '%s' inconnu. Types : %s" % (ctx, t, ", ".join(TYPES)))
         self.type = t
@@ -173,12 +177,12 @@ class Champ:
 
         if self.ref and self.dico:
             die("%s : 'reference' et 'dictionnaire' sont exclusifs." % ctx)
-        if (self.ref or self.dico) and self.type != "texte":
-            die("%s : une reference / un dictionnaire est de type texte (c'est l'identifiant)." % ctx)
-        if (self.min is not None or self.max is not None) and self.type not in ("entier", "nombre"):
-            die("%s : 'min' / 'max' seulement pour entier ou nombre." % ctx)
-        if self.defaut == "aujourdhui" and self.type != "date":
-            die("%s : defaut 'aujourdhui' seulement pour une date." % ctx)
+        if (self.ref or self.dico) and self.type != "String":
+            die("%s : une reference / un dictionnaire est de type String (c'est l'identifiant)." % ctx)
+        if (self.min is not None or self.max is not None) and self.type not in TYPES_NUMERIQUES:
+            die("%s : 'min' / 'max' seulement pour int ou double." % ctx)
+        if self.defaut == "aujourdhui" and self.type != "Date":
+            die("%s : defaut 'aujourdhui' seulement pour une Date." % ctx)
 
     @property
     def est_lien(self):
@@ -366,7 +370,7 @@ class Spec:
                     if cible.type == "detail":
                         die("%s.%s : on ne reference pas les lignes d'un document." % (e.nom, c.nom))
                     if not c.affiche:
-                        premier = next((x for x in cible.champs if x.type == "texte" and not x.est_lien), None)
+                        premier = next((x for x in cible.champs if x.type == "String" and not x.est_lien), None)
                         if not premier:
                             die("%s.%s : precise \"affiche\" (champ de %s a montrer dans la liste)." % (e.nom, c.nom, cible.nom))
                         c.affiche = premier.nom
@@ -418,9 +422,9 @@ def colonnes_sql(e):
         opt = ""
         if c.obligatoire:
             opt += " NOT NULL"
-        if c.defaut is not None and c.type != "date":
+        if c.defaut is not None and c.type != "Date":
             v = c.defaut
-            opt = (" DEFAULT %s" % (v if c.type in ("entier", "nombre") else "'%s'" % sqlstr(str(v)))) + opt
+            opt = (" DEFAULT %s" % (v if c.type in TYPES_NUMERIQUES else "'%s'" % sqlstr(str(v)))) + opt
         cols.append((c.nom, c.sqltype, opt.strip()))
     if e.a_etat:
         cols.append(("etat", "NUMBER(2)", "DEFAULT 1"))
@@ -647,7 +651,7 @@ def getset(typ, nom):
 def valeur_java(c):
     if c.defaut is None or c.defaut == "aujourdhui":
         return ""
-    if c.type == "texte":
+    if c.type == "String":
         return ' = "%s"' % jstr(str(c.defaut))
     return " = %s" % c.defaut
 
@@ -658,6 +662,9 @@ def gen_orm(sp, e):
     imports = ["bean.%s" % e.base]
     if e.type == "maitre":
         imports += ["bean.ClassFille", "bean.ClassMAPTable"]
+    if e.type == "maitre" or any(c.min is not None or c.max is not None or
+                                 (c.obligatoire and c.type in ("String", "Date")) for c in e.champs):
+        imports.append("a_tahina.core.erreur.Verif")
     o += ["import %s;" % i for i in sorted(imports)]
     o += ["", "public class %s extends %s {" % (e.nom, e.base), "", "    private String id;"]
     if e.type == "detail":
@@ -683,20 +690,19 @@ def gen_orm(sp, e):
         o += ["", "    @Override",
               "    public ClassMAPTable createObject(String u, Connection c) throws Exception {",
               "        ClassFille[] filles = this.getFille();",
-              "        if (filles == null || filles.length == 0) {",
-              '            throw new Exception("%s : au moins une ligne est obligatoire.");' % ascii_fold(cap(e.singulier)),
-              "        }", "        return super.createObject(u, c);", "    }"]
+              '        Verif.verifier(filles != null && filles.length > 0, "%s : au moins une ligne est obligatoire.");' % ascii_fold(cap(e.singulier)),
+              "        return super.createObject(u, c);", "    }"]
     regles = []
     for c in e.champs:
         lib = jstr(ascii_fold(c.libelle))
-        if c.obligatoire and c.type == "texte":
-            regles.append('        if (this.%s == null || this.%s.trim().isEmpty()) {\n            throw new Exception("%s est obligatoire.");\n        }' % (c.nom, c.nom, lib))
-        if c.obligatoire and c.type == "date":
-            regles.append('        if (this.%s == null) {\n            throw new Exception("%s est obligatoire.");\n        }' % (c.nom, lib))
+        if c.obligatoire and c.type == "String":
+            regles.append('        Verif.obligatoire(this.%s, "%s");' % (c.nom, lib))
+        if c.obligatoire and c.type == "Date":
+            regles.append('        Verif.obligatoire(this.%s, "%s");' % (c.nom, lib))
         if c.min is not None:
-            regles.append('        if (this.%s < %s) {\n            throw new Exception("%s doit etre superieur ou egal a %s.");\n        }' % (c.nom, c.min, lib, c.min))
+            regles.append('        Verif.verifier(this.%s >= %s, "%s doit etre superieur ou egal a %s.");' % (c.nom, c.min, lib, c.min))
         if c.max is not None:
-            regles.append('        if (this.%s > %s) {\n            throw new Exception("%s doit etre inferieur ou egal a %s.");\n        }' % (c.nom, c.max, lib, c.max))
+            regles.append('        Verif.verifier(this.%s <= %s, "%s doit etre inferieur ou egal a %s.");' % (c.nom, c.max, lib, c.max))
     if regles:
         o += ["", "    @Override", "    public void controler(Connection c) throws Exception {", "        super.controler(c);"] + regles + ["    }"]
     o += ["", getset("String", "id")]
@@ -746,10 +752,10 @@ def champ_expr(c, mode):
         elif c.defaut is not None:
             s += '.defaut("%s")' % jstr(str(c.defaut))
     if mode == "liste":
-        auto = c.type == "texte" or c.est_lien
+        auto = c.type == "String" or c.est_lien
         if c.recherche if c.recherche is not None else auto:
             s += ".recherche()"
-        if c.type == "date" and c.intervalle is not False:
+        if c.type == "Date" and c.intervalle is not False:
             s += ".intervalle()"
     return s
 
@@ -771,9 +777,9 @@ def gen_fh(sp, e):
                 classes.add(c.ref)
             elif isinstance(c.ref, dict):
                 externes_classes.add(c.ref["classe"])
-    imports = ["a_tahina.calendrier.Calendrier", "a_tahina.core.GeneraticFH",
-               "a_tahina.core.page.AtahinaPageConsulte", "a_tahina.core.page.AtahinaPageInsert",
-               "a_tahina.core.page.AtahinaPageInsertMultiple", "a_tahina.core.page.AtahinaPageRecherche"]
+    imports = ["a_tahina.core.GeneraticFH", "a_tahina.core.page.AtahinaPageConsulte",
+               "a_tahina.core.page.AtahinaPageRecherche",
+               "a_tahina.core.page.AtahinaPageInsertMultiple" if e.type == "maitre" else "a_tahina.core.page.AtahinaPageInsert"]
     imports += ["%s.%s" % (sp.orm_pkg, n) for n in classes]   # les classes externes sont ecrites en entier dans le code
     dossier = "%s/%s/" % (sp.pages, e.slug)
 
@@ -828,27 +834,15 @@ def gen_fh(sp, e):
         cc = [champ_expr(c, "colonne") for c in d.champs if c.dans_liste]
         o += ["    public static String ongletDetail(HttpServletRequest request, HttpSession session, String idMere) throws Exception {",
               '        return onglet(new %sLib(), request, session, PAGE_FICHE, idMere, "inc/%s-detail", "idmere", "Aucune ligne",' % (d.nom, e.slug),
-              "                " + args_champs(cc, 16) + ");", "    }", ""]
-        o += ["    @Override",
-              "    public AtahinaPageInsert getPageInsert(HttpServletRequest request,",
-              "                                           HttpSession session) throws Exception {",
-              '        throw nonSupporte("getPageInsert");', "    }", ""]
+              "                " + args_champs(cc, 16) + ");", "    }"]
     else:
         o += ["    @Override",
               "    public AtahinaPageInsert getPageInsert(HttpServletRequest request,",
               "                                           HttpSession session) throws Exception {",
               '        return new AtahinaPageInsert(new %s(), request, session, "Saisie %s")' % (e.nom, jstr(entites_html(e.singulier))),
               "            .champs(", "                " + args_champs(saisie, 16) + ")",
-              "            .preparer();", "    }", "",
-              "    @Override",
-              "    public AtahinaPageInsertMultiple getPageInsertMultiple(HttpServletRequest request,",
-              "                                                           HttpSession session,",
-              "                                                           int nombreLigne) throws Exception {",
-              '        throw nonSupporte("getPageInsertMultiple");', "    }", ""]
-    o += ["    @Override",
-          "    public Calendrier<?> getCalendrier(HttpServletRequest request,",
-          "                                       HttpSession session) throws Exception {",
-          '        throw nonSupporte("getCalendrier");', "    }", "}"]
+              "            .preparer();", "    }"]
+    o.append("}")
     return "\n".join(o) + "\n"
 
 

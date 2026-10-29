@@ -8,6 +8,7 @@ import a_tahina.lot.orm.Lot;
 import bean.ClassFille;
 import bean.ClassMAPTable;
 import bean.ClassMere;
+import a_tahina.core.erreur.AtahinaException;
 
 public class InsertionCompartiment extends ClassMere {
 
@@ -45,7 +46,7 @@ public class InsertionCompartiment extends ClassMere {
             BonReceptionPoussinLib br = new BonReceptionPoussinLib();
             br = (BonReceptionPoussinLib) br.getById(this.idbonreception, null, c);
             if (br == null) {
-                throw new Exception("BR introuvable : " + this.idbonreception);
+                throw new AtahinaException("BR introuvable : " + this.idbonreception);
             }
 
             for (ClassFille f : filles) {

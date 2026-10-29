@@ -2,6 +2,8 @@ package a_tahina.prevision.simulation;
 
 import java.time.LocalDate;
 
+import a_tahina.core.Sexe;
+
 public class JourPrevision {
 
     final LocalDate daty;
@@ -23,16 +25,16 @@ public class JourPrevision {
         this.daty = daty;
     }
 
-    void naissance(String sexe, double q) {
-        if (Elevage.FEMELLE.equals(sexe)) naissancesFemelles += q; else naissancesMales += q;
+    void naissance(Sexe sexe, double q) {
+        if (sexe == Sexe.FEMELLE) naissancesFemelles += q; else naissancesMales += q;
     }
 
-    void perte(String sexe, double q) {
-        if (Elevage.FEMELLE.equals(sexe)) pertesFemelles += q; else pertesMales += q;
+    void perte(Sexe sexe, double q) {
+        if (sexe == Sexe.FEMELLE) pertesFemelles += q; else pertesMales += q;
     }
 
-    void vente(String sexe, double q) {
-        if (Elevage.FEMELLE.equals(sexe)) femellesVendues += q; else malesVendus += q;
+    void vente(Sexe sexe, double q) {
+        if (sexe == Sexe.FEMELLE) femellesVendues += q; else malesVendus += q;
     }
 
     public LocalDate getDaty()            { return daty; }

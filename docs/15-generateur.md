@@ -28,7 +28,7 @@ Ensuite : `./import_sql.sh data/gen/<module>/<module>.sql`, compiler, **redémar
       "champs": {
         "code":      { "libelle": "Code", "taille": 30, "obligatoire": true },
         "categorie": { "libelle": "Catégorie", "reference": "Categorie" },
-        "pu":        { "libelle": "Prix unitaire", "type": "nombre", "defaut": 0, "min": 0 }
+        "pu":        { "libelle": "Prix unitaire", "type": "double", "defaut": 0, "min": 0 }
       }
     }
   ]
@@ -80,22 +80,22 @@ underscore** (`qtemax`, pas `qte_max`), pas de mot réservé Oracle (`date` → 
 | Clé | Rôle | Défaut |
 |---|---|---|
 | `libelle` | texte affiché | nom du champ |
-| `type` | `texte`, `entier`, `nombre`, `date` | `texte` |
-| `taille` | longueur d'un texte | `255` |
+| `type` | nom du type Java : `String`, `int`, `double`, `Date` (= `java.sql.Date`) | `String` |
+| `taille` | longueur d'un `String` | `255` |
 | `obligatoire` | `NOT NULL` + contrôle dans l'ORM (message clair) | `false` |
 | `defaut` | valeur par défaut (SQL, ORM et formulaire) ; pour une date : `"aujourdhui"` | — |
-| `min`, `max` | bornes d'un `entier` / `nombre` (contrainte `CHECK` + contrôle ORM) | — |
+| `min`, `max` | bornes d'un `int` / `double` (contrainte `CHECK` + contrôle ORM) | — |
 | `reference` | clé étrangère, voir ci-dessous | — |
 | `dictionnaire` | table `id / val / desce` (ex `"SEXE"`) → liste déroulante | — |
 | `liste`, `fiche`, `saisie` | `false` = absent de la liste / de la fiche / du formulaire | `true` |
-| `recherche` | critère de recherche dans la liste | texte et références : oui |
+| `recherche` | critère de recherche dans la liste | `String` et références : oui |
 | `intervalle` | critère min/max (dates) | dates : oui |
 
 **Références** (clé étrangère + liste déroulante + colonne `<champ>lib` dans les vues) :
 
 ```json
 "categorie": { "reference": "Categorie" }                       // autre entité du spec.json
-"categorie": { "reference": "Categorie", "affiche": "nom" }     // champ montré (défaut : 1er texte)
+"categorie": { "reference": "Categorie", "affiche": "nom" }     // champ montré (défaut : 1er String)
 "magasin":   { "reference": { "table": "MAGASIN2", "classe": "magasin.Magasin",
                               "affiche": "val", "id": "id" } }   // table de l'application de base
 "destination": { "dictionnaire": "LIEURECEPTION" }              // dictionnaire id / val / desce
@@ -125,4 +125,4 @@ modifiant le `spec.json` puis en régénérant les fichiers que tu n'as pas modi
 
 Le générateur s'arrête avec un message qui nomme l'entité et le champ fautifs : nom avec underscore,
 mot réservé Oracle, table de plus de 24 caractères, référence vers une entité inconnue, préfixe en
-double, maître sans détail, références circulaires, `min` sur un texte, libellé de menu trop long.
+double, maître sans détail, références circulaires, `min` sur un `String`, libellé de menu trop long.

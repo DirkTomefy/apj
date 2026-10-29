@@ -5,9 +5,7 @@ import static a_tahina.core.page.AtahinaChampHelper.champ;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import a_tahina.calendrier.Calendrier;
 import a_tahina.core.GeneraticFH;
-import a_tahina.core.page.AtahinaPageInsertMultiple;
 import a_tahina.facture.orm.AthClient;
 import a_tahina.facture.orm.AthClientSolde;
 import a_tahina.core.page.AtahinaPageConsulte;
@@ -83,18 +81,5 @@ public class ClientFH extends GeneraticFH {
                 champ("montantutilise", "D&eacute;j&agrave; utilis&eacute;"),
                 champ("reste", "Reste"),
                 champ("etatlib", "&Eacute;tat"));
-    }
-
-    @Override
-    public AtahinaPageInsertMultiple getPageInsertMultiple(HttpServletRequest request,
-                                                           HttpSession session,
-                                                           int nombreLigne) throws Exception {
-        throw nonSupporte("getPageInsertMultiple");
-    }
-
-    @Override
-    public Calendrier<?> getCalendrier(HttpServletRequest request,
-                                            HttpSession session) throws Exception {
-        throw nonSupporte("getCalendrier");
     }
 }

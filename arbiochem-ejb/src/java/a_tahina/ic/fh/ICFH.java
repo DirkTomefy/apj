@@ -7,12 +7,10 @@ import javax.servlet.http.HttpSession;
 
 import a_tahina.br.fh.BRFH;
 import a_tahina.br.orm.BonReceptionPoussin;
-import a_tahina.calendrier.Calendrier;
 import a_tahina.compartiment.orm.Compartiment;
 import a_tahina.core.GeneraticFH;
 import a_tahina.core.page.AtahinaChampHelper;
 import a_tahina.core.page.AtahinaPageConsulte;
-import a_tahina.core.page.AtahinaPageInsert;
 import a_tahina.core.page.AtahinaPageInsertMultiple;
 import a_tahina.core.page.AtahinaPageRecherche;
 import a_tahina.core.page.AtahinaUtil;
@@ -116,17 +114,5 @@ public class ICFH extends GeneraticFH {
             .filtre(AtahinaUtil.dansSelect("idinsertcompfille", "INSERTION_COMPARTIMENT_FILLE", "id", "idmere", idMere)).parPage(20)
             .construire()
             .getHtmlOnglet("Aucun lot cr&eacute;&eacute;");
-    }
-
-    @Override
-    public AtahinaPageInsert getPageInsert(HttpServletRequest request,
-                                           HttpSession session) throws Exception {
-        throw nonSupporte("getPageInsert");
-    }
-
-    @Override
-    public Calendrier<?> getCalendrier(HttpServletRequest request,
-                                            HttpSession session) throws Exception {
-        throw nonSupporte("getCalendrier");
     }
 }

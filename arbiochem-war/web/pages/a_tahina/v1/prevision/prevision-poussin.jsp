@@ -3,7 +3,7 @@
 <%@ page import="a_tahina.core.page.AtahinaUtil" %>
 <%@ page import="a_tahina.prevision.fh.PrevisionPoussinFH" %>
 <%@ page import="a_tahina.prevision.fh.DeclPerteLotFH" %>
-<%@ page import="a_tahina.calendrier.child.CalendrierPoussin" %>
+<%@ page import="a_tahina.prevision.calendrier.CalendrierPoussin" %>
 <%@ page contentType="text/html" pageEncoding="UTF-8"%>
 
 <style>

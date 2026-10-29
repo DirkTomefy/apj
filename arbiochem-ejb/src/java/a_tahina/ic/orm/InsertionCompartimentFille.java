@@ -9,6 +9,9 @@ import bean.ClassMAPTable;
 
 import a_tahina.br.orm.BonReceptionPoussin;
 import a_tahina.bc.orm.BonCommandePoussinFille;
+import a_tahina.core.Sexe;
+import a_tahina.core.erreur.AtahinaException;
+import a_tahina.core.erreur.SaisieException;
 
 public class InsertionCompartimentFille extends ClassFille {
 
@@ -56,16 +59,14 @@ public class InsertionCompartimentFille extends ClassFille {
     private void calculerPuEtValeur(Connection c) throws Exception {
 
         if (this.idcompartiment == null || this.idcompartiment.trim().isEmpty()) {
-            throw new Exception("Compartiment obligatoire");
+            throw new SaisieException("Compartiment obligatoire");
         }
         if (this.qte <= 0) {
-            throw new Exception("Qte doit etre > 0");
+            throw new SaisieException("Qte doit etre > 0");
         }
-        if (this.sexe == null || (!this.sexe.equals("0") && !this.sexe.equals("1"))) {
-            throw new Exception("Sexe doit etre '0' (Femelle) ou '1' (Male)");
-        }
+        Sexe.obligatoire(this.sexe);
         if (this.idsante == null || this.idsante.trim().isEmpty()) {
-            throw new Exception("Sante obligatoire");
+            throw new SaisieException("Sante obligatoire");
         }
 
         if (this.pu == 0 && this.idmere != null) {
@@ -73,25 +74,25 @@ public class InsertionCompartimentFille extends ClassFille {
             InsertionCompartiment ic = (InsertionCompartiment)
                     new InsertionCompartiment().getById(this.idmere, null, c);
             if (ic == null) {
-                throw new Exception("InsertionCompartiment introuvable : " + this.idmere);
+                throw new AtahinaException("InsertionCompartiment introuvable : " + this.idmere);
             }
             if (ic.getIdbonreception() == null || ic.getIdbonreception().trim().isEmpty()) {
-                throw new Exception("La mere n'a pas de Bon de Reception associe");
+                throw new AtahinaException("La mere n'a pas de Bon de Reception associe");
             }
 
             BonReceptionPoussin br = (BonReceptionPoussin)
                     new BonReceptionPoussin().getById(ic.getIdbonreception(), null, c);
             if (br == null) {
-                throw new Exception("Bon de Reception introuvable : " + ic.getIdbonreception());
+                throw new AtahinaException("Bon de Reception introuvable : " + ic.getIdbonreception());
             }
             if (br.getIdboncommandefille() == null || br.getIdboncommandefille().trim().isEmpty()) {
-                throw new Exception("Le BR n'a pas de ligne BC associee");
+                throw new AtahinaException("Le BR n'a pas de ligne BC associee");
             }
 
             BonCommandePoussinFille bcf = (BonCommandePoussinFille)
                     new BonCommandePoussinFille().getById(br.getIdboncommandefille(), null, c);
             if (bcf == null) {
-                throw new Exception("Ligne BC introuvable : " + br.getIdboncommandefille());
+                throw new AtahinaException("Ligne BC introuvable : " + br.getIdboncommandefille());
             }
 
             this.pu = bcf.getPu();

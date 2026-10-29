@@ -8,6 +8,9 @@ import bean.ClassMAPTable;
 
 import a_tahina.br.orm.BonReceptionPoussin;
 import a_tahina.core.page.AtahinaUtil;
+import a_tahina.core.Sexe;
+import a_tahina.core.erreur.AtahinaException;
+import a_tahina.core.erreur.SaisieException;
 
 public class Lot extends ClassMAPTable {
 
@@ -57,13 +60,11 @@ public class Lot extends ClassMAPTable {
         }
 
         if (this.qteinit < 0) {
-            throw new Exception("QTEINIT ne peut pas etre negatif");
+            throw new SaisieException("QTEINIT ne peut pas etre negatif");
         }
-        if (this.sexe == null || (!this.sexe.equals("0") && !this.sexe.equals("1"))) {
-            throw new Exception("SEXE doit etre '0' (Femelle) ou '1' (Male)");
-        }
+        Sexe.obligatoire(this.sexe);
         if (this.dateEclosion == null) {
-            throw new Exception("DATEECLOSION introuvable (BR " + this.idbonreception
+            throw new AtahinaException("DATEECLOSION introuvable (BR " + this.idbonreception
                     + " sans date d'eclosion)");
         }
     }

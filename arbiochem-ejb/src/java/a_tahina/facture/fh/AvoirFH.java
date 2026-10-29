@@ -5,9 +5,7 @@ import static a_tahina.core.page.AtahinaChampHelper.champ;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import a_tahina.calendrier.Calendrier;
 import a_tahina.core.GeneraticFH;
-import a_tahina.core.page.AtahinaPageInsert;
 import a_tahina.facture.orm.AthAvoir;
 import a_tahina.facture.orm.AthAvoirFille;
 import a_tahina.facture.orm.AthAvoirLib;
@@ -20,6 +18,7 @@ import a_tahina.core.page.AtahinaUtil;
 import bean.CGenUtil;
 import a_tahina.facture.orm.AthAvoirFilleLib;
 import a_tahina.facture.orm.AthAvoirUsage;
+import a_tahina.core.erreur.SaisieException;
 
 public class AvoirFH extends GeneraticFH {
 
@@ -98,7 +97,7 @@ public class AvoirFH extends GeneraticFH {
                                                            HttpSession session) throws Exception {
         String idfacture = getIdfacture(request);
         if (idfacture == null) {
-            throw new Exception("Choisissez d'abord une facture vis\u00e9e.");
+            throw new SaisieException("Choisissez d'abord une facture vis\u00e9e.");
         }
         Object[] lignes = CGenUtil.rechercher(new AthFactureFilleLib(), null, null,
                 AtahinaUtil.egal("idmere", idfacture));
@@ -136,21 +135,9 @@ public class AvoirFH extends GeneraticFH {
     }
 
     @Override
-    public AtahinaPageInsert getPageInsert(HttpServletRequest request,
-                                           HttpSession session) throws Exception {
-        throw nonSupporte("getPageInsert");
-    }
-
-    @Override
     public AtahinaPageInsertMultiple getPageInsertMultiple(HttpServletRequest request,
                                                            HttpSession session,
                                                            int nombreLigne) throws Exception {
         return getPageInsertMultiple(request, session);
-    }
-
-    @Override
-    public Calendrier<?> getCalendrier(HttpServletRequest request,
-                                            HttpSession session) throws Exception {
-        throw nonSupporte("getCalendrier");
     }
 }

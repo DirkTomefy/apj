@@ -2,27 +2,27 @@ package a_tahina.prevision.simulation;
 
 import java.time.LocalDate;
 
-class Cohorte {
+import a_tahina.core.Sexe;
+
+class Cohorte extends Stock {
 
     final LocalDate naissance;
-    final String souche, sexe, compartiment;
+    final String souche, compartiment;
+    final Sexe sexe;
     final int generation;
-    final double pu;
-    double qte;
 
-    Cohorte(LocalDate naissance, String souche, String sexe, int generation, double pu, String compartiment, double qte) {
+    Cohorte(LocalDate naissance, String souche, Sexe sexe, int generation, double pu, String compartiment, double qte) {
+        super(pu, qte);
         this.naissance = naissance;
         this.souche = souche;
         this.sexe = sexe;
         this.generation = generation;
-        this.pu = pu;
         this.compartiment = compartiment;
-        this.qte = qte;
     }
 
     Cohorte copie() { return new Cohorte(naissance, souche, sexe, generation, pu, compartiment, qte); }
 
     boolean concerne(Perte p) {
-        return qte > Elevage.EPS && p.compartiment.equals(compartiment) && p.sexe.equals(sexe);
+        return qte > Elevage.EPS && p.compartiment.equals(compartiment) && p.sexe == sexe;
     }
 }

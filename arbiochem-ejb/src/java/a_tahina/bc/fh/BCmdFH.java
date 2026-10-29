@@ -9,10 +9,8 @@ import a_tahina.bc.orm.BonCommandePoussin;
 import a_tahina.bc.orm.BonCommandePoussinFille;
 import a_tahina.bc.orm.BonCommandePoussinFilleLib;
 import a_tahina.bc.orm.BonCommandePoussinLib;
-import a_tahina.calendrier.Calendrier;
 import a_tahina.core.GeneraticFH;
 import a_tahina.core.page.AtahinaPageConsulte;
-import a_tahina.core.page.AtahinaPageInsert;
 import a_tahina.core.page.AtahinaPageInsertMultiple;
 import a_tahina.core.page.AtahinaPageRecherche;
 import a_tahina.fournisseur.orm.Fournisseur;
@@ -89,17 +87,5 @@ public class BCmdFH extends GeneraticFH {
                 champ("pu", "P.U."),
                 champ("montant", "Montant"),
                 champ("fournisseurlib", "Fournisseur"));
-    }
-
-    @Override
-    public AtahinaPageInsert getPageInsert(HttpServletRequest request,
-                                           HttpSession session) throws Exception {
-        throw nonSupporte("getPageInsert");
-    }
-
-    @Override
-    public Calendrier<?> getCalendrier(HttpServletRequest request,
-                                            HttpSession session) throws Exception {
-        throw nonSupporte("getCalendrier");
     }
 }
