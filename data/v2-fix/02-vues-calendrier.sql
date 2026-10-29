@@ -16,10 +16,10 @@ SET DEFINE OFF
 --     -> CALENDRIER_POUSSIN_CUMUL (lu par a_tahina.calendrier.child.CalendrierPoussin)
 --
 -- Regles metier :
---  * Gen 0 : semaine de CONFIG_PREVISION = age en semaines revolues ;
---    pas de plafond duree_vie_semaines (c'est la config qui borne).
---  * Gen 1 et 2 : semaine de CONFIG_PREVISION = age + 1 ; ponte entre
---    semaine_debut_ponte et duree_vie_semaines.
+--  * Semaine de CONFIG_PREVISION = rang de la semaine depuis l'eclosion ; pas de semaine 0 :
+--    la semaine de la date d'eclosion est la semaine 1 (jours 0 a 6).
+--  * Gen 0 : pas de plafond duree_vie_semaines (c'est la config qui borne).
+--  * Gen 1 et 2 : ponte entre semaine_debut_ponte et duree_vie_semaines.
 --  * Pondeuses gen 0 = qteinit du lot femelle - pertes femelles du compartiment
 --    (au prorata du lot dans le compartiment) declarees jusqu'au jour de ponte.
 --  * CA = poussins de la ponte gen 0 x PU de la commande (gen 1 et 2 hors CA).
@@ -117,7 +117,7 @@ cfg AS (
 -- ---------- Gen 0 : un lot x une semaine de ponte x 7 jours ----------
 gen0_calc AS (
     SELECT li.idsouche,
-           li.dateeclosion + 7 * c.semaine + k.k + li.nb_jours_eclosion AS daty,
+           li.dateeclosion + 7 * (c.semaine - 1) + k.k + li.nb_jours_eclosion AS daty,
            li.ratio_femelle,
            li.pu,
            GREATEST(0, li.qteinit - li.part_comp * NVL((
@@ -126,7 +126,7 @@ gen0_calc AS (
                WHERE  pl.idcompartiment = li.idcompartiment
                  AND  pl.sexe = '0'
                  -- = TRUNC(pl.daty) <= jour de ponte, en gardant l'index (IDCOMPARTIMENT, SEXE, DATY)
-                 AND  pl.daty < li.dateeclosion + 7 * c.semaine + k.k + 1
+                 AND  pl.daty < li.dateeclosion + 7 * (c.semaine - 1) + k.k + 1
            ), 0))
            * c.nbjour * li.taux_eclosion / 100 AS nb
     FROM   V_CAL_LOT_INFO li
@@ -153,8 +153,8 @@ gen1_calc AS (
     FROM   gen0 h
            JOIN V_CAL_SOUCHE vs ON vs.idsouche = h.idsouche
            JOIN cfg c           ON c.idsouche  = h.idsouche
-                               AND c.semaine - 1 >= vs.semaine_debut_ponte
-                               AND c.semaine - 1 <= vs.duree_vie_semaines
+                               AND c.semaine >= vs.semaine_debut_ponte
+                               AND c.semaine <= vs.duree_vie_semaines
            CROSS JOIN V_CAL_K7 k
     WHERE  h.femelles > 0
 ),
@@ -175,8 +175,8 @@ gen2_calc AS (
     FROM   gen1 h
            JOIN V_CAL_SOUCHE vs ON vs.idsouche = h.idsouche
            JOIN cfg c           ON c.idsouche  = h.idsouche
-                               AND c.semaine - 1 >= vs.semaine_debut_ponte
-                               AND c.semaine - 1 <= vs.duree_vie_semaines
+                               AND c.semaine >= vs.semaine_debut_ponte
+                               AND c.semaine <= vs.duree_vie_semaines
            CROSS JOIN V_CAL_K7 k
     WHERE  h.femelles > 0
 ),

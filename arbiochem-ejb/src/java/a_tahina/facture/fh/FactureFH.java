@@ -12,7 +12,6 @@ import a_tahina.facture.orm.AthClient;
 import a_tahina.facture.orm.AthFacture;
 import a_tahina.facture.orm.AthFactureFille;
 import a_tahina.facture.orm.AthFactureLib;
-import a_tahina.facture.orm.AthProduit;
 import a_tahina.core.page.AtahinaPageConsulte;
 import a_tahina.core.page.AtahinaPageInsertMultiple;
 import a_tahina.core.page.AtahinaPageRecherche;
@@ -77,9 +76,10 @@ public class FactureFH extends GeneraticFH {
                 champ("idclient",  "Client").liste(new AthClient(), "nom", "id"),
                 champ("remarque",  "Remarque"))
             .colonnes(
-                champ("idproduit", "Produit").liste(new AthProduit(), "libelle", "id", " and actif = 1"),
+                champ("typevente", "Vente").typeObjet("ATH_TYPEVENTE"),
+                champ("sexe",      "Sexe (poulet)").typeObjet("SEXE"),
                 champ("qte",       "Qt&eacute;").defaut("1"),
-                champ("pu",        "P.U. (0 = prix du produit)").defaut("0"),
+                champ("pu",        "P.U. (poulet : 0 = prix du poussin)").defaut("0"),
                 champ("tva",       "TVA %").defaut("0"))
             .preparer();
     }

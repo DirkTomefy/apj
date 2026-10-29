@@ -5,6 +5,7 @@
     --cal-total-fond:       #eef;
 
     --cal-perte-fond:       #fbb;   --cal-perte-texte:      #800;
+    --cal-vente-fond:       #ffe9b3; --cal-vente-texte:     #7a4b00;
     --cal-naissance-fond:   #fff;   --cal-naissance-texte:  #000;
     --cal-vide-fond:        #eee;   --cal-vide-texte:       #333;
     --cal-dimanche-fond:    #fdd;
@@ -28,6 +29,7 @@ table.cal tr.cal-total td { font-weight: bold; background: var(--cal-total-fond)
 
 /* Etats d'un jour (classes declarees par style(...) dans le calendrier Java) */
 .cal-perte     { background: var(--cal-perte-fond);     color: var(--cal-perte-texte); font-weight: bold; }
+.cal-vente     { background: var(--cal-vente-fond);     color: var(--cal-vente-texte); font-weight: bold; }
 .cal-naissance { background: var(--cal-naissance-fond); color: var(--cal-naissance-texte); }
 .cal-vide      { background: var(--cal-vide-fond);      color: var(--cal-vide-texte); }
 /* .cal-dimanche  { background: var(--cal-dimanche-fond); } */

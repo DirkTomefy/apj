@@ -15,11 +15,11 @@ import javax.servlet.http.HttpServletRequest;
 import bean.CGenUtil;
 import bean.ClassMAPTable;
 
-public abstract class Calendrier<T extends ClassMAPTable> {
+public abstract class Calendrier<T> {
 
     private static final DateTimeFormatter FORMAT_APJ = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    private final T critere;
+    private final ClassMAPTable critere;
     private final String colonneDate;
     private final String contextPath;
 
@@ -32,12 +32,16 @@ public abstract class Calendrier<T extends ClassMAPTable> {
     private ToDoubleFunction<T> valeur;
     private String libelleTotal;
     private ToDoubleFunction<T> total;
-    private final List<Indicateur<T>> indicateurs = new ArrayList<Indicateur<T>>();
-    private final List<Style<T>> styles = new ArrayList<Style<T>>();
+    private final List<CalendrierIndicateur<T>> indicateurs = new ArrayList<CalendrierIndicateur<T>>();
+    private final List<CalendrierStyle<T>> styles = new ArrayList<CalendrierStyle<T>>();
 
     private Map<LocalDate, T> jours;
 
-    protected Calendrier(HttpServletRequest request, T critere, String colonneDate) {
+    protected Calendrier(HttpServletRequest request) {
+        this(request, null, null);
+    }
+
+    protected Calendrier(HttpServletRequest request, ClassMAPTable critere, String colonneDate) {
         this.critere = critere;
         this.colonneDate = colonneDate;
         this.contextPath = request.getContextPath() == null ? "" : request.getContextPath();
@@ -56,20 +60,17 @@ public abstract class Calendrier<T extends ClassMAPTable> {
     }
 
     protected void indicateur(String libelle, ToDoubleFunction<T> valeur) {
-        indicateurs.add(new Indicateur<T>(libelle, valeur, false));
+        indicateurs.add(new CalendrierIndicateur<T>(libelle, valeur, false));
     }
 
     protected void indicateurSigne(String libelle, ToDoubleFunction<T> valeur) {
-        indicateurs.add(new Indicateur<T>(libelle, valeur, true));
+        indicateurs.add(new CalendrierIndicateur<T>(libelle, valeur, true));
     }
 
     protected void style(String classeCss, String legende, Predicate<T> regle) {
-        styles.add(new Style<T>(classeCss, legende, regle));
+        styles.add(new CalendrierStyle<T>(classeCss, legende, regle));
     }
 
-    // ------------------------------------------------------------------
-    // Periode
-    // ------------------------------------------------------------------
     private void lirePeriode(HttpServletRequest request) {
         debut = date(request.getParameter("dateDebut"), LocalDate.now());
         fin   = date(request.getParameter("dateFin"), debut.plusDays(60));
@@ -101,34 +102,33 @@ public abstract class Calendrier<T extends ClassMAPTable> {
     public int getAnneeAffichee()   { return annee; }
     public String getTitre()        { return titre; }
 
-    // ------------------------------------------------------------------
-    // Donnees : CGenUtil.rechercher avec un intervalle sur la colonne date
-    // ------------------------------------------------------------------
+  
     private Map<LocalDate, T> jours() throws Exception {
         if (jours != null) return jours;
         LocalDate d1 = periodeExplicite ? debut : LocalDate.of(annee, 1, 1);
         LocalDate d2 = periodeExplicite ? fin   : LocalDate.of(annee, 12, 31);
+        jours = charger(d1, d2);
+        return jours;
+    }
 
+    protected Map<LocalDate, T> charger(LocalDate d1, LocalDate d2) throws Exception {
         Object[] lignes = CGenUtil.rechercher(critere,
                 new String[] { colonneDate },
                 new String[] { d1.format(FORMAT_APJ), d2.format(FORMAT_APJ) },
                 " order by " + colonneDate);
 
-        jours = new HashMap<LocalDate, T>();
+        Map<LocalDate, T> res = new HashMap<LocalDate, T>();
         if (lignes != null) {
             for (Object o : lignes) {
                 @SuppressWarnings("unchecked")
                 T ligne = (T) o;
-                Object d = CGenUtil.getValeurFieldByMethod(ligne, colonneDate);
-                if (d instanceof java.sql.Date) jours.put(((java.sql.Date) d).toLocalDate(), ligne);
+                Object d = CGenUtil.getValeurFieldByMethod((ClassMAPTable) o, colonneDate);
+                if (d instanceof java.sql.Date) res.put(((java.sql.Date) d).toLocalDate(), ligne);
             }
         }
-        return jours;
+        return res;
     }
 
-    // ------------------------------------------------------------------
-    // Acces pour le rendu
-    // ------------------------------------------------------------------
     T jour(LocalDate date) throws Exception {
         if (date.getYear() != annee) return null;
         return jours().get(date);
@@ -136,12 +136,12 @@ public abstract class Calendrier<T extends ClassMAPTable> {
 
     double valeurCase(T jour)       { return valeur == null ? 0 : valeur.applyAsDouble(jour); }
     String getLibelleTotal()        { return libelleTotal; }
-    List<Indicateur<T>> getIndicateurs() { return Collections.unmodifiableList(indicateurs); }
-    List<Style<T>> getStyles()      { return Collections.unmodifiableList(styles); }
+    List<CalendrierIndicateur<T>> getIndicateurs() { return Collections.unmodifiableList(indicateurs); }
+    List<CalendrierStyle<T>> getStyles()      { return Collections.unmodifiableList(styles); }
     String getContextPath()         { return contextPath; }
 
     String classeCss(T jour) {
-        for (Style<T> s : styles) {
+        for (CalendrierStyle<T> s : styles) {
             if (s.regle.test(jour)) return s.classe;
         }
         return "";
@@ -162,30 +162,5 @@ public abstract class Calendrier<T extends ClassMAPTable> {
 
     public String generateHtml() throws Exception {
         return new CalendrierHtml<T>(this).rendu();
-    }
-
-    // ------------------------------------------------------------------
-    static final class Indicateur<T> {
-        final String libelle;
-        final ToDoubleFunction<T> valeur;
-        final boolean signe;
-
-        Indicateur(String libelle, ToDoubleFunction<T> valeur, boolean signe) {
-            this.libelle = libelle;
-            this.valeur = valeur;
-            this.signe = signe;
-        }
-    }
-
-    static final class Style<T> {
-        final String classe;
-        final String legende;
-        final Predicate<T> regle;
-
-        Style(String classe, String legende, Predicate<T> regle) {
-            this.classe = classe;
-            this.legende = legende;
-            this.regle = regle;
-        }
     }
 }

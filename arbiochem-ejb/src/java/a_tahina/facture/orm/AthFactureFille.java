@@ -9,6 +9,8 @@ public class AthFactureFille extends ClassFille {
     private String id;
     private String idmere;
     private String idproduit;
+    private String typevente;
+    private String sexe;
     private double qte;
     private double pu;
     private double tva;     // pourcentage, 0 par defaut
@@ -36,6 +38,10 @@ public class AthFactureFille extends ClassFille {
     public void setIdmere(String v) { this.idmere = v; }
     public String getIdproduit() { return idproduit; }
     public void setIdproduit(String v) { this.idproduit = v; }
+    public String getTypevente() { return typevente; }
+    public void setTypevente(String v) { this.typevente = v; }
+    public String getSexe() { return sexe; }
+    public void setSexe(String v) { this.sexe = v; }
     public double getQte() { return qte; }
     public void setQte(double v) { this.qte = v; }
     public double getPu() { return pu; }

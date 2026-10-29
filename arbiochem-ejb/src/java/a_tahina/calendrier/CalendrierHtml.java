@@ -5,9 +5,7 @@ import java.time.YearMonth;
 import java.time.format.TextStyle;
 import java.util.Locale;
 
-import bean.ClassMAPTable;
-
-final class CalendrierHtml<T extends ClassMAPTable> {
+final class CalendrierHtml<T> {
 
     static final String FICHIER_CSS = "/assets/css/a_tahina/calendrier.css";
 
@@ -46,7 +44,7 @@ final class CalendrierHtml<T extends ClassMAPTable> {
 
     private void legende() {
         sb.append("<div class=\"").append(CSS_LEGENDE).append("\">");
-        for (Calendrier.Style<T> s : cal.getStyles()) {
+        for (CalendrierStyle<T> s : cal.getStyles()) {
             if (s.legende != null) span(s.classe, s.legende);
         }
         span(CSS_DIMANCHE, "Dimanche");
@@ -96,13 +94,13 @@ final class CalendrierHtml<T extends ClassMAPTable> {
         if (cal.getLibelleTotal() != null) {
             ligneTotal(cal.getLibelleTotal(), null, false);
         }
-        for (Calendrier.Indicateur<T> ind : cal.getIndicateurs()) {
+        for (CalendrierIndicateur<T> ind : cal.getIndicateurs()) {
             ligneTotal(ind.libelle, ind, ind.signe);
         }
         sb.append("</tfoot>\n");
     }
 
-    private void ligneTotal(String libelle, Calendrier.Indicateur<T> ind, boolean signe) throws Exception {
+    private void ligneTotal(String libelle, CalendrierIndicateur<T> ind, boolean signe) throws Exception {
         sb.append("<tr class=\"").append(CSS_TOTAL).append("\"><td class=\"").append(CSS_NUMERO).append("\">")
           .append(esc(libelle)).append("</td>");
         for (int m = 1; m <= 12; m++) {
