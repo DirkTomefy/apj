@@ -20,8 +20,6 @@ public class Vente {
     final Sexe sexe;
     final double qte;
     final double montant;
-    double servi;
-    double valeurStock;
 
     Vente(String idfacture, String id, LocalDate date, TypeVente type, Sexe sexe, double qte, double montant) {
         this.idfacture = idfacture;
@@ -33,15 +31,10 @@ public class Vente {
         this.montant = montant;
     }
 
-    void reinitialiser() { servi = 0; valeurStock = 0; }
-
     public String getIdfacture()  { return idfacture; }
     public String getId()         { return id; }
     public LocalDate getDate()    { return date; }
     public TypeVente getType()    { return type; }
     public Sexe getSexe()         { return sexe; }
     public double getQte()        { return qte; }
-    public double getServi()      { return servi; }
-    public double getManque()     { return qte - servi; }
-    public double getPuStock()    { return servi > Elevage.EPS ? valeurStock / servi : 0; }
 }

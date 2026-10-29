@@ -7,12 +7,12 @@ import a_tahina.core.erreur.AtahinaException;
 
 public class StockException extends AtahinaException {
 
-    private final List<Vente> manques;
+    private final List<ServiceVente> manques;
 
-    public StockException(String message, List<Vente> manques) {
+    public StockException(String message, List<ServiceVente> manques) {
         super(message);
         this.manques = Collections.unmodifiableList(manques);
     }
 
-    public List<Vente> getManques() { return manques; }
+    public List<ServiceVente> getManques() { return manques; }
 }

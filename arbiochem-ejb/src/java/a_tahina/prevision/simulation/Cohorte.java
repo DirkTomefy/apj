@@ -10,6 +10,7 @@ class Cohorte extends Stock {
     final String souche, compartiment;
     final Sexe sexe;
     final int generation;
+    LocalDate reforme;
 
     Cohorte(LocalDate naissance, String souche, Sexe sexe, int generation, double pu, String compartiment, double qte) {
         super(pu, qte);
