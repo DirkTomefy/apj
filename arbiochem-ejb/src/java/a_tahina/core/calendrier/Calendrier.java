@@ -74,7 +74,11 @@ public abstract class Calendrier<T> {
     private void lirePeriode(HttpServletRequest request) {
         debut = date(request.getParameter("dateDebut"), LocalDate.now());
         fin   = date(request.getParameter("dateFin"), debut.plusDays(60));
-        if (fin.isBefore(debut)) fin = debut;
+        if (fin.isBefore(debut)) {
+            LocalDate tmp = debut;
+            debut = fin;
+            fin = tmp;
+        }
         periodeExplicite = present(request, "dateDebut") || present(request, "dateFin");
 
         annee = debut.getYear();
@@ -82,6 +86,7 @@ public abstract class Calendrier<T> {
             if (present(request, "annee")) annee = Integer.parseInt(request.getParameter("annee").trim());
         } catch (NumberFormatException ignore) {
         }
+        if (periodeExplicite && (annee < debut.getYear() || annee > fin.getYear())) annee = debut.getYear();
     }
 
     private static boolean present(HttpServletRequest r, String nom) {

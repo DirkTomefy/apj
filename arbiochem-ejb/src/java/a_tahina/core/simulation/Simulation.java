@@ -19,7 +19,7 @@ public abstract class Simulation<J, R extends ResultatSimulation<J>> {
         resultat.limiter(jusqua);
         LocalDate debut = debut();
         if (debut == null) return resultat;
-        LocalDate fin = jusqua != null && jusqua.isBefore(fin()) ? jusqua : fin();
+        LocalDate fin = jusqua != null ? jusqua : fin();
         J veille = null;
         for (LocalDate d = debut; !d.isAfter(fin); d = d.plusDays(1)) {
             J jour = simulerJour(d);
