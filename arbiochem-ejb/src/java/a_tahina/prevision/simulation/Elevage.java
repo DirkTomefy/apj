@@ -4,11 +4,14 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+
+import a_tahina.core.Sexe;
+import a_tahina.core.TypeVente;
 
 public class Elevage {
 
@@ -20,13 +23,8 @@ public class Elevage {
     public static final double DEF_TAUX_ECLOSION      = 85;
     public static final double DEF_RATIO_FEMELLE      = 50;
 
-    public static final Gestion GESTION_OEUF    = Gestion.FIFO;
-    public static final Gestion GESTION_POUSSIN = Gestion.LIFO;
-
-    public static final String FEMELLE = "0";
-    public static final String MALE    = "1";
-    public static final String OEUF    = "OEUF";
-    public static final String POULET  = "POULET";
+    public static final Gestion GESTION_OEUF    = Gestion.LIFO;
+    public static final Gestion GESTION_POUSSIN = Gestion.FIFO;
 
     static final double EPS = 1e-6;
 
@@ -36,92 +34,37 @@ public class Elevage {
     private final List<Perte> pertes = new ArrayList<Perte>();
     private final List<Vente> ventes = new ArrayList<Vente>();
 
-    // ------------------------------------------------------------------
-    // Donnees
-    // ------------------------------------------------------------------
+    private List<Cohorte> cohortes;
+    private List<Couvee> couvees;
+
     public void souche(String id, int nbJoursEclosion, int semaineDebutPonte, int dureeVieSemaines,
                        double tauxEclosion, double ratioFemelle) {
         souches.put(id, new ParametreSouche(
-                nbJoursEclosion   > 0 ? nbJoursEclosion   : DEF_NB_JOURS_ECLOSION,
-                semaineDebutPonte > 0 ? semaineDebutPonte : DEF_SEMAINE_DEBUT_PONTE,
-                dureeVieSemaines  > 0 ? dureeVieSemaines  : DEF_DUREE_VIE_SEMAINES,
-                tauxEclosion      > 0 ? tauxEclosion      : DEF_TAUX_ECLOSION,
-                ratioFemelle      > 0 ? ratioFemelle      : DEF_RATIO_FEMELLE));
+                ouDefaut(nbJoursEclosion,   DEF_NB_JOURS_ECLOSION),
+                ouDefaut(semaineDebutPonte, DEF_SEMAINE_DEBUT_PONTE),
+                ouDefaut(dureeVieSemaines,  DEF_DUREE_VIE_SEMAINES),
+                ouDefaut(tauxEclosion,      DEF_TAUX_ECLOSION),
+                ouDefaut(ratioFemelle,      DEF_RATIO_FEMELLE)));
     }
 
     public void ponte(String idsouche, int semaine, double nbjour) {
-        Map<Integer, Double> s = pontes.get(idsouche);
-        if (s == null) pontes.put(idsouche, s = new HashMap<Integer, Double>());
-        Double avant = s.get(semaine);
-        s.put(semaine, avant == null ? nbjour : Math.max(avant, nbjour));
+        pontes.computeIfAbsent(idsouche, k -> new HashMap<Integer, Double>()).merge(semaine, nbjour, Math::max);
     }
 
-    public void lot(String idsouche, String idcompartiment, String sexe, LocalDate eclosion, double qte, double pu) {
-        if (eclosion == null || qte <= 0) return;
+    public void lot(String idsouche, String idcompartiment, Sexe sexe, LocalDate eclosion, double qte, double pu) {
+        if (eclosion == null || sexe == null || qte <= 0) return;
         lots.add(new Cohorte(eclosion, idsouche, sexe, 0, pu, idcompartiment, qte));
     }
 
-    public void perte(LocalDate date, String idcompartiment, String sexe, double qte) {
-        if (date == null || idcompartiment == null || qte <= 0) return;
+    public void perte(LocalDate date, String idcompartiment, Sexe sexe, double qte) {
+        if (date == null || idcompartiment == null || sexe == null || qte <= 0) return;
         pertes.add(new Perte(date, idcompartiment, sexe, qte));
     }
 
-    public Vente vente(String idfacture, String id, LocalDate date, String type, String sexe, double qte, double montant) {
+    public Vente vente(String idfacture, String id, LocalDate date, TypeVente type, Sexe sexe, double qte, double montant) {
         Vente v = new Vente(idfacture, id, date, type, sexe, qte, montant);
         ventes.add(v);
         return v;
-    }
-
-    public Map<LocalDate, JourPrevision> simuler() {
-        Map<LocalDate, JourPrevision> jours = new TreeMap<LocalDate, JourPrevision>();
-        for (Vente v : ventes) v.reinitialiser();
-        if (lots.isEmpty()) return jours;
-
-        List<Cohorte> arrivees = new ArrayList<Cohorte>(lots);
-        Collections.sort(arrivees, Comparator.comparing((Cohorte c) -> c.naissance));
-        List<Perte> pertesTriees = new ArrayList<Perte>(pertes);
-        Collections.sort(pertesTriees, Comparator.comparing((Perte p) -> p.date));
-        List<Vente> ventesTriees = new ArrayList<Vente>(ventes);
-        Collections.sort(ventesTriees, Comparator.comparing((Vente v) -> v.date)
-                .thenComparing(v -> v.idfacture == null ? "" : v.idfacture)
-                .thenComparing(v -> v.id == null ? "" : v.id));
-
-        LocalDate debut = arrivees.get(0).naissance;
-        LocalDate fin = arrivees.get(arrivees.size() - 1).naissance.plusDays(HORIZON_JOURS);
-        for (Vente v : ventesTriees) if (v.date.isAfter(fin)) fin = v.date;
-
-        List<Cohorte> cohortes = new ArrayList<Cohorte>();
-        List<Couvee> couvees = new ArrayList<Couvee>();
-        int iLot = 0, iPerte = 0, iVente = 0;
-
-        for (LocalDate d = debut; !d.isAfter(fin); d = d.plusDays(1)) {
-            JourPrevision j = new JourPrevision(d);
-
-            while (iLot < arrivees.size() && !arrivees.get(iLot).naissance.isAfter(d)) {
-                Cohorte c = arrivees.get(iLot++).copie();
-                cohortes.add(c);
-                j.naissance(c.sexe, c.qte);
-            }
-            eclore(d, couvees, cohortes, j);
-
-            while (iPerte < pertesTriees.size() && !pertesTriees.get(iPerte).date.isAfter(d)) {
-                retirerPerte(pertesTriees.get(iPerte++), cohortes, j);
-            }
-
-            pondre(d, cohortes, couvees, j);
-
-            while (iVente < ventesTriees.size() && !ventesTriees.get(iVente).date.isAfter(d)) {
-                vendre(ventesTriees.get(iVente++), cohortes, couvees, j);
-            }
-
-            for (Couvee c : couvees) j.stockOeufs += c.qte;
-            for (Cohorte c : cohortes) {
-                if (FEMELLE.equals(c.sexe)) j.femellesVivantes += c.qte;
-                else                        j.malesVivants     += c.qte;
-            }
-            jours.put(d, j);
-        }
-        return jours;
     }
 
     public List<Vente> getVentes() { return Collections.unmodifiableList(ventes); }
@@ -132,96 +75,168 @@ public class Elevage {
         return r;
     }
 
-    private void eclore(LocalDate d, List<Couvee> couvees, List<Cohorte> cohortes, JourPrevision j) {
-        for (int i = 0; i < couvees.size(); ) {
-            Couvee c = couvees.get(i);
-            if (c.eclosion.isAfter(d)) { i++; continue; }
-            couvees.remove(i);
-            ParametreSouche s = souche(c.souche);
-            double poussins = c.qte * s.tauxEclosion / 100;
-            double femelles = poussins * s.ratioFemelle / 100;
-            ajouter(cohortes, new Cohorte(d, c.souche, FEMELLE, c.generation + 1, c.pu, null, femelles), j);
-            ajouter(cohortes, new Cohorte(d, c.souche, MALE,    c.generation + 1, c.pu, null, poussins - femelles), j);
+    public Map<LocalDate, JourPrevision> simuler() {
+        Map<LocalDate, JourPrevision> jours = new TreeMap<LocalDate, JourPrevision>();
+        for (Vente v : ventes) v.reinitialiser();
+        if (lots.isEmpty()) return jours;
+
+        FileEvenements<Cohorte> arrivees = new FileEvenements<Cohorte>(lots, c -> c.naissance);
+        FileEvenements<Perte> pertesAVenir = new FileEvenements<Perte>(pertes, p -> p.date);
+        FileEvenements<Vente> ventesAVenir = new FileEvenements<Vente>(ventes, v -> v.date, Vente.ORDRE_DU_JOUR);
+        cohortes = new ArrayList<Cohorte>();
+        couvees = new ArrayList<Couvee>();
+
+        LocalDate fin = dateFin(arrivees, ventesAVenir);
+        for (LocalDate d = arrivees.premiereDate(); !d.isAfter(fin); d = d.plusDays(1)) {
+            jours.put(d, simulerJour(d, arrivees, pertesAVenir, ventesAVenir));
+        }
+        return jours;
+    }
+
+    private static LocalDate dateFin(FileEvenements<Cohorte> arrivees, FileEvenements<Vente> ventesAVenir) {
+        LocalDate fin = arrivees.derniereDate().plusDays(HORIZON_JOURS);
+        LocalDate derniereVente = ventesAVenir.derniereDate();
+        return derniereVente != null && derniereVente.isAfter(fin) ? derniereVente : fin;
+    }
+
+    private JourPrevision simulerJour(LocalDate d, FileEvenements<Cohorte> arrivees,
+                                      FileEvenements<Perte> pertesAVenir, FileEvenements<Vente> ventesAVenir) {
+        JourPrevision j = new JourPrevision(d);
+        for (Cohorte lot : arrivees.jusquA(d)) naitre(lot.copie(), j);
+        eclore(d, j);
+        for (Perte p : pertesAVenir.jusquA(d)) repartirPerte(p, j);
+        pondre(d, j);
+        for (Vente v : ventesAVenir.jusquA(d)) vendre(v, j);
+        dresserBilan(j);
+        return j;
+    }
+
+    private void eclore(LocalDate d, JourPrevision j) {
+        for (Iterator<Couvee> it = couvees.iterator(); it.hasNext(); ) {
+            Couvee c = it.next();
+            if (c.eclosion.isAfter(d)) continue;
+            it.remove();
+            faireEclore(c, d, j);
         }
     }
 
-    private static void ajouter(List<Cohorte> cohortes, Cohorte c, JourPrevision j) {
+    private void faireEclore(Couvee c, LocalDate d, JourPrevision j) {
+        ParametreSouche s = parametres(c.souche);
+        double poussins = c.qte * s.tauxEclosion / 100;
+        double femelles = poussins * s.ratioFemelle / 100;
+        naitre(new Cohorte(d, c.souche, Sexe.FEMELLE, c.generation + 1, c.pu, null, femelles), j);
+        naitre(new Cohorte(d, c.souche, Sexe.MALE,    c.generation + 1, c.pu, null, poussins - femelles), j);
+    }
+
+    private void naitre(Cohorte c, JourPrevision j) {
         if (c.qte <= EPS) return;
         cohortes.add(c);
         j.naissance(c.sexe, c.qte);
     }
 
-    private static void retirerPerte(Perte p, List<Cohorte> cohortes, JourPrevision j) {
-        double total = 0;
-        for (Cohorte c : cohortes) if (c.concerne(p)) total += c.qte;
+    private void repartirPerte(Perte p, JourPrevision j) {
+        List<Cohorte> touchees = cohortesConcernees(p);
+        double total = quantite(touchees);
         if (total <= EPS) return;
         double retire = Math.min(p.qte, total);
-        for (Cohorte c : cohortes) {
-            if (!c.concerne(p)) continue;
-            double q = retire * c.qte / total;
-            c.qte -= q;
-            j.cout += q * c.pu;
+        for (Cohorte c : touchees) {
+            j.cout += c.prelever(retire * c.qte / total) * c.pu;
         }
         j.perte(p.sexe, retire);
     }
 
-    private void pondre(LocalDate d, List<Cohorte> cohortes, List<Couvee> couvees, JourPrevision j) {
-        Map<String, Couvee> duJour = new HashMap<String, Couvee>();
-        for (Cohorte c : cohortes) {
-            if (!FEMELLE.equals(c.sexe) || c.qte <= EPS || c.generation > DERNIERE_GEN_PONDEUSE) continue;
-            ParametreSouche s = souche(c.souche);
-            int semaine = (int) (ChronoUnit.DAYS.between(c.naissance, d) / 7) + 1;
-            if (semaine < s.semaineDebutPonte) continue;
-            if (c.generation > 0 && semaine > s.dureeVieSemaines) continue;
-            Map<Integer, Double> cfg = pontes.get(c.souche);
-            Double nbjour = cfg == null ? null : cfg.get(semaine);
-            if (nbjour == null || nbjour <= 0) continue;
+    private List<Cohorte> cohortesConcernees(Perte p) {
+        List<Cohorte> r = new ArrayList<Cohorte>();
+        for (Cohorte c : cohortes) if (c.concerne(p)) r.add(c);
+        return r;
+    }
 
-            String cle = c.souche + "|" + c.generation + "|" + c.pu;
-            Couvee cv = duJour.get(cle);
-            if (cv == null) {
-                cv = new Couvee(d.plusDays(s.nbJoursEclosion), c.souche, c.generation, c.pu);
-                duJour.put(cle, cv);
-                couvees.add(cv);
-            }
-            double oeufs = c.qte * nbjour;
-            cv.qte += oeufs;
+    private void pondre(LocalDate d, JourPrevision j) {
+        Map<String, Couvee> couveesDuJour = new HashMap<String, Couvee>();
+        for (Cohorte poule : cohortes) {
+            double oeufs = poule.qte * oeufsParPoule(poule, d);
+            if (oeufs <= 0) continue;
+            couveeDuJour(couveesDuJour, poule, d).qte += oeufs;
             j.oeufsPondus += oeufs;
         }
     }
 
-    private static void vendre(Vente v, List<Cohorte> cohortes, List<Couvee> couvees, JourPrevision j) {
-        double reste = v.qte;
-        if (OEUF.equals(v.type)) {
-            for (int i = 0; i < couvees.size() && reste > EPS; i++) {
-                Couvee c = couvees.get(GESTION_OEUF.indice(i, couvees.size()));
-                double q = Math.min(reste, c.qte);
-                c.qte -= q;
-                reste -= q;
-            }
-            j.oeufsVendus += v.qte - reste;
+    private double oeufsParPoule(Cohorte poule, LocalDate d) {
+        if (!peutPondre(poule)) return 0;
+        ParametreSouche s = parametres(poule.souche);
+        int semaine = semaineDeVie(poule.naissance, d);
+        if (semaine < s.semaineDebutPonte) return 0;
+        if (poule.generation > 0 && semaine > s.dureeVieSemaines) return 0;
+        return ponteConfiguree(poule.souche, semaine);
+    }
+
+    private static boolean peutPondre(Cohorte c) {
+        return c.sexe == Sexe.FEMELLE && c.qte > EPS && c.generation <= DERNIERE_GEN_PONDEUSE;
+    }
+
+    private static int semaineDeVie(LocalDate naissance, LocalDate d) {
+        return (int) (ChronoUnit.DAYS.between(naissance, d) / 7) + 1;
+    }
+
+    private double ponteConfiguree(String idsouche, int semaine) {
+        Map<Integer, Double> config = pontes.get(idsouche);
+        Double nbjour = config == null ? null : config.get(semaine);
+        return nbjour == null ? 0 : Math.max(0, nbjour);
+    }
+
+    private Couvee couveeDuJour(Map<String, Couvee> couveesDuJour, Cohorte mere, LocalDate d) {
+        return couveesDuJour.computeIfAbsent(mere.souche + "|" + mere.generation + "|" + mere.pu, cle -> {
+            Couvee c = new Couvee(d.plusDays(parametres(mere.souche).nbJoursEclosion), mere.souche, mere.generation, mere.pu);
+            couvees.add(c);
+            return c;
+        });
+    }
+
+    private void vendre(Vente v, JourPrevision j) {
+        if (v.type == TypeVente.OEUF) {
+            servir(v, couvees, GESTION_OEUF);
+            j.oeufsVendus += v.servi;
         } else {
-            for (int i = 0; i < cohortes.size() && reste > EPS; i++) {
-                Cohorte c = cohortes.get(GESTION_POUSSIN.indice(i, cohortes.size()));
-                if (!c.sexe.equals(v.sexe)) continue;
-                double q = Math.min(reste, c.qte);
-                c.qte -= q;
-                reste -= q;
-                v.valeurStock += q * c.pu;
-            }
-            j.vente(v.sexe, v.qte - reste);
+            servir(v, cohortesDuSexe(v.sexe), GESTION_POUSSIN);
+            j.vente(v.sexe, v.servi);
         }
-        v.servi = v.qte - reste;
         j.ca += v.montant;
     }
 
-    private ParametreSouche souche(String id) {
-        ParametreSouche s = souches.get(id);
-        if (s == null) {
-            s = new ParametreSouche(DEF_NB_JOURS_ECLOSION, DEF_SEMAINE_DEBUT_PONTE, DEF_DUREE_VIE_SEMAINES,
-                           DEF_TAUX_ECLOSION, DEF_RATIO_FEMELLE);
-            souches.put(id, s);
+    private static void servir(Vente v, List<? extends Stock> stocks, Gestion gestion) {
+        double reste = v.qte;
+        for (int i = 0; i < stocks.size() && reste > EPS; i++) {
+            Stock s = stocks.get(gestion.indice(i, stocks.size()));
+            double q = s.prelever(reste);
+            reste -= q;
+            v.valeurStock += q * s.pu;
         }
-        return s;
+        v.servi = v.qte - reste;
     }
+
+    private void dresserBilan(JourPrevision j) {
+        j.stockOeufs = quantite(couvees);
+        j.femellesVivantes = quantite(cohortesDuSexe(Sexe.FEMELLE));
+        j.malesVivants = quantite(cohortesDuSexe(Sexe.MALE));
+    }
+
+    private List<Cohorte> cohortesDuSexe(Sexe sexe) {
+        List<Cohorte> r = new ArrayList<Cohorte>();
+        for (Cohorte c : cohortes) if (c.sexe == sexe) r.add(c);
+        return r;
+    }
+
+    private static double quantite(List<? extends Stock> stocks) {
+        double total = 0;
+        for (Stock s : stocks) total += s.qte;
+        return total;
+    }
+
+    private ParametreSouche parametres(String idsouche) {
+        return souches.computeIfAbsent(idsouche, k -> new ParametreSouche(DEF_NB_JOURS_ECLOSION, DEF_SEMAINE_DEBUT_PONTE,
+                DEF_DUREE_VIE_SEMAINES, DEF_TAUX_ECLOSION, DEF_RATIO_FEMELLE));
+    }
+
+    private static int ouDefaut(int valeur, int defaut)          { return valeur > 0 ? valeur : defaut; }
+    private static double ouDefaut(double valeur, double defaut) { return valeur > 0 ? valeur : defaut; }
 }

@@ -3,6 +3,7 @@ package a_tahina.facture.orm;
 import java.sql.Connection;
 
 import bean.ClassMAPTable;
+import a_tahina.core.erreur.SaisieException;
 
 
 public class AthClient extends ClassMAPTable {
@@ -31,10 +32,10 @@ public class AthClient extends ClassMAPTable {
     public void controler(Connection c) throws Exception {
         super.controler(c);
         if (this.nom == null || this.nom.trim().isEmpty()) {
-            throw new Exception("Le nom du client est obligatoire.");
+            throw new SaisieException("Le nom du client est obligatoire.");
         }
         if (this.pourcentageavoir < 0 || this.pourcentageavoir > 100) {
-            throw new Exception("Le pourcentage d'avoir doit etre compris entre 0 et 100.");
+            throw new SaisieException("Le pourcentage d'avoir doit etre compris entre 0 et 100.");
         }
     }
 

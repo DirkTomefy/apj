@@ -7,6 +7,8 @@ import a_tahina.bc.orm.BonCommandePoussinFille;
 import a_tahina.core.page.AtahinaUtil;
 import bean.CGenUtil;
 import bean.ClassEtat;
+import a_tahina.core.erreur.AtahinaException;
+import a_tahina.core.erreur.SaisieException;
 
 public class BonReceptionPoussin extends ClassEtat {
 
@@ -45,13 +47,13 @@ public class BonReceptionPoussin extends ClassEtat {
         super.controler(c);
 
         if (this.idboncommandefille == null || this.idboncommandefille.trim().isEmpty()) {
-            throw new Exception("La ligne BC est obligatoire.");
+            throw new SaisieException("La ligne BC est obligatoire.");
         }
 
         BonCommandePoussinFille bcf = new BonCommandePoussinFille();
         bcf = (BonCommandePoussinFille) bcf.getById(this.idboncommandefille, null, c);
         if (bcf == null) {
-            throw new Exception("Ligne BC introuvable : " + this.idboncommandefille);
+            throw new AtahinaException("Ligne BC introuvable : " + this.idboncommandefille);
         }
         this.idboncommande = bcf.getIdmere();
 
@@ -78,18 +80,18 @@ public class BonReceptionPoussin extends ClassEtat {
         this.qtApresCumule = quantiteDisponible - this.maty - this.very;
 
         if (this.maty < 0 || this.very < 0) {
-            throw new Exception("Les pertes ne peuvent pas etre negatives.");
+            throw new SaisieException("Les pertes ne peuvent pas etre negatives.");
         }
         if (this.qtApresCumule < 0) {
-            throw new Exception("Les pertes (" + (this.maty + this.very)
+            throw new SaisieException("Les pertes (" + (this.maty + this.very)
                     + ") depassent la quantite disponible (" + quantiteDisponible + ").");
         }
 
         if (this.dateEclosion == null) {
-            throw new Exception("La date d'eclosion est obligatoire.");
+            throw new SaisieException("La date d'eclosion est obligatoire.");
         }
         if (this.daty != null && this.dateEclosion.after(this.daty)) {
-            throw new Exception("La date d'eclosion (" + this.dateEclosion
+            throw new SaisieException("La date d'eclosion (" + this.dateEclosion
                     + ") ne peut pas etre posterieure a la date de reception ("
                     + this.daty + ").");
         }

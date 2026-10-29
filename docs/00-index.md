@@ -22,6 +22,7 @@ avec le framework APJ, sans entrer dans la logique métier.
 | 13 | [13-terme-complique.md](13-terme-complique.md) | **Glossaire** |
 | 14 | [14-autocomplete.md](14-autocomplete.md) | **Autocomplete** |
 | 15 | [15-generateur.md](15-generateur.md) | **Générateur** `apj_gen.py` (SQL, ORM, FH, JSP depuis un `spec.json`) |
+| 16 | [16-conventions.md](16-conventions.md) | **Conventions `a_tahina`** : où va le code, exceptions, héritage |
 
 ## Parcours conseillé
 

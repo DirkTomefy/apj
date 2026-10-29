@@ -8,9 +8,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import a_tahina.core.Sexe;
+import a_tahina.core.TypeVente;
+import a_tahina.core.erreur.AtahinaException;
 import a_tahina.core.page.AtahinaUtil;
 import a_tahina.prevision.simulation.ChargeurElevage;
 import a_tahina.prevision.simulation.Elevage;
+import a_tahina.prevision.simulation.StockException;
 import a_tahina.prevision.simulation.Vente;
 import bean.CGenUtil;
 
@@ -26,15 +30,15 @@ public final class AthVenteService {
         LocalDate date = f.getDaty().toLocalDate();
         for (int i = 0; i < lignes.size(); i++) {
             AthFactureFille l = lignes.get(i);
-            ventes.add(e.vente("~", String.valueOf(i), date, l.getTypevente(), l.getSexe(), l.getQte(), 0));
+            ventes.add(e.vente("~", String.valueOf(i), date, TypeVente.depuis(l.getTypevente()), Sexe.depuis(l.getSexe()), l.getQte(), 0));
         }
         e.simuler();
         for (int i = 0; i < lignes.size(); i++) {
             AthFactureFille l = lignes.get(i);
-            if (!Elevage.POULET.equals(l.getTypevente()) || l.getPu() > 0) continue;
+            if (TypeVente.depuis(l.getTypevente()) != TypeVente.POULET || l.getPu() > 0) continue;
             double pu = ventes.get(i).getPuStock();
             if (pu <= 0) {
-                throw new Exception("Aucun poulet " + libelleSexe(l.getSexe()) + " disponible le " + date.format(FORMAT)
+                throw new AtahinaException("Aucun poulet " + Sexe.obligatoire(l.getSexe()).pluriel() + " disponible le " + date.format(FORMAT)
                         + " pour calculer le prix : saisissez le P.U.");
             }
             l.setPu(Math.round(pu * 100) / 100.0);
@@ -55,21 +59,19 @@ public final class AthVenteService {
         e.simuler();
 
         StringBuilder erreurs = new StringBuilder();
+        List<Vente> manques = new ArrayList<Vente>();
         for (Vente v : e.nonServies()) {
             if (dejaManquantes.contains(v.getIdfacture() + "|" + v.getId())) continue;
+            manques.add(v);
             erreurs.append(idfacture.equals(v.getIdfacture()) ? "\n - " : "\n - vente deja visee " + v.getIdfacture() + " : ")
-                   .append(Elevage.OEUF.equals(v.getType()) ? "oeufs" : "poulets " + libelleSexe(v.getSexe()))
+                   .append(v.getType() == TypeVente.OEUF ? "oeufs" : "poulets " + v.getSexe().pluriel())
                    .append(" le ").append(v.getDate().format(FORMAT))
                    .append(" : demande ").append(arrondi(v.getQte()))
                    .append(", disponible ").append(arrondi(v.getServi()));
         }
-        if (erreurs.length() > 0) {
-            throw new Exception("Stock insuffisant pour viser la facture " + idfacture + " :" + erreurs);
+        if (!manques.isEmpty()) {
+            throw new StockException("Stock insuffisant pour viser la facture " + idfacture + " :" + erreurs, manques);
         }
-    }
-
-    static String libelleSexe(String sexe) {
-        return Elevage.FEMELLE.equals(sexe) ? "femelles" : "males";
     }
 
     private static String arrondi(double v) {

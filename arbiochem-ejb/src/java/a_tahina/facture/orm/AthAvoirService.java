@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import a_tahina.core.page.AtahinaUtil;
 import bean.CGenUtil;
 import constante.ConstanteEtat;
+import a_tahina.core.erreur.AtahinaException;
 
 
 public final class AthAvoirService {
@@ -27,10 +28,10 @@ public final class AthAvoirService {
     public static double appliquer(AthFacture facture, String user, Connection c) throws Exception {
         AthFactureLib f = (AthFactureLib) new AthFactureLib().getById(facture.getId(), null, c);
         if (f == null) {
-            throw new Exception("Facture introuvable : " + facture.getId());
+            throw new AtahinaException("Facture introuvable : " + facture.getId());
         }
         if (f.getMontantttc() <= 0) {
-            throw new Exception("Impossible de viser une facture sans montant.");
+            throw new AtahinaException("Impossible de viser une facture sans montant.");
         }
 
         verrouillerClient(f.getIdclient(), c);  
@@ -79,7 +80,7 @@ public final class AthAvoirService {
         try (PreparedStatement ps = c.prepareStatement("SELECT id FROM ATH_CLIENT WHERE id = ? FOR UPDATE")) {
             ps.setString(1, idclient);
             try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) throw new Exception("Client introuvable : " + idclient);
+                if (!rs.next()) throw new AtahinaException("Client introuvable : " + idclient);
             }
         }
     }

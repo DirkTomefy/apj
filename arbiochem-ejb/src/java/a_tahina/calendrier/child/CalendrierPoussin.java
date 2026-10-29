@@ -18,10 +18,10 @@ public class CalendrierPoussin extends Calendrier<JourPrevision> {
         titre("Prevision de l'elevage (poulets vivants)");
 
         valeur(JourPrevision::getVivants);
-        total("NAISSANCES", JourPrevision::getNaissances);
+        // total("NAISSANCES", JourPrevision::getNaissances);
         // indicateur("OEUFS PONDUS", JourPrevision::getOeufsPondus);
-        // indicateur("OEUFS VENDUS", JourPrevision::getOeufsVendus);
-        // indicateur("POULETS VENDUS", JourPrevision::getPouletsVendus);
+        indicateur("OEUFS VENDUS", JourPrevision::getOeufsVendus);
+        indicateur("POULETS VENDUS", JourPrevision::getPouletsVendus);
         // indicateur("PERTES", JourPrevision::getPertes);
         // indicateur("CA", JourPrevision::getCa);
         // indicateurSigne("BENEFICE", JourPrevision::getBenefice);

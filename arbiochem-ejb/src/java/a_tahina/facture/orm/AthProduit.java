@@ -3,6 +3,7 @@ package a_tahina.facture.orm;
 import java.sql.Connection;
 
 import bean.ClassMAPTable;
+import a_tahina.core.erreur.SaisieException;
 
 public class AthProduit extends ClassMAPTable {
 
@@ -29,10 +30,10 @@ public class AthProduit extends ClassMAPTable {
     public void controler(Connection c) throws Exception {
         super.controler(c);
         if (this.libelle == null || this.libelle.trim().isEmpty()) {
-            throw new Exception("Le libelle du produit est obligatoire.");
+            throw new SaisieException("Le libelle du produit est obligatoire.");
         }
         if (this.pu < 0) {
-            throw new Exception("Le prix unitaire ne peut pas etre negatif.");
+            throw new SaisieException("Le prix unitaire ne peut pas etre negatif.");
         }
     }
 

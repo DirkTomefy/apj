@@ -9,12 +9,10 @@ import a_tahina.bc.fh.BCmdFH;
 import a_tahina.bc.orm.BonCommandePoussinFilleLib;
 import a_tahina.br.orm.BonReceptionPoussin;
 import a_tahina.br.orm.BonReceptionPoussinLib;
-import a_tahina.calendrier.Calendrier;
 import a_tahina.core.GeneraticFH;
 import a_tahina.core.page.AtahinaChampHelper;
 import a_tahina.core.page.AtahinaPageConsulte;
 import a_tahina.core.page.AtahinaPageInsert;
-import a_tahina.core.page.AtahinaPageInsertMultiple;
 import a_tahina.core.page.AtahinaPageRecherche;
 import a_tahina.core.page.AtahinaUtil;
 import a_tahina.ic.fh.ICFH;
@@ -109,18 +107,5 @@ public class BRFH extends GeneraticFH {
                 champ("qtApresCumule", "Qt&eacute; re&ccedil;ue"),
                 champ("maty", "Morts"),
                 champ("very", "Perdus"));
-    }
-
-    @Override
-    public AtahinaPageInsertMultiple getPageInsertMultiple(HttpServletRequest request,
-                                                           HttpSession session,
-                                                           int nombreLigne) throws Exception {
-        throw nonSupporte("getPageInsertMultiple");
-    }
-
-    @Override
-    public Calendrier<?> getCalendrier(HttpServletRequest request,
-                                            HttpSession session) throws Exception {
-        throw nonSupporte("getCalendrier");
     }
 }

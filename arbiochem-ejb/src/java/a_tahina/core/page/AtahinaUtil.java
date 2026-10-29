@@ -1,11 +1,10 @@
 package a_tahina.core.page;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpSession;
 
+import a_tahina.core.erreur.AtahinaException;
 import user.UserEJB;
 
 public final class AtahinaUtil {
@@ -17,7 +16,7 @@ public final class AtahinaUtil {
     
     public static UserEJB getUser(HttpSession session) throws Exception {
         UserEJB u = (UserEJB) session.getValue("u");
-        if (u == null) throw new Exception("Session expirée. Reconnectez-vous.");
+        if (u == null) throw new AtahinaException("Session expirée. Reconnectez-vous.");
         return u;
     }
 
@@ -69,10 +68,24 @@ public final class AtahinaUtil {
                 .replace("\"", "&quot;").replace("'", "&#39;");
     }
 
+    private static final String STYLE_ERREUR =
+            "color:#c00;font-weight:bold;padding:8px;background:#fee;border-left:4px solid #c00;margin:8px 0;";
+
     public static String erreurHtml(Exception e) {
+        AtahinaException metier = metier(e);
+        if (metier != null) {
+            return "<div style='" + STYLE_ERREUR + "'>" + esc(metier.getMessage()).replace("\n", "<br>") + "</div>";
+        }
         e.printStackTrace();
-        StringWriter sw = new StringWriter();
-        e.printStackTrace(new PrintWriter(sw));
-        return "<pre style='color:red'>" + esc(sw.toString()) + "</pre>";
+        return "<div style='" + STYLE_ERREUR + "'>Erreur technique : " + esc(e.getMessage())
+                + "<br><small>Le d&eacute;tail est dans le journal du serveur.</small></div>";
+    }
+
+    public static AtahinaException metier(Throwable e) {
+        for (Throwable t = e; t != null; t = t.getCause()) {
+            if (t instanceof AtahinaException) return (AtahinaException) t;
+            if (t.getCause() == t) break;
+        }
+        return null;
     }
 }

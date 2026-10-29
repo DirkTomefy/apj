@@ -73,7 +73,7 @@ projet-standard - Copie/
 │   └── gen/<module>/               Sortie SQL du générateur (n'existe pas tant qu'il n'a pas tourné)
 ├── arbiochem-ejb/src/java/
 │   ├── a_tahina/
-│   │   ├── core/GeneraticFH.java          Classe abstraite des FH (liste, consulte, onglet, nonSupporte…)
+│   │   ├── core/GeneraticFH.java          Base des FH : ecrans par defaut nonSupporte, helpers liste/consulte/onglet
 │   │   ├── core/page/                     AtahinaPageRecherche|Consulte|Insert|InsertMultiple,
 │   │   │                                  AtahinaChampHelper (DSL champ(...)), AtahinaFormulaire, AtahinaUtil
 │   │   ├── calendrier/Calendrier.java, CalendrierHtml.java, child/CalendrierPoussin.java

@@ -12,7 +12,10 @@ import bean.ClassMere;
 import constante.ConstanteEtat;
 
 import a_tahina.core.page.AtahinaUtil;
-import a_tahina.prevision.simulation.Elevage;
+import a_tahina.core.Sexe;
+import a_tahina.core.TypeVente;
+import a_tahina.core.erreur.AtahinaException;
+import a_tahina.core.erreur.Verif;
 
 
 public class AthFacture extends ClassMere {
@@ -46,9 +49,7 @@ public class AthFacture extends ClassMere {
     @Override
     public ClassMAPTable createObject(String u, Connection c) throws Exception {
         ClassFille[] filles = this.getFille();
-        if (filles == null || filles.length == 0) {
-            throw new Exception("Une facture doit contenir au moins une ligne.");
-        }
+        Verif.verifier(filles != null && filles.length > 0, "Une facture doit contenir au moins une ligne.");
         return super.createObject(u, c);
     }
 
@@ -56,17 +57,10 @@ public class AthFacture extends ClassMere {
     public void controler(Connection c) throws Exception {
         super.controler(c);
 
-        if (this.idclient == null || this.idclient.trim().isEmpty()) {
-            throw new Exception("Le client est obligatoire.");
-        }
-        if (new AthClient().getById(this.idclient, null, c) == null) {
-            throw new Exception("Client introuvable : " + this.idclient);
-        }
+        Verif.obligatoire(this.idclient, "Le client");
+        Verif.existe(new AthClient().getById(this.idclient, null, c), "Client introuvable : " + this.idclient);
+        Verif.obligatoire(this.daty, "La date");
         this.montantavoir = 0;   // fixe uniquement au visa
-
-        if (this.daty == null) {
-            throw new Exception("La date est obligatoire.");
-        }
 
         ClassFille[] filles = this.getFille();
         if (filles == null) return;
@@ -74,30 +68,19 @@ public class AthFacture extends ClassMere {
         boolean estimer = false;
         for (ClassFille f : filles) {
             AthFactureFille l = (AthFactureFille) f;
-            String type = l.getTypevente() == null ? "" : l.getTypevente().trim().toUpperCase();
-            if (!Elevage.OEUF.equals(type) && !Elevage.POULET.equals(type)) {
-                throw new Exception("Le type de vente (oeuf ou poulet) est obligatoire sur chaque ligne.");
-            }
-            l.setTypevente(type);
+            TypeVente type = TypeVente.obligatoire(l.getTypevente());
+            l.setTypevente(type.code());
             l.setIdproduit(null);
-            if (Elevage.OEUF.equals(type)) {
+            if (type == TypeVente.OEUF) {
                 l.setSexe(null);
-                if (l.getPu() <= 0) {
-                    throw new Exception("Le prix unitaire des oeufs est obligatoire.");
-                }
-            } else if (!Elevage.FEMELLE.equals(l.getSexe()) && !Elevage.MALE.equals(l.getSexe())) {
-                throw new Exception("Le sexe est obligatoire pour une vente de poulets.");
+                Verif.verifier(l.getPu() > 0, "Le prix unitaire des oeufs est obligatoire.");
+            } else {
+                l.setSexe(Sexe.obligatoire(l.getSexe()).code());
             }
-            if (l.getQte() <= 0) {
-                throw new Exception("La quantite doit etre superieure a 0.");
-            }
-            if (l.getPu() < 0) {
-                throw new Exception("Le prix unitaire ne peut pas etre negatif.");
-            }
-            if (l.getTva() < 0 || l.getTva() > 100) {
-                throw new Exception("La TVA doit etre comprise entre 0 et 100.");
-            }
-            if (Elevage.POULET.equals(type) && l.getPu() == 0) estimer = true;
+            Verif.verifier(l.getQte() > 0, "La quantite doit etre superieure a 0.");
+            Verif.verifier(l.getPu() >= 0, "Le prix unitaire ne peut pas etre negatif.");
+            Verif.verifier(l.getTva() >= 0 && l.getTva() <= 100, "La TVA doit etre comprise entre 0 et 100.");
+            if (type == TypeVente.POULET && l.getPu() == 0) estimer = true;
             lignes.add(l);
         }
         if (estimer) AthVenteService.estimerPuPoulets(this, lignes, c);
@@ -124,7 +107,7 @@ public class AthFacture extends ClassMere {
         AthAvoir[] avoirs = (AthAvoir[]) CGenUtil.rechercher(new AthAvoir(), null, null, c,
                 AtahinaUtil.egal("idfacture", this.id) + " and etat <> " + ConstanteEtat.getEtatAnnuler());
         if (avoirs != null && avoirs.length > 0) {
-            throw new Exception("Impossible d'annuler le visa : un avoir existe sur cette facture ("
+            throw new AtahinaException("Impossible d'annuler le visa : un avoir existe sur cette facture ("
                     + avoirs[0].getId() + "). Annulez-le d'abord.");
         }
         AthAvoirService.restituer(this, c);

@@ -10,6 +10,9 @@ import bean.ClassMAPTable;
 import constante.ConstanteEtat;
 
 import a_tahina.bc.orm.BonCommandePoussinFille;
+import a_tahina.core.Sexe;
+import a_tahina.core.TypeVente;
+import a_tahina.core.erreur.SaisieException;
 import a_tahina.facture.orm.AthFactureFilleLib;
 import a_tahina.ic.orm.InsertionCompartimentFille;
 import a_tahina.lot.orm.Lot;
@@ -50,13 +53,13 @@ public final class ChargeurElevage {
             Lot l = (Lot) o;
             double[] t = puCommande.get(l.getIdboncommande() + "|" + l.getIdsouche());
             double pu = t != null && t[1] > 0 ? t[0] / t[1] : l.getPu();
-            e.lot(l.getIdsouche(), compartiments.get(l.getIdinsertcompfille()), l.getSexe(),
+            e.lot(l.getIdsouche(), compartiments.get(l.getIdinsertcompfille()), Sexe.depuis(l.getSexe()),
                   date(l.getDateEclosion()), l.getQteinit(), pu);
         }
 
         for (Object o : lire(new DeclPerteLot(), c, " and daty is not null")) {
             DeclPerteLot p = (DeclPerteLot) o;
-            e.perte(date(p.getDaty()), p.getIdcompartiment(), p.getSexe(), p.getQteMort() + p.getQteVery());
+            e.perte(date(p.getDaty()), p.getIdcompartiment(), Sexe.depuis(p.getSexe()), p.getQteMort() + p.getQteVery());
         }
 
         for (Object o : lire(new AthFactureFilleLib(), c, " and typevente is not null and etatfacture in ("
@@ -66,8 +69,8 @@ public final class ChargeurElevage {
         return e;
     }
 
-    public static Vente vente(Elevage e, AthFactureFilleLib l) {
-        return e.vente(l.getIdmere(), l.getId(), date(l.getDaty()), l.getTypevente(), l.getSexe(),
+    public static Vente vente(Elevage e, AthFactureFilleLib l) throws SaisieException {
+        return e.vente(l.getIdmere(), l.getId(), date(l.getDaty()), TypeVente.depuis(l.getTypevente()), Sexe.depuis(l.getSexe()),
                        l.getQte(), l.getQte() * l.getPu());
     }
 

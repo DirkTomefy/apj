@@ -658,6 +658,9 @@ def gen_orm(sp, e):
     imports = ["bean.%s" % e.base]
     if e.type == "maitre":
         imports += ["bean.ClassFille", "bean.ClassMAPTable"]
+    if e.type == "maitre" or any(c.min is not None or c.max is not None or
+                                 (c.obligatoire and c.type in ("texte", "date")) for c in e.champs):
+        imports.append("a_tahina.core.erreur.Verif")
     o += ["import %s;" % i for i in sorted(imports)]
     o += ["", "public class %s extends %s {" % (e.nom, e.base), "", "    private String id;"]
     if e.type == "detail":
@@ -683,20 +686,19 @@ def gen_orm(sp, e):
         o += ["", "    @Override",
               "    public ClassMAPTable createObject(String u, Connection c) throws Exception {",
               "        ClassFille[] filles = this.getFille();",
-              "        if (filles == null || filles.length == 0) {",
-              '            throw new Exception("%s : au moins une ligne est obligatoire.");' % ascii_fold(cap(e.singulier)),
-              "        }", "        return super.createObject(u, c);", "    }"]
+              '        Verif.verifier(filles != null && filles.length > 0, "%s : au moins une ligne est obligatoire.");' % ascii_fold(cap(e.singulier)),
+              "        return super.createObject(u, c);", "    }"]
     regles = []
     for c in e.champs:
         lib = jstr(ascii_fold(c.libelle))
         if c.obligatoire and c.type == "texte":
-            regles.append('        if (this.%s == null || this.%s.trim().isEmpty()) {\n            throw new Exception("%s est obligatoire.");\n        }' % (c.nom, c.nom, lib))
+            regles.append('        Verif.obligatoire(this.%s, "%s");' % (c.nom, lib))
         if c.obligatoire and c.type == "date":
-            regles.append('        if (this.%s == null) {\n            throw new Exception("%s est obligatoire.");\n        }' % (c.nom, lib))
+            regles.append('        Verif.obligatoire(this.%s, "%s");' % (c.nom, lib))
         if c.min is not None:
-            regles.append('        if (this.%s < %s) {\n            throw new Exception("%s doit etre superieur ou egal a %s.");\n        }' % (c.nom, c.min, lib, c.min))
+            regles.append('        Verif.verifier(this.%s >= %s, "%s doit etre superieur ou egal a %s.");' % (c.nom, c.min, lib, c.min))
         if c.max is not None:
-            regles.append('        if (this.%s > %s) {\n            throw new Exception("%s doit etre inferieur ou egal a %s.");\n        }' % (c.nom, c.max, lib, c.max))
+            regles.append('        Verif.verifier(this.%s <= %s, "%s doit etre inferieur ou egal a %s.");' % (c.nom, c.max, lib, c.max))
     if regles:
         o += ["", "    @Override", "    public void controler(Connection c) throws Exception {", "        super.controler(c);"] + regles + ["    }"]
     o += ["", getset("String", "id")]
@@ -771,9 +773,9 @@ def gen_fh(sp, e):
                 classes.add(c.ref)
             elif isinstance(c.ref, dict):
                 externes_classes.add(c.ref["classe"])
-    imports = ["a_tahina.calendrier.Calendrier", "a_tahina.core.GeneraticFH",
-               "a_tahina.core.page.AtahinaPageConsulte", "a_tahina.core.page.AtahinaPageInsert",
-               "a_tahina.core.page.AtahinaPageInsertMultiple", "a_tahina.core.page.AtahinaPageRecherche"]
+    imports = ["a_tahina.core.GeneraticFH", "a_tahina.core.page.AtahinaPageConsulte",
+               "a_tahina.core.page.AtahinaPageRecherche",
+               "a_tahina.core.page.AtahinaPageInsertMultiple" if e.type == "maitre" else "a_tahina.core.page.AtahinaPageInsert"]
     imports += ["%s.%s" % (sp.orm_pkg, n) for n in classes]   # les classes externes sont ecrites en entier dans le code
     dossier = "%s/%s/" % (sp.pages, e.slug)
 
@@ -828,27 +830,15 @@ def gen_fh(sp, e):
         cc = [champ_expr(c, "colonne") for c in d.champs if c.dans_liste]
         o += ["    public static String ongletDetail(HttpServletRequest request, HttpSession session, String idMere) throws Exception {",
               '        return onglet(new %sLib(), request, session, PAGE_FICHE, idMere, "inc/%s-detail", "idmere", "Aucune ligne",' % (d.nom, e.slug),
-              "                " + args_champs(cc, 16) + ");", "    }", ""]
-        o += ["    @Override",
-              "    public AtahinaPageInsert getPageInsert(HttpServletRequest request,",
-              "                                           HttpSession session) throws Exception {",
-              '        throw nonSupporte("getPageInsert");', "    }", ""]
+              "                " + args_champs(cc, 16) + ");", "    }"]
     else:
         o += ["    @Override",
               "    public AtahinaPageInsert getPageInsert(HttpServletRequest request,",
               "                                           HttpSession session) throws Exception {",
               '        return new AtahinaPageInsert(new %s(), request, session, "Saisie %s")' % (e.nom, jstr(entites_html(e.singulier))),
               "            .champs(", "                " + args_champs(saisie, 16) + ")",
-              "            .preparer();", "    }", "",
-              "    @Override",
-              "    public AtahinaPageInsertMultiple getPageInsertMultiple(HttpServletRequest request,",
-              "                                                           HttpSession session,",
-              "                                                           int nombreLigne) throws Exception {",
-              '        throw nonSupporte("getPageInsertMultiple");', "    }", ""]
-    o += ["    @Override",
-          "    public Calendrier<?> getCalendrier(HttpServletRequest request,",
-          "                                       HttpSession session) throws Exception {",
-          '        throw nonSupporte("getCalendrier");', "    }", "}"]
+              "            .preparer();", "    }"]
+    o.append("}")
     return "\n".join(o) + "\n"
 
 

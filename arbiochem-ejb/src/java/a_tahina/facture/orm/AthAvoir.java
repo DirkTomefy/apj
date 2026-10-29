@@ -9,6 +9,8 @@ import bean.ClassFille;
 import bean.ClassMAPTable;
 import bean.ClassMere;
 import constante.ConstanteEtat;
+import a_tahina.core.erreur.AtahinaException;
+import a_tahina.core.erreur.SaisieException;
 
 
 public class AthAvoir extends ClassMere {
@@ -43,7 +45,7 @@ public class AthAvoir extends ClassMere {
     public ClassMAPTable createObject(String u, Connection c) throws Exception {
         ClassFille[] filles = this.getFille();
         if (filles == null || filles.length == 0) {
-            throw new Exception("Un avoir doit contenir au moins une ligne.");
+            throw new SaisieException("Un avoir doit contenir au moins une ligne.");
         }
         return super.createObject(u, c);
     }
@@ -60,14 +62,14 @@ public class AthAvoir extends ClassMere {
         super.controler(c);
 
         if (this.idfacture == null || this.idfacture.trim().isEmpty()) {
-            throw new Exception("La facture est obligatoire.");
+            throw new SaisieException("La facture est obligatoire.");
         }
         AthFactureLib facture = (AthFactureLib) new AthFactureLib().getById(this.idfacture, null, c);
         if (facture == null) {
-            throw new Exception("Facture introuvable : " + this.idfacture);
+            throw new AtahinaException("Facture introuvable : " + this.idfacture);
         }
         if (facture.getEtat() != ConstanteEtat.getEtatValider()) {
-            throw new Exception("Un avoir ne peut etre cree que sur une facture visee.");
+            throw new SaisieException("Un avoir ne peut etre cree que sur une facture visee.");
         }
         this.idclient = facture.getIdclient();
 
@@ -78,22 +80,22 @@ public class AthAvoir extends ClassMere {
         for (ClassFille f : filles) {
             AthAvoirFille l = (AthAvoirFille) f;
             if (l.getIdfacturefille() == null || l.getIdfacturefille().trim().isEmpty()) {
-                throw new Exception("La ligne de facture est obligatoire sur chaque ligne d'avoir.");
+                throw new SaisieException("La ligne de facture est obligatoire sur chaque ligne d'avoir.");
             }
             if (l.getQte() <= 0) {
-                throw new Exception("La quantite retournee doit etre superieure a 0.");
+                throw new SaisieException("La quantite retournee doit etre superieure a 0.");
             }
             AthFactureFilleLib ligne = (AthFactureFilleLib)
                     new AthFactureFilleLib().getById(l.getIdfacturefille(), null, c);
             if (ligne == null || !this.idfacture.equals(ligne.getIdmere())) {
-                throw new Exception("La ligne " + l.getIdfacturefille()
+                throw new SaisieException("La ligne " + l.getIdfacturefille()
                         + " n'appartient pas a la facture " + this.idfacture + ".");
             }
             Double deja = cumul.get(ligne.getId());
             double total = (deja == null ? 0 : deja) + l.getQte();
             cumul.put(ligne.getId(), total);
             if (total > ligne.getQtedisponible() + EPS) {
-                throw new Exception("Quantite retournee (" + total + ") superieure a la quantite disponible ("
+                throw new SaisieException("Quantite retournee (" + total + ") superieure a la quantite disponible ("
                         + ligne.getQtedisponible() + ") pour " + ligne.getProduitlib() + ".");
             }
             l.setPu(ligne.getPu());
@@ -107,7 +109,7 @@ public class AthAvoir extends ClassMere {
         super.controlerAnnulationVisa(c);
         AthAvoirLib a = (AthAvoirLib) new AthAvoirLib().getById(this.id, null, c);
         if (a != null && a.getMontantutilise() > EPS) {
-            throw new Exception("Impossible d'annuler le visa : " + a.getMontantutilise()
+            throw new AtahinaException("Impossible d'annuler le visa : " + a.getMontantutilise()
                     + " de cet avoir ont deja ete deduits sur des factures.");
         }
     }

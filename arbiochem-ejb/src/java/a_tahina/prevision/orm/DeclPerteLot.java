@@ -4,6 +4,9 @@ import java.sql.Connection;
 
 import a_tahina.compartiment.orm.Compartiment;
 import bean.ClassMAPTable;
+import a_tahina.core.Sexe;
+import a_tahina.core.erreur.AtahinaException;
+import a_tahina.core.erreur.SaisieException;
 
 public class DeclPerteLot extends ClassMAPTable {
 
@@ -33,15 +36,14 @@ public class DeclPerteLot extends ClassMAPTable {
     @Override
     public void controler(Connection c) throws Exception {
         if (this.idcompartiment == null || this.idcompartiment.isEmpty())
-            throw new Exception("Compartiment obligatoire");
+            throw new SaisieException("Compartiment obligatoire");
 
-        if (this.sexe == null || (!this.sexe.equals("0") && !this.sexe.equals("1")))
-            throw new Exception("SEXE doit etre '0' (Femelle) ou '1' (Male)");
+        Sexe.obligatoire(this.sexe);
 
         if (this.qteMort < 0 || this.qteVery < 0)
-            throw new Exception("Quantites invalides");
+            throw new SaisieException("Quantites invalides");
         if (this.qteMort + this.qteVery <= 0)
-            throw new Exception("Saisir au moins une perte (morts ou perdus)");
+            throw new SaisieException("Saisir au moins une perte (morts ou perdus)");
 
         // La vue de prevision ignore les pertes sans date
         if (this.daty == null)
@@ -49,7 +51,7 @@ public class DeclPerteLot extends ClassMAPTable {
 
         // Le compartiment doit exister
         if (new Compartiment().getById(this.idcompartiment, null, c) == null)
-            throw new Exception("Compartiment introuvable : " + this.idcompartiment);
+            throw new AtahinaException("Compartiment introuvable : " + this.idcompartiment);
     }
 
     // Getters / Setters

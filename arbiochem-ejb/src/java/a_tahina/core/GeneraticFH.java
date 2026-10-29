@@ -15,21 +15,25 @@ import bean.ClassMAPTable;
 
 public abstract class GeneraticFH {
 
-    public abstract AtahinaPageInsert getPageInsert(HttpServletRequest request,
-                                                    HttpSession session) throws Exception;
+    public AtahinaPageInsert getPageInsert(HttpServletRequest request, HttpSession session) throws Exception {
+        throw nonSupporte("getPageInsert");
+    }
 
-    public abstract AtahinaPageInsertMultiple getPageInsertMultiple(HttpServletRequest request,
-                                                                    HttpSession session,
-                                                                    int nombreLigne) throws Exception;
+    public AtahinaPageInsertMultiple getPageInsertMultiple(HttpServletRequest request, HttpSession session, int nombreLigne) throws Exception {
+        throw nonSupporte("getPageInsertMultiple");
+    }
 
-    public abstract AtahinaPageConsulte getPageConsulte(HttpServletRequest request,
-                                                        HttpSession session) throws Exception;
+    public AtahinaPageConsulte getPageConsulte(HttpServletRequest request, HttpSession session) throws Exception {
+        throw nonSupporte("getPageConsulte");
+    }
 
-    public abstract Calendrier<?> getCalendrier(HttpServletRequest request,
-                                                     HttpSession session) throws Exception;
+    public Calendrier<?> getCalendrier(HttpServletRequest request, HttpSession session) throws Exception {
+        throw nonSupporte("getCalendrier");
+    }
 
-    public abstract AtahinaPageRecherche getPageRechercheForList(HttpServletRequest request,
-                                                                 HttpSession session) throws Exception;
+    public AtahinaPageRecherche getPageRechercheForList(HttpServletRequest request, HttpSession session) throws Exception {
+        throw nonSupporte("getPageRechercheForList");
+    }
 
     protected UnsupportedOperationException nonSupporte(String operation) {
         return new UnsupportedOperationException(getClass().getSimpleName() + " ne supporte pas " + operation);
