@@ -4,7 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import a_tahina.core.GeneraticFH;
-import a_tahina.calendrier.child.CalendrierPoussin;
+import a_tahina.prevision.calendrier.CalendrierPoussin;
 
 public class PrevisionPoussinFH extends GeneraticFH {
 

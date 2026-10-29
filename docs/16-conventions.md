@@ -67,7 +67,8 @@ TypeVente.obligatoire(l.getTypevente());                               // OEUF o
 | Besoin | Où |
 |---|---|
 | Nouvel écran CRUD | `spec.json` + `python3 apj_gen.py spec.json` (voir [15](15-generateur.md)), puis coder la logique métier |
-| Nouveau calendrier | `extends Calendrier<T>` : déclarations dans le constructeur (`valeur`, `total`, `indicateur`, `style`) ; données d'une vue (constructeur avec critère) ou calculées (redéfinir `charger(debut, fin)`) |
+| Nouveau calendrier | `extends a_tahina.core.calendrier.Calendrier<T>` (dans le package du module, ex. `a_tahina.prevision.calendrier.CalendrierPoussin`) : déclarations dans le constructeur (`valeur`, `total`, `indicateur`, `style`) ; données d'une vue (constructeur avec critère) ou calculées (redéfinir `charger(debut, fin)`) |
+| Nouvelle simulation jour par jour | `extends a_tahina.core.simulation.Simulation<J>` : `preparer()`, `debut()`, `fin()`, `simulerJour(d)` ; `FileEvenements<T>` pour consommer des événements datés (`jusquA(d)`) ; lecture de la base : `extends Chargeur<S>` (`nouvelleSimulation()`, `remplir(s, c)`, helper typé `lire(new Xxx(), c, where)`) ; exemple : `Elevage` + `ChargeurElevage` |
 | Ordre de sortie du stock | `Elevage.GESTION_OEUF`, `Elevage.GESTION_POUSSIN` (`Gestion.FIFO` / `Gestion.LIFO`) |
 | Paramètres de ponte par défaut | constantes `DEF_*` de `Elevage` ; par souche : table `SOUCHE` ; par semaine : `CONFIG_PREVISION` |
 | Nouvelle option de champ | `AtahinaChampHelper` |

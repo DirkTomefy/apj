@@ -24,8 +24,8 @@
         "code":        { "libelle": "Code", "taille": 30, "obligatoire": true },
         "designation": { "libelle": "Désignation", "taille": 200, "obligatoire": true },
         "categorie":   { "libelle": "Catégorie", "reference": "Categorie" },
-        "pu":          { "libelle": "Prix unitaire", "type": "nombre", "defaut": 0, "min": 0 },
-        "actif":       { "libelle": "Actif (1 = oui, 0 = non)", "type": "entier", "defaut": 1, "min": 0, "max": 1 }
+        "pu":          { "libelle": "Prix unitaire", "type": "double", "defaut": 0, "min": 0 },
+        "actif":       { "libelle": "Actif (1 = oui, 0 = non)", "type": "int", "defaut": 1, "min": 0, "max": 1 }
       }
     },
 
@@ -37,7 +37,7 @@
       "detail": "BonSortieLigne",
       "lignes": 8,
       "champs": {
-        "daty":        { "libelle": "Date", "type": "date", "defaut": "aujourdhui", "obligatoire": true },
+        "daty":        { "libelle": "Date", "type": "Date", "defaut": "aujourdhui", "obligatoire": true },
         "reference":   { "libelle": "Référence", "taille": 100 },
         "magasin":     { "libelle": "Magasin",
                          "reference": { "table": "MAGASIN2", "classe": "magasin.Magasin", "affiche": "val" } },
@@ -54,7 +54,7 @@
       "prefixe": "BSL",
       "champs": {
         "article": { "libelle": "Article", "reference": "Article", "affiche": "designation", "obligatoire": true },
-        "qte":     { "libelle": "Quantité", "type": "nombre", "defaut": 1, "obligatoire": true, "min": 0 }
+        "qte":     { "libelle": "Quantité", "type": "double", "defaut": 1, "obligatoire": true, "min": 0 }
       }
     }
 

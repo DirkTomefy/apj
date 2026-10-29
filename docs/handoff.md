@@ -76,7 +76,7 @@ projet-standard - Copie/
 │   │   ├── core/GeneraticFH.java          Base des FH : ecrans par defaut nonSupporte, helpers liste/consulte/onglet
 │   │   ├── core/page/                     AtahinaPageRecherche|Consulte|Insert|InsertMultiple,
 │   │   │                                  AtahinaChampHelper (DSL champ(...)), AtahinaFormulaire, AtahinaUtil
-│   │   ├── calendrier/Calendrier.java, CalendrierHtml.java, child/CalendrierPoussin.java
+│   │   ├── core/calendrier/Calendrier.java, CalendrierHtml.java ; prevision/calendrier/CalendrierPoussin.java
 │   │   ├── bc|br|ic|lot|compartiment|fournisseur|prevision|facture/  chacun avec orm/ et (sauf lot, fournisseur) fh/
 │   │   └── facture/orm/AthAvoirService.java   Règle du crédit plafonné
 │   ├── user/UserEJBBean.java              Session utilisateur (code de l'application de base)
@@ -260,7 +260,7 @@ return new AtahinaPageInsertMultiple(new AthFacture(), new AthFactureFille(), re
     .preparer();
 ```
 
-**3. Un calendrier = des déclarations** (`calendrier/child/CalendrierPoussin.java`) :
+**3. Un calendrier = des déclarations** (`prevision/calendrier/CalendrierPoussin.java`) :
 ```java
 super(request, new CalendrierPoussinCumulJour(), "daty");
 valeur(CalendrierPoussinCumulJour::getPoussinscumules);

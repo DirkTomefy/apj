@@ -3,7 +3,7 @@ package a_tahina.core;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import a_tahina.calendrier.Calendrier;
+import a_tahina.core.calendrier.Calendrier;
 import a_tahina.core.page.AtahinaChampHelper;
 import a_tahina.core.page.AtahinaPageConsulte;
 import a_tahina.core.page.AtahinaPageInsert;

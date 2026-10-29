@@ -25,7 +25,7 @@ public final class AthVenteService {
     private AthVenteService() {}
 
     public static void estimerPuPoulets(AthFacture f, List<AthFactureFille> lignes, Connection c) throws Exception {
-        Elevage e = ChargeurElevage.charger(c);
+        Elevage e = new ChargeurElevage().charger(c);
         List<Vente> ventes = new ArrayList<Vente>();
         LocalDate date = f.getDaty().toLocalDate();
         for (int i = 0; i < lignes.size(); i++) {
@@ -50,7 +50,7 @@ public final class AthVenteService {
                 AtahinaUtil.egal("idmere", idfacture) + " and typevente is not null");
         if (lignes == null || lignes.length == 0) return;
 
-        Elevage e = ChargeurElevage.charger(c);
+        Elevage e = new ChargeurElevage().charger(c);
         e.simuler();
         Set<String> dejaManquantes = new HashSet<String>();
         for (Vente v : e.nonServies()) dejaManquantes.add(v.getIdfacture() + "|" + v.getId());

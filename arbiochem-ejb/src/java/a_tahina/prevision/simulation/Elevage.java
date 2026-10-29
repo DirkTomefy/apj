@@ -8,12 +8,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import a_tahina.core.Sexe;
 import a_tahina.core.TypeVente;
+import a_tahina.core.simulation.FileEvenements;
+import a_tahina.core.simulation.Simulation;
 
-public class Elevage {
+public class Elevage extends Simulation<JourPrevision> {
 
     public static final int    HORIZON_JOURS          = 2000;
     public static final int    DERNIERE_GEN_PONDEUSE  = 2;
@@ -34,6 +35,9 @@ public class Elevage {
     private final List<Perte> pertes = new ArrayList<Perte>();
     private final List<Vente> ventes = new ArrayList<Vente>();
 
+    private FileEvenements<Cohorte> arrivees;
+    private FileEvenements<Perte> pertesAVenir;
+    private FileEvenements<Vente> ventesAVenir;
     private List<Cohorte> cohortes;
     private List<Couvee> couvees;
 
@@ -75,32 +79,30 @@ public class Elevage {
         return r;
     }
 
-    public Map<LocalDate, JourPrevision> simuler() {
-        Map<LocalDate, JourPrevision> jours = new TreeMap<LocalDate, JourPrevision>();
+    @Override
+    protected void preparer() {
         for (Vente v : ventes) v.reinitialiser();
-        if (lots.isEmpty()) return jours;
-
-        FileEvenements<Cohorte> arrivees = new FileEvenements<Cohorte>(lots, c -> c.naissance);
-        FileEvenements<Perte> pertesAVenir = new FileEvenements<Perte>(pertes, p -> p.date);
-        FileEvenements<Vente> ventesAVenir = new FileEvenements<Vente>(ventes, v -> v.date, Vente.ORDRE_DU_JOUR);
+        arrivees = new FileEvenements<Cohorte>(lots, c -> c.naissance);
+        pertesAVenir = new FileEvenements<Perte>(pertes, p -> p.date);
+        ventesAVenir = new FileEvenements<Vente>(ventes, v -> v.date, Vente.ORDRE_DU_JOUR);
         cohortes = new ArrayList<Cohorte>();
         couvees = new ArrayList<Couvee>();
-
-        LocalDate fin = dateFin(arrivees, ventesAVenir);
-        for (LocalDate d = arrivees.premiereDate(); !d.isAfter(fin); d = d.plusDays(1)) {
-            jours.put(d, simulerJour(d, arrivees, pertesAVenir, ventesAVenir));
-        }
-        return jours;
     }
 
-    private static LocalDate dateFin(FileEvenements<Cohorte> arrivees, FileEvenements<Vente> ventesAVenir) {
+    @Override
+    protected LocalDate debut() {
+        return arrivees.premiereDate();
+    }
+
+    @Override
+    protected LocalDate fin() {
         LocalDate fin = arrivees.derniereDate().plusDays(HORIZON_JOURS);
         LocalDate derniereVente = ventesAVenir.derniereDate();
         return derniereVente != null && derniereVente.isAfter(fin) ? derniereVente : fin;
     }
 
-    private JourPrevision simulerJour(LocalDate d, FileEvenements<Cohorte> arrivees,
-                                      FileEvenements<Perte> pertesAVenir, FileEvenements<Vente> ventesAVenir) {
+    @Override
+    protected JourPrevision simulerJour(LocalDate d) {
         JourPrevision j = new JourPrevision(d);
         for (Cohorte lot : arrivees.jusquA(d)) naitre(lot.copie(), j);
         eclore(d, j);
