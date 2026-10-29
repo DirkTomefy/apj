@@ -19,12 +19,12 @@ public class CalendrierPoussin extends Calendrier<JourPrevision> {
 
         valeur(JourPrevision::getVivants);
         total("NAISSANCES", JourPrevision::getNaissances);
-        indicateur("OEUFS PONDUS", JourPrevision::getOeufsPondus);
-        indicateur("OEUFS VENDUS", JourPrevision::getOeufsVendus);
-        indicateur("POULETS VENDUS", JourPrevision::getPouletsVendus);
-        indicateur("PERTES", JourPrevision::getPertes);
-        indicateur("CA", JourPrevision::getCa);
-        indicateurSigne("BENEFICE", JourPrevision::getBenefice);
+        // indicateur("OEUFS PONDUS", JourPrevision::getOeufsPondus);
+        // indicateur("OEUFS VENDUS", JourPrevision::getOeufsVendus);
+        // indicateur("POULETS VENDUS", JourPrevision::getPouletsVendus);
+        // indicateur("PERTES", JourPrevision::getPertes);
+        // indicateur("CA", JourPrevision::getCa);
+        // indicateurSigne("BENEFICE", JourPrevision::getBenefice);
 
         style("cal-perte",     "Perte déclarée",   j -> j.getPertes() > 0);
         style("cal-vente",     "Vente",            j -> j.getOeufsVendus() > 0 || j.getPouletsVendus() > 0);
