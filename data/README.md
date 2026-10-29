@@ -3,7 +3,7 @@
 | Dossier | A utiliser ? |
 |---|---|
 | **`final/`** | **oui** : installation complete en un fichier (`final/final.sql`), desinstallation, exemple |
-| `v1`, `v2`, `v2-fix`, `v3` | historique, dans l'ordre ci-dessous ; rejouables et equivalents a `final.sql` |
+| `v1`, `v2`, `v2-fix`, `v3`, `v4` | historique, dans l'ordre ci-dessous ; rejouables et equivalents a `final.sql` |
 | `deprecated/` | anciens essais, ne pas lancer |
 | `drop.sql` | ancien script de suppression (obsolete) : utiliser `final/drop.sql` |
 
@@ -17,6 +17,8 @@ v2/            init, config, rename_date_eclosion, fix_view_eclosion, fix_all_co
 v2-fix/        01-parametres, 02-vues-calendrier, 03-nettoyage-optionnel, 05-index-et-cle-etrangere, 06-menu-prevision
                (04-verification : controle seulement)
 v3/            facture_avoir, menu_facture_avoir, menu_avoir_saisie
+v4/            01-vente-oeuf-poulet, 02-supprimer-vues-calendrier
+               (le calendrier est calcule en Java : a_tahina.prevision.simulation)
 ```
 
 Chaque fichier se lance avec `./import_sql.sh data/<dossier>/<fichier>.sql`.
